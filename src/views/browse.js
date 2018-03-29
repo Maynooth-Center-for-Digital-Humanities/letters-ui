@@ -7,8 +7,13 @@ import BreadCrumbs from '../components/breadcrumbs';
 import {DropdownButton, MenuItem} from 'react-bootstrap';
 import {APIPath} from '../common/constants.js';
 import TopicsBlock from '../components/topics-block.js';
+import SourcesBlock from '../components/sources-block.js';
+import AuthorsBlock from '../components/authors-block.js';
+import GendersBlock from '../components/genders-block.js';
+import LanguagesBlock from '../components/languages-block.js';
+import DatecreatedBlock from '../components/date_created-block.js';
 import Pagination from '../helpers/pagination.js';
-import {PreloaderCards,ToggleClass,ReplaceClass,Emptyitemscart} from '../helpers/helpers.js';
+import {PreloaderCards,ToggleClass,ReplaceClass,Emptyitemscard} from '../helpers/helpers.js';
 
 export class BrowseView extends Component {
   constructor() {
@@ -18,6 +23,7 @@ export class BrowseView extends Component {
       browseItems: [],
       page: 1,
       current_page: 1,
+      temp_page: 1,
       path: APIPath+"index",
       topics_path: APIPath+"topicsbyid/",
       total: 0,
@@ -26,7 +32,13 @@ export class BrowseView extends Component {
       paginationHTML: [],
       length: 0,
       firstLoad:1,
-      selectedTopics: []
+      selectedTopics: [],
+      keywords_ids: [],
+      sources: [],
+      authors: [],
+      genders: [],
+      languages: [],
+      date_sent: [],
     };
 
     this.updatePage = this.updatePage.bind(this);
@@ -36,16 +48,23 @@ export class BrowseView extends Component {
     this.updatePageNumber = this.updatePageNumber.bind(this);
     this.pageNumberSubmit = this.pageNumberSubmit.bind(this);
     this.topicFilter = this.topicFilter.bind(this);
-    this.topicLoad = this.topicLoad.bind(this);
+    this.filterContent = this.filterContent.bind(this);
     this.browserItems = this.browserItems.bind(this);
     this.selectedTopicsToggleChildren = this.selectedTopicsToggleChildren.bind(this);
+    this.sourcesFilter = this.sourcesFilter.bind(this);
+    this.authorsFilter = this.authorsFilter.bind(this);
+    this.gendersFilter = this.gendersFilter.bind(this);
+    this.languagesFilter = this.languagesFilter.bind(this);
+    this.datecreatedFilter = this.datecreatedFilter.bind(this);
+
   }
 
   updatePage(e) {
     if (e>0 && e!==this.state.current_page) {
       this.setState({
         loading:true,
-        current_page: e
+        current_page: e,
+        temp_page: e,
       });
     }
 	}
@@ -90,7 +109,11 @@ export class BrowseView extends Component {
     let parent = ReactDOM.findDOMNode(element).parentNode.parentNode;
     let className = element.className;
     this.selectedTopicsToggleChildren(parent,className);
-    let selectedTopics = this.state.selectedTopics;
+    let prevTopics = this.state.selectedTopics;
+    let selectedTopics = [];
+    for (let i=0;i<prevTopics.length;i++) {
+      selectedTopics.push(prevTopics[i]);
+    }
     let currentId = element.getAttribute("data-id");
     if (className==="fa fa-circle-o") {
       if (selectedTopics.indexOf(currentId)===-1) {
@@ -103,9 +126,148 @@ export class BrowseView extends Component {
          selectedTopics.splice(index, 1);
       }
     }
-    this.setState({selectedTopics: selectedTopics});
+    this.setState({
+      loading:true,
+      selectedTopics: selectedTopics,
+      keywords_ids:selectedTopics
+    });
     ToggleClass(element, "fa-circle-o", "fa-check-circle-o");
-    this.topicLoad(selectedTopics);
+  }
+
+  sourcesFilter(e) {
+    let element = e.target;
+    let className = element.className;
+    let prevSources = this.state.sources;
+    let selectedSources = [];
+    for (let i=0;i<prevSources.length;i++) {
+      selectedSources.push(prevSources[i]);
+    }
+    let currentSource = element.children[0].innerText;
+    if (className==="fa fa-circle-o") {
+      if (selectedSources.indexOf(currentSource)===-1) {
+        selectedSources.push(currentSource);
+      }
+    }
+    else {
+      if (selectedSources.indexOf(currentSource)>-1) {
+        let index = selectedSources.indexOf(currentSource);
+         selectedSources.splice(index, 1);
+      }
+    }
+    ToggleClass(element, "fa-circle-o", "fa-check-circle-o");
+    this.setState({
+      loading:true,
+      sources: selectedSources
+    });
+  }
+
+  authorsFilter(e) {
+    let element = e.target;
+    let className = element.className;
+    let prevAuthors = this.state.authors;
+    let selectedAuthors = [];
+    for (let i=0;i<prevAuthors.length;i++) {
+      selectedAuthors.push(prevAuthors[i]);
+    }
+    let currentAuthor = element.children[0].innerText;
+    if (className==="fa fa-circle-o") {
+      if (selectedAuthors.indexOf(currentAuthor)===-1) {
+        selectedAuthors.push(currentAuthor);
+      }
+    }
+    else {
+      if (selectedAuthors.indexOf(currentAuthor)>-1) {
+        let index = selectedAuthors.indexOf(currentAuthor);
+         selectedAuthors.splice(index, 1);
+      }
+    }
+    ToggleClass(element, "fa-circle-o", "fa-check-circle-o");
+    this.setState({
+      loading:true,
+      authors: selectedAuthors
+    });
+
+  }
+
+  gendersFilter(e) {
+    let element = e.target;
+    let className = element.className;
+    let prevGenders = this.state.genders;
+    let selectedGenders = [];
+    for (let i=0;i<prevGenders.length;i++) {
+      selectedGenders.push(prevGenders[i]);
+    }
+    let currentGender = element.children[0].innerText;
+    if (className==="fa fa-circle-o") {
+      if (selectedGenders.indexOf(currentGender)===-1) {
+        selectedGenders.push(currentGender);
+      }
+    }
+    else {
+      if (selectedGenders.indexOf(currentGender)>-1) {
+        let index = selectedGenders.indexOf(currentGender);
+         selectedGenders.splice(index, 1);
+      }
+    }
+    ToggleClass(element, "fa-circle-o", "fa-check-circle-o");
+    this.setState({
+      loading:true,
+      genders: selectedGenders
+    });
+  }
+
+  languagesFilter(e) {
+    let element = e.target;
+    let className = element.className;
+    let prevLanguages = this.state.languages;
+    let selectedLanguages = [];
+    for (let i=0;i<prevLanguages.length;i++) {
+      selectedLanguages.push(prevLanguages[i]);
+    }
+    let currentLanguage = element.children[0].innerText;
+    if (className==="fa fa-circle-o") {
+      if (selectedLanguages.indexOf(currentLanguage)===-1) {
+        selectedLanguages.push(currentLanguage);
+      }
+    }
+    else {
+      if (selectedLanguages.indexOf(currentLanguage)>-1) {
+        let index = selectedLanguages.indexOf(currentLanguage);
+         selectedLanguages.splice(index, 1);
+      }
+    }
+    ToggleClass(element, "fa-circle-o", "fa-check-circle-o");
+    this.setState({
+      loading:true,
+      languages: selectedLanguages
+    });
+  }
+
+  datecreatedFilter(e) {
+    let element = e.target;
+    let className = element.className;
+    let prevDate_sent = this.state.languages;
+    let selectedDate_sent = [];
+    for (let i=0;i<prevDate_sent.length;i++) {
+      selectedDate_sent.push(prevDate_sent[i]);
+    }
+    let currentDate_sent = element.children[0].innerText;
+    if (className==="fa fa-circle-o") {
+      if (selectedDate_sent.indexOf(currentDate_sent)===-1) {
+        selectedDate_sent.push(currentDate_sent);
+      }
+    }
+    else {
+      if (selectedDate_sent.indexOf(currentDate_sent)>-1) {
+        let index = selectedDate_sent.indexOf(currentDate_sent);
+         selectedDate_sent.splice(index, 1);
+      }
+    }
+    ToggleClass(element, "fa-circle-o", "fa-check-circle-o");
+    this.setState({
+      loading:true,
+      date_sent: selectedDate_sent
+    });
   }
 
   selectedTopicsToggleChildren(parent, className) {
@@ -148,40 +310,42 @@ export class BrowseView extends Component {
     this.setState({selectedTopics: selectedTopics});
   }
 
-  topicLoad(ids) {
-    if (ids.length===0) {
-      this.showPage();
-      return false;
-    }
+  filterContent() {
     let browseContext = this;
-    let path = APIPath+"topicsbyid/"+ids;
+    let path = APIPath+"indexfiltered/";
     axios.get(path, {
-        params: {
-          page: this.state.current_page,
-          sort: this.state.sort,
-          paginate: this.state.paginate
-        }
-      })
-      .then(function (response) {
-        let responseData = response.data.data;
-        let itemsData = responseData.data;
-        let browseItems = [];
-        if (typeof itemsData!=="undefined") {
-          browseItems = browseContext.browserItems(itemsData);
-        }
-        else browseItems = <Emptyitemscart />;
-        // update state
-        browseContext.setState({
-          loading:false,
-          browseItems: browseItems,
-          current_page: responseData.current_page,
-          last_page: responseData.last_page,
-          total: responseData.total,
-          firstLoad:0
-        });
-      })
-      .catch(function (error) {
-        console.log(error);
+      params: {
+        sort: this.state.sort,
+        page: this.state.current_page,
+        paginate: this.state.paginate,
+        keywords: this.state.keywords_ids,
+        sources: this.state.sources,
+        authors: this.state.authors,
+        genders: this.state.genders,
+        languages: this.state.languages,
+        date_sent: this.state.date_sent,
+      }
+    })
+    .then(function (response) {
+      let responseData = response.data.data;
+      let itemsData = responseData.data;
+      let browseItems = [];
+      if (typeof itemsData!=="undefined" && itemsData.length>0) {
+        browseItems = browseContext.browserItems(itemsData);
+      }
+      else browseItems = <Emptyitemscard />;
+      // update state
+      browseContext.setState({
+        loading:false,
+        browseItems: browseItems,
+        current_page: responseData.current_page,
+        last_page: responseData.last_page,
+        total: responseData.total,
+        firstLoad:0
+      });
+    })
+    .catch(function (error) {
+      console.log(error);
     });
   }
 
@@ -244,18 +408,26 @@ export class BrowseView extends Component {
   }
 
   componentDidMount() {
-    this.showPage();
+    this.filterContent();
   }
 
   componentDidUpdate(prevProps, prevState) {
     if (
       prevState.loading!==this.state.loading &&
-      (prevState.current_page!==this.state.current_page ||
+      (
+        prevState.current_page!==this.state.current_page ||
         prevState.paginate!==this.state.paginate ||
-        prevState.sort!==this.state.sort
+        prevState.sort!==this.state.sort ||
+        prevState.keywords_ids!==this.state.keywords_ids ||
+        prevState.sources!==this.state.sources ||
+        prevState.authors!==this.state.authors ||
+        prevState.genders!==this.state.genders ||
+        prevState.languages!==this.state.languages ||
+        prevState.date_sent!==this.state.date_sent
       )
-    ) {
-      this.showPage();
+    )
+    {
+      this.filterContent();
     }
   }
 
@@ -344,7 +516,12 @@ export class BrowseView extends Component {
         </div>
         <div className="row">
           <div className="col-xs-12 col-sm-3">
-            <TopicsBlock returnfunction={this.topicFilter}/>
+            <TopicsBlock returnfunction={this.topicFilter} />
+            <SourcesBlock returnfunction={this.sourcesFilter} />
+            <AuthorsBlock returnfunction={this.authorsFilter} />
+            <GendersBlock returnfunction={this.gendersFilter} />
+            <LanguagesBlock returnfunction={this.languagesFilter} />
+            <DatecreatedBlock returnfunction={this.datecreatedFilter} />
           </div>
           <div className="col-xs-12 col-sm-9">
 

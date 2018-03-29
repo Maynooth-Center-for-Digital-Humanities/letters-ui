@@ -20,29 +20,38 @@ export default class HomeAbout extends Component {
   }
 
   loadAbout() {
-    let context = this;
-    axios.get(WPRestPath+"pages", {
-        params: {
-          "slug": "about-the-project"
-        }
-      })
-  	  .then(function (response) {
-        let newData = response.data[0];
-        let newTitle = newData.title.rendered;
-        let newContent = context.stripHTML(newData.content.rendered);
-        newContent = newContent.substring(0,500)+"...";
-        let about = {
-          title: newTitle,
-          content: newContent
-        }
-        context.setState({
-          about:about,
-          loading: false
-        });
-      })
-      .catch(function (error) {
-  	    console.log(error);
-  	});
+    if (sessionStorage.getItem("home_about")!==null && sessionStorage.getItem("home_about").length>0) {
+      let about = JSON.parse(sessionStorage.getItem("home_about"));
+      this.setState({
+        about:about,
+        loading: false
+      });
+    }
+    else {
+      let context = this;
+      axios.get(WPRestPath+"pages", {
+          params: {
+            "slug": "about-the-project"
+          }
+        })
+    	  .then(function (response) {
+          let newData = response.data[0];
+          let newTitle = newData.title.rendered;
+          let newContent = context.stripHTML(newData.content.rendered);
+          newContent = newContent.substring(0,500)+"...";
+          let about = {
+            title: newTitle,
+            content: newContent
+          }
+          context.setState({
+            about:about,
+            loading: false
+          });
+        })
+        .catch(function (error) {
+    	    console.log(error);
+    	});
+    }
   }
 
   componentDidMount() {

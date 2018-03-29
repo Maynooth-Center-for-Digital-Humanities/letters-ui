@@ -11,6 +11,9 @@
 h1, h2, h3 {
   margin: 10px 0;
 }
+h5 {
+  font-size: 16px;
+}
 .page-header {
   padding: 0 !important;
   margin: 0 !important;
@@ -580,14 +583,15 @@ a {
   background-color: #5caa62;
   color: #fff;
 }
-.topics-list {
+.topics-list, .sources-list {
   padding: 0;
-  margin: 0;
+  margin: 0 0 50px 0;
   list-style-type: none;
   position: relative;
   display: block;
   max-width: 100%;
-  overflow-x: auto;
+  max-height: 400px;
+  overflow-y: auto;
 }
 .topics-list-children {
   list-style-type: none;
@@ -624,7 +628,7 @@ a {
     max-height: 100%;
   }
 }
-.topics-list li {
+.topics-list li, .sources-list li {
   padding: 6px 0 6px 1px;
   display: block;
   transition: all 0.3s;
@@ -633,15 +637,17 @@ a {
 .topics-list .toggle-children.open {
   transform: rotate(-90deg);
 }
-.topics-list .topic-label {
+.topics-list .topic-label, .sources-list .source-label {
   display: inline-block;
   margin-left: 5px;
 }
 .topics-list .topic-label.has-children {
   cursor: pointer;
 }
-.topics-list li .select-topic {
+.topics-list li .select-topic, .sources-list li .select-source {
   font-size: 16px;
+}
+.sources-list li .source-label {
 }
 .list-items-container {
   min-height: 500px;

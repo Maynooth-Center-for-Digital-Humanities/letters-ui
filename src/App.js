@@ -5,7 +5,8 @@ import './assets/font-awesome/css/font-awesome.min.css';
 import './assets/open-sans/css/open-sans.css';
 import './App.css';
 import {basename} from './common/constants.js';
-
+import {Helmet} from "react-helmet";
+import {preloadContent} from './helpers/preload-content.js';
 // components
 import PageHeader from './common/header.js';
 import PageFooter from './common/footer.js';
@@ -24,11 +25,15 @@ import {WPContentView} from './views/wp-content.js';
 import {BlankView} from './views/blank.js';
 
 class App extends Component {
+  componentDidMount() {
+    preloadContent();
+  }
 
   render() {
     return (
       <Router basename={basename}>
         <div className="App">
+          <Helmet htmlAttributes={{ lang : "en" }}/>
           <PageHeader></PageHeader>
           <Navbar></Navbar>
           <div className="wrapper main-body">

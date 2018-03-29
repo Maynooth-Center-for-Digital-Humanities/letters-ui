@@ -32,24 +32,40 @@ export default class TopicsBlock extends React.Component {
   }
 
   loadTopics() {
-    let context = this;
-    axios.get(APIPath+"topics")
-  	  .then(function (response) {
-        let data = response.data.data;
-        let topics = [];
-        for (let i=0; i<data.length; i++) {
-          let item = data[i];
-          let topic = context.topicItem(item, i);
-          topics.push(topic);
-        }
-        context.setState({
-          loading: false,
-          topics: topics
-        });
-      })
-      .catch(function (error) {
-  	    console.log(error);
-  	});
+    if (sessionStorage.getItem("topics_list")!==null && sessionStorage.getItem("topics_list").length>0) {
+      let data = JSON.parse(sessionStorage.getItem("topics_list"));
+      let topics = [];
+      for (let i=0; i<data.length; i++) {
+        let item = data[i];
+        let topic = this.topicItem(item, i);
+        topics.push(topic);
+      }
+      this.setState({
+        loading: false,
+        topics: topics
+      });
+    }
+    else {
+      let context = this;
+      axios.get(APIPath+"topics")
+    	  .then(function (response) {
+          let data = response.data.data;
+          console.log(typeof data);
+          let topics = [];
+          for (let i=0; i<data.length; i++) {
+            let item = data[i];
+            let topic = context.topicItem(item, i);
+            topics.push(topic);
+          }
+          context.setState({
+            loading: false,
+            topics: topics
+          });
+        })
+        .catch(function (error) {
+    	    console.log(error);
+    	});
+    }
   }
 
   topicItem(item, i) {
@@ -72,7 +88,7 @@ export default class TopicsBlock extends React.Component {
         className={"topic-label"+hasChildrenClass}
         data-toggle="closed"
         onClick={this.toggleElementChildren}
-          >{item.name}</span>
+          >{item.name} ({item.count})</span>
       {toggleChildren}
       {childrenHTML}
     </li>;
@@ -110,7 +126,7 @@ export default class TopicsBlock extends React.Component {
     }
     return (
       <div className="topics-container">
-        <h4>Keywords</h4>
+        <h5>Keywords</h5>
         {content}
       </div>
     );

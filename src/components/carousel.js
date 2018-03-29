@@ -32,47 +32,85 @@ class ControlledCarousel extends React.Component {
   }
 
   getImages() {
-    let context = this;
-    axios.get(WPRestPath+"pages/6")
-  	  .then(function (response) {
-        let newContent = response.data.content.rendered;
-        let $ = cheerio.load(newContent);
-        let images = [];
-        $('#slider_2 > li').each(function(index,element) {
-          let imagePath = $(this).attr("data-thumb");
-          let imageTitle = $(this).attr("data-title");
-          let imageDescription = $(this).attr("data-description");
-          let carouselItemStyle = {
-            backgroundImage: 'url('+imagePath+')',
-            backgroundSize: 'cover',
-          }
-          let carouselTitle = "";
-          if (imageTitle !=="") {
-            carouselTitle = <h3>{carouselTitle}</h3>;
-          }
-          let carouseDescription = "";
-          if (imageDescription!=="") {
-            carouseDescription = <p>{imageDescription}</p>;
-          }
-          let carouselItem = <Carousel.Item key={index}>
-            <div className="carousel-img" style={carouselItemStyle}></div>
-            <img width={1170} height={585} alt="" src={defaultImg} />
-            <Carousel.Caption>
-              {carouselTitle}
-              {carouseDescription}
-            </Carousel.Caption>
-          </Carousel.Item>
-          images.push(carouselItem);
-        });
-        context.setState({
-          images: images,
-          loading: false
-        })
+    if (sessionStorage.getItem("home_carousel")!==null && sessionStorage.getItem("home_carousel").length>0) {
+      let items = JSON.parse(sessionStorage.getItem("home_carousel"));
+      let images = [];
+      for (let i=0; i<items.length; i++) {
+        let item = items[i];
+        let index = item.index;
+        let imagePath = item.imagePath;
+        let imageTitle = item.imageTitle;
+        let imageDescription = item.imageDescription;
+        let carouselItemStyle = {
+          backgroundImage: 'url('+imagePath+')',
+          backgroundSize: 'cover',
+        }
+        let carouselTitle = "";
+        if (imageTitle !=="") {
+          carouselTitle = <h3>{carouselTitle}</h3>;
+        }
+        let carouseDescription = "";
+        if (imageDescription!=="") {
+          carouseDescription = <p>{imageDescription}</p>;
+        }
+        let carouselItem = <Carousel.Item key={index}>
+          <div className="carousel-img" style={carouselItemStyle}></div>
+          <img width={1170} height={585} alt="" src={defaultImg} />
+          <Carousel.Caption>
+            {carouselTitle}
+            {carouseDescription}
+          </Carousel.Caption>
+        </Carousel.Item>
+        images.push(carouselItem);
+      }
+      this.setState({
+        images: images,
+        loading: false
+      });
+    }
+    else {
+      let context = this;
+      axios.get(WPRestPath+"pages/6")
+    	  .then(function (response) {
+          let newContent = response.data.content.rendered;
+          let $ = cheerio.load(newContent);
+          let images = [];
+          $('#slider_2 > li').each(function(index,element) {
+            let imagePath = $(this).attr("data-thumb");
+            let imageTitle = $(this).attr("data-title");
+            let imageDescription = $(this).attr("data-description");
+            let carouselItemStyle = {
+              backgroundImage: 'url('+imagePath+')',
+              backgroundSize: 'cover',
+            }
+            let carouselTitle = "";
+            if (imageTitle !=="") {
+              carouselTitle = <h3>{carouselTitle}</h3>;
+            }
+            let carouseDescription = "";
+            if (imageDescription!=="") {
+              carouseDescription = <p>{imageDescription}</p>;
+            }
+            let carouselItem = <Carousel.Item key={index}>
+              <div className="carousel-img" style={carouselItemStyle}></div>
+              <img width={1170} height={585} alt="" src={defaultImg} />
+              <Carousel.Caption>
+                {carouselTitle}
+                {carouseDescription}
+              </Carousel.Caption>
+            </Carousel.Item>
+            images.push(carouselItem);
+          });
+          context.setState({
+            images: images,
+            loading: false
+          })
 
-      })
-      .catch(function (error) {
-  	    console.log(error);
-  	});
+        })
+        .catch(function (error) {
+    	    console.log(error);
+    	});
+    }
   }
 
   componentDidMount() {

@@ -65,7 +65,7 @@ export function PreloaderCards(num) {
   return cards;
 }
 
-export function Emptyitemscart() {
+export function Emptyitemscard() {
   return <li key={0}>
         <p>&nbsp;</p>
         <h4 className="text-center">There are no letters matching these criteria</h4>
