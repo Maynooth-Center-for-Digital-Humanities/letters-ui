@@ -113,7 +113,7 @@ export class ItemView extends Component {
             onClick={itemContext.showPage.bind(itemContext,p)}>
             <img
               data-id={page.page_id}
-              src={'http://localhost/diyhistory/archive/square_thumbnails/'+page.archive_filename}
+              src={archivePath+'square_thumbnails/'+page.archive_filename}
               alt=''
               className='img-responsive page-thumbnail' />
               <label className="item-count">{pageCount}</label>
@@ -126,7 +126,7 @@ export class ItemView extends Component {
           onClick={itemContext.showBigImage.bind(itemContext,p)}
           key={'image-'+p}
           data-id={page.page_id}
-          src={'http://localhost/diyhistory/archive/fullsize/'+page.archive_filename}
+          src={archivePath+'fullsize/'+page.archive_filename}
           alt=''
           className='letter-details-big-img img-thumbnail img-responsive'
           onLoad={itemContext.handleImageLoaded.bind(itemContext, p)}
@@ -134,7 +134,7 @@ export class ItemView extends Component {
           />;
         images.push(image);
 
-        let imagePath = 'http://localhost/diyhistory/archive/fullsize/'+page.archive_filename;
+        let imagePath = archivePath+'fullsize/'+page.archive_filename;
         imagePaths.push(imagePath);
 
         let transcription;
