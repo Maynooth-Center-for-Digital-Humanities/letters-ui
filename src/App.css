@@ -583,7 +583,7 @@ a {
   background-color: #5caa62;
   color: #fff;
 }
-.topics-list, .sources-list {
+.topics-list, .sources-list, .authors-list, .genders-list, .languages-list, .date_sent-list {
   padding: 0;
   margin: 0 0 50px 0;
   list-style-type: none;
@@ -628,26 +628,52 @@ a {
     max-height: 100%;
   }
 }
-.topics-list li, .sources-list li {
+.topics-list li,
+.sources-list li,
+.authors-list li,
+.genders-list li,
+.languages-list li,
+.date_sent-list li
+{
   padding: 6px 0 6px 1px;
   display: block;
   transition: all 0.3s;
   white-space: nowrap;
 }
+
+.topics-list li.disabled,
+.sources-list li.disabled,
+.authors-list li.disabled,
+.genders-list li.disabled,
+.languages-list li.disabled,
+.date_sent-list li.disabled
+{
+  display: none !important;
+}
 .topics-list .toggle-children.open {
   transform: rotate(-90deg);
 }
-.topics-list .topic-label, .sources-list .source-label {
+.topics-list .topic-label,
+.sources-list .source-label,
+.authors-list .source-label,
+.genders-list .source-label,
+.languages-list .source-label,
+.date_sent-list .source-label
+{
   display: inline-block;
   margin-left: 5px;
 }
 .topics-list .topic-label.has-children {
   cursor: pointer;
 }
-.topics-list li .select-topic, .sources-list li .select-source {
+.topics-list li .select-topic,
+.sources-list li .select-source,
+.authors-list li .select-source,
+.genders-list li .select-source,
+.languages-list li .select-source,
+.date_sent-list li .select-source
+ {
   font-size: 16px;
-}
-.sources-list li .source-label {
 }
 .list-items-container {
   min-height: 500px;

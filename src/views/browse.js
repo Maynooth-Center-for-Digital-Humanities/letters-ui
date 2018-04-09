@@ -13,7 +13,7 @@ import GendersBlock from '../components/genders-block.js';
 import LanguagesBlock from '../components/languages-block.js';
 import DatecreatedBlock from '../components/date_created-block.js';
 import Pagination from '../helpers/pagination.js';
-import {PreloaderCards,ToggleClass,ReplaceClass,Emptyitemscard} from '../helpers/helpers.js';
+import {PreloaderCards,ToggleClass,ReplaceClass,Emptyitemscard,CompareFilterTopics,CompareFilterGeneral} from '../helpers/helpers.js';
 
 export class BrowseView extends Component {
   constructor() {
@@ -349,6 +349,54 @@ export class BrowseView extends Component {
     });
   }
 
+  updateFilters() {
+    //let browseContext = this;
+    let path = APIPath+"indexfilteredfilters/";
+    axios.get(path, {
+      params: {
+        sort: this.state.sort,
+        page: this.state.current_page,
+        paginate: this.state.paginate,
+        keywords: this.state.keywords_ids,
+        sources: this.state.sources,
+        authors: this.state.authors,
+        genders: this.state.genders,
+        languages: this.state.languages,
+        date_sent: this.state.date_sent,
+      }
+    })
+    .then(function (response) {
+      let responseData = response.data.data;
+      console.log(responseData);
+      // topics
+      let topics = responseData.keywords;
+      CompareFilterTopics(topics);
+
+      // sources
+      let sources = responseData.sources;
+      CompareFilterGeneral("sources-list",sources);
+
+      // sources
+      let authors = responseData.authors;
+      CompareFilterGeneral("authors-list",authors);
+
+      // genders
+      let genders = responseData.genders;
+      CompareFilterGeneral("genders-list",genders);
+
+      // languages
+      let languages = responseData.languages;
+      CompareFilterGeneral("languages-list",languages);
+
+      // dates_sent
+      let dates_sent = responseData.dates_sent;
+      CompareFilterGeneral("date_sent-list",dates_sent);
+    })
+    .catch(function (error) {
+      console.log(error);
+    });
+  }
+
   showPage() {
     let browseContext = this;
     let path = this.state.path;
@@ -428,6 +476,7 @@ export class BrowseView extends Component {
     )
     {
       this.filterContent();
+      this.updateFilters();
     }
   }
 

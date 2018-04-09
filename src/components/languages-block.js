@@ -16,61 +16,45 @@ export default class LanguageBlock extends React.Component {
   loadItems() {
     if (sessionStorage.getItem("languages_list")!==null && sessionStorage.getItem("languages_list").length>0) {
       let data = JSON.parse(sessionStorage.getItem("languages_list"));
-      let items = [];
-      for (let i=0; i<data.length; i++) {
-        let dataItem = data[i];
-        let languageLabel = dataItem.language;
-        if (dataItem.language==="") {
-          languageLabel = "Unknown";
-        }
-        let item = <li key={i}>
-          <span className="select-source">
-            <i className="fa fa-circle-o" onClick={this.props.returnfunction.bind(this)}>
-              <span className="hidden">{dataItem.language}</span>
-            </i>
-          </span>
-          <span className="source-label">{languageLabel} ({dataItem.count})</span>
-          </li>;
-        items.push(item);
-
-      }
-      this.setState({
-        loading: false,
-        items: items
-      });
+      this.setItems(data);
     }
     else {
       let context = this;
       axios.get(APIPath+"languages")
     	  .then(function (response) {
           let data = response.data.data;
-          let items = [];
-          for (let i=0; i<data.length; i++) {
-            let dataItem = data[i];
-            let languageLabel = dataItem.language;
-            if (dataItem.language==="") {
-              languageLabel = "Unknown";
-            }
-            let item = <li key={i}>
-              <span className="select-source">
-                <i className="fa fa-circle-o" onClick={context.props.returnfunction.bind(this)}>
-                  <span className="hidden">{dataItem.language}</span>
-                </i>
-              </span>
-              <span className="source-label">{languageLabel} ({dataItem.count})</span>
-              </li>;
-            items.push(item);
-
-          }
-          context.setState({
-            loading: false,
-            items: items
-          });
+          context.setItems(data);
         })
         .catch(function (error) {
     	    console.log(error);
     	});
     }
+  }
+
+  setItems(data) {
+    let items = [];
+    for (let i=0; i<data.length; i++) {
+      let dataItem = data[i];
+      let languageLabel = dataItem.language;
+      if (dataItem.language==="") {
+        languageLabel = "Unknown";
+      }
+      let item = <li key={i}>
+        <span className="hidden">{dataItem.language}</span>
+        <span className="select-source">
+          <i className="fa fa-circle-o" onClick={this.props.returnfunction.bind(this)}>
+            <span className="hidden">{dataItem.language}</span>
+          </i>
+        </span>
+        <span className="source-label">{languageLabel} (<span className="count" data-default={dataItem.count}>{dataItem.count}</span>)</span>
+        </li>;
+      items.push(item);
+
+    }
+    this.setState({
+      loading: false,
+      items: items
+    });
   }
 
   componentDidMount() {
@@ -85,7 +69,7 @@ export default class LanguageBlock extends React.Component {
           </div>;
     }
     else {
-      content = <ul className="sources-list">{this.state.items}</ul>;
+      content = <ul className="languages-list">{this.state.items}</ul>;
     }
     return (
       <div className="topics-container">

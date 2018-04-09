@@ -3,7 +3,7 @@ import axios from 'axios';
 import ReactLoading from 'react-loading';
 import Lightbox from 'react-image-lightbox';
 import BreadCrumbs from '../components/breadcrumbs';
-import {APIPath} from '../common/constants.js';
+import {APIPath,archivePath} from '../common/constants.js';
 import OwlCarousel from 'react-owl-carousel';
 import {ToggleClass} from '../helpers/helpers.js';
 

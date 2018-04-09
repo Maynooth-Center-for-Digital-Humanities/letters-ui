@@ -16,54 +16,14 @@ export default class AuthorsBlock extends React.Component {
   loadItems() {
     if (sessionStorage.getItem("authors_list")!==null && sessionStorage.getItem("authors_list").length>0) {
       let data = JSON.parse(sessionStorage.getItem("authors_list"));
-      let items = [];
-      for (let i=0; i<data.length; i++) {
-        let dataItem = data[i];
-        let authorLabel = dataItem.creator;
-        if (dataItem.creator==="") {
-          authorLabel = "Unknown";
-        }
-        let item = <li key={i}>
-          <span className="select-source">
-            <i className="fa fa-circle-o" onClick={this.props.returnfunction.bind(this)}>
-              <span className="hidden">{dataItem.creator}</span>
-            </i>
-          </span>
-          <span className="source-label">{authorLabel} ({dataItem.count})</span>
-          </li>;
-        items.push(item);
-      }
-      this.setState({
-        loading: false,
-        items: items
-      });
+      this.setItems(data);
     }
     else {
       let context = this;
       axios.get(APIPath+"authors")
     	  .then(function (response) {
           let data = response.data.data;
-          let items = [];
-          for (let i=0; i<data.length; i++) {
-            let dataItem = data[i];
-            let authorLabel = dataItem.creator;
-            if (dataItem.creator==="") {
-              authorLabel = "Unknown";
-            }
-            let item = <li key={i}>
-              <span className="select-source">
-                <i className="fa fa-circle-o" onClick={context.props.returnfunction.bind(this)}>
-                  <span className="hidden">{dataItem.creator}</span>
-                </i>
-              </span>
-              <span className="source-label">{authorLabel} ({dataItem.count})</span>
-              </li>;
-            items.push(item);
-          }
-          context.setState({
-            loading: false,
-            items: items
-          });
+          context.setItems(data);
         })
         .catch(function (error) {
     	    console.log(error);
@@ -71,6 +31,30 @@ export default class AuthorsBlock extends React.Component {
     }
   }
 
+  setItems(data) {
+    let items = [];
+    for (let i=0; i<data.length; i++) {
+      let dataItem = data[i];
+      let authorLabel = dataItem.creator;
+      if (dataItem.creator==="") {
+        authorLabel = "Unknown";
+      }
+      let item = <li key={i}>
+        <span className="hidden">{dataItem.creator}</span>
+        <span className="select-source">
+          <i className="fa fa-circle-o" onClick={this.props.returnfunction.bind(this)}>
+            <span className="hidden">{dataItem.creator}</span>
+          </i>
+        </span>
+        <span className="source-label">{authorLabel} (<span className="count" data-default={dataItem.count}>{dataItem.count}</span>)</span>
+        </li>;
+      items.push(item);
+    }
+    this.setState({
+      loading: false,
+      items: items
+    });
+  }
   componentDidMount() {
     this.loadItems();
   }
@@ -83,7 +67,7 @@ export default class AuthorsBlock extends React.Component {
           </div>;
     }
     else {
-      content = <ul className="sources-list">{this.state.items}</ul>;
+      content = <ul className="authors-list">{this.state.items}</ul>;
     }
     return (
       <div className="topics-container">

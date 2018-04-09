@@ -72,3 +72,36 @@ export function Emptyitemscard() {
         <p>&nbsp;</p>
     </li>;
 }
+
+export function CompareFilterTopics(compareArray) {
+  let group = document.getElementsByClassName("topics-list")[0];
+  let groupChildren = group.childNodes;
+
+  for (let i=0; i<groupChildren.length; i++) {
+    let groupChild = groupChildren[i];
+    let groupChildValue = groupChild.childNodes[0].innerText;
+    if (compareArray.indexOf(groupChildValue)===-1) {
+      groupChild.classList.add("disabled");
+    }
+    else {
+      groupChild.className = groupChild.className.replace(/\bdisabled\b/g, "");
+      groupChild.classList.remove("disabled");
+    }
+  }
+}
+export function CompareFilterGeneral(selector,compareArray) {
+  let group = document.getElementsByClassName(selector)[0];
+  let groupChildren = group.childNodes;
+
+  for (let i=0; i<groupChildren.length; i++) {
+    let groupChild = groupChildren[i];
+    let groupChildValue = groupChild.childNodes[0].innerText;
+    if (compareArray.indexOf(groupChildValue)===-1) {
+      groupChild.classList.add("disabled");
+    }
+    else {
+      groupChild.className = groupChild.className.replace(/\bdisabled\b/g, "");
+      groupChild.classList.remove("disabled");
+    }
+  }
+}
