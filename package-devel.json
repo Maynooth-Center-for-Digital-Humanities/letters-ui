@@ -27,5 +27,5 @@
   "devDependencies": {
     "uglify-js-brunch": "^2.10.0"
   },
-  "homepage": "http://xl1916apps.mucampus.ie:8008/ui/"
+  "homepage": "http://localhost:3000/"
 }

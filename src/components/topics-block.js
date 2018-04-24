@@ -80,15 +80,15 @@ export default class TopicsBlock extends React.Component {
       </span>;
       hasChildrenClass = " has-children";
     }
-    let topic = <li key={i} data-key={i}>
+    let topic = <li key={i} data-key={i} onClick={this.props.returnfunction.bind(this)}>
       <span className="hidden">{item.name}</span>
       <span className="select-topic">
-        <i className="fa fa-circle-o" data-id={item.id} onClick={this.props.returnfunction.bind(this)}></i>
+        <i className="fa fa-circle-o" data-id={item.id}></i>
       </span>
       <span
         className={"topic-label"+hasChildrenClass}
         data-toggle="closed"
-        onClick={this.toggleElementChildren}
+        //onClick={this.toggleElementChildren}
           >{item.name} (<span className="count" data-default={item.count}>{item.count}</span>)</span>
       {toggleChildren}
       {childrenHTML}

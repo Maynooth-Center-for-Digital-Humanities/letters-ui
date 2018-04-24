@@ -39,10 +39,10 @@ export default class AuthorsBlock extends React.Component {
       if (dataItem.creator==="") {
         authorLabel = "Unknown";
       }
-      let item = <li key={i}>
+      let item = <li key={i} onClick={this.props.returnfunction.bind(this)}>
         <span className="hidden">{dataItem.creator}</span>
         <span className="select-source">
-          <i className="fa fa-circle-o" onClick={this.props.returnfunction.bind(this)}>
+          <i className="fa fa-circle-o">
             <span className="hidden">{dataItem.creator}</span>
           </i>
         </span>

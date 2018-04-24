@@ -1,5 +1,6 @@
 import React, { Component } from 'react';
 import {BrowserRouter as Router, Route, Switch} from 'react-router-dom';
+import 'axios-progress-bar/dist/nprogress.css';
 import './assets/bootstrap/css/bootstrap.min.css';
 import './assets/font-awesome/css/font-awesome.min.css';
 import './assets/open-sans/css/open-sans.css';
@@ -20,6 +21,7 @@ import {BrowseView} from './views/browse.js';
 import {PasswordRestoreView} from './views/password.restore.js';
 import {RegisterView} from './views/register.js';
 import {ItemView} from './views/item.js';
+import {UploadXML} from './views/upload-xml.js';
 import {ContentView} from './views/content.js';
 import {WPContentView} from './views/wp-content.js';
 import {BlankView} from './views/blank.js';
@@ -46,6 +48,8 @@ class App extends Component {
               <Route path="/password-restore" component={PasswordRestoreView}/>
               <Route path="/register" component={RegisterView}/>
               <Route path="/item/:itemId" component={ItemView}/>
+              <Route path="/letter/:letterId" component={ItemView}/>
+              <Route path="/upload-xml" component={UploadXML}/>
               <Route path="/content/:contentName" component={ContentView}/>
               <Route path="/wp-content/:slug" component={WPContentView}/>
             </Switch>

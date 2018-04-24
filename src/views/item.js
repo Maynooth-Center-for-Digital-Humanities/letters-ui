@@ -6,6 +6,7 @@ import BreadCrumbs from '../components/breadcrumbs';
 import {APIPath,archivePath} from '../common/constants.js';
 import OwlCarousel from 'react-owl-carousel';
 import {ToggleClass} from '../helpers/helpers.js';
+import LetterUploadXML from '../helpers/letter-upload-xml.js';
 
 export class ItemView extends Component {
   constructor() {
@@ -44,6 +45,7 @@ export class ItemView extends Component {
       imageActiveLoaderHeight: 400,
       photoIndex: 0,
       isOpen: false,
+      downloadLink: []
     };
 
     this.toggleLetterInfo = this.toggleLetterInfo.bind(this);
@@ -66,27 +68,46 @@ export class ItemView extends Component {
   }
 
   showPage(key) {
-		this.setState({ transcriptionActive:this.state.transcriptions[key] });
-    this.setState({imageActive:this.state.images[key]});
-    this.setState({imageActiveLoading:true});
+    console.log(key);
+		this.setState({
+      transcriptionActive:this.state.transcriptions[key] ,
+      imageActive:this.state.images[key],
+      imageActiveLoading:true
+    });
 	}
 
   handleImageLoaded(key) {
-    this.setState({ imageActiveLoading:false });
     let containerHeight = this.imageContainer.clientHeight;
-    this.setState({imageActiveLoaderHeight:containerHeight});
+    this.setState({
+      imageActiveLoading:false ,
+      imageActiveLoaderHeight:containerHeight
+    });
   }
 
   showBigImage(key) {
-    this.setState({ isOpen: true});
-    this.setState({ photoIndex: key});
+    this.setState({
+      isOpen: true,
+      photoIndex: key
+    });
   }
 
-  componentDidMount() {
-    var itemContext = this;
-    var itemId = itemContext.props.match.params.itemId;
-
-		axios.get(APIPath+'show/'+itemId)
+  loadItem() {
+    let itemContext = this;
+    let getPath = "";
+    let itemId = 0;
+    let letterId = 0;
+    if (typeof itemContext.props.match.params.itemId!=="undefined") {
+      itemId = itemContext.props.match.params.itemId;
+      getPath = APIPath+'show/'+itemId;
+    }
+    else if (typeof itemContext.props.match.params.letterId!=="undefined") {
+      letterId = itemContext.props.match.params.letterId;
+      getPath = APIPath+'show-letter/'+letterId;
+    }
+    else {
+      return false;
+    }
+		axios.get(getPath)
 	  .then(function (response) {
       let responseData = response.data.data;
       let dateSent = '';
@@ -146,8 +167,10 @@ export class ItemView extends Component {
         }
         transcriptions.push(transcription);
       }
-
-
+      let fileLink = [];
+      if (typeof responseData.file!=="undefined" && responseData.file.link.length>0) {
+        fileLink = <a download href={responseData.file.link}>{responseData.file.original_filename} <i className="fa fa-download"></i></a>;
+      }
       itemContext.setState({
         loading:false,
         title: responseData.title,
@@ -178,11 +201,30 @@ export class ItemView extends Component {
         imageActive: images[0],
         imagePaths: imagePaths,
         transcriptionActive: transcriptions[0],
+        downloadLink: fileLink
       });
 	  })
 	  .catch(function (error) {
 	    console.log(error);
 	  });
+  }
+
+  componentDidMount() {
+    this.loadItem();
+  }
+
+  componentDidUpdate(prevProps, prevState) {
+    let itemId = 0;
+    let letterId = 0;
+    if (typeof prevProps.match.params.itemId!=="undefined") {
+      itemId = prevProps.match.params.itemId;
+    }
+    if (typeof this.props.match.params.letterId!=="undefined") {
+      letterId = this.props.match.params.letterId;
+    }
+    if (itemId>0 && letterId>0) {
+      this.loadItem();
+    }
   }
 
   render() {
@@ -200,6 +242,7 @@ export class ItemView extends Component {
           items:3
         }
     };
+    let owlThumbnails = this.state.thumbnails;
     let activeImg;
     if (this.state.imageActiveLoading) {
       let activeImgStyle={height: this.state.imageActiveLoaderHeight+"px"};
@@ -220,6 +263,10 @@ export class ItemView extends Component {
     }
     else {
       const { photoIndex, isOpen, imagePaths } = this.state;
+      let letterUploadBox = "";
+      if (sessionStorage.getItem('sessionActive')==="true") {
+        letterUploadBox = <LetterUploadXML/>;
+      }
       let creatorRow,
         dateCreatedRow,
         sentLocationRow,
@@ -228,7 +275,8 @@ export class ItemView extends Component {
         numpagesRow,
         recipientRow,
         recipientLocationRow,
-        sourceRow;
+        sourceRow,
+        downloadRow;
         if (this.state.creator!=="") {
           creatorRow = <tr><th>From:</th><td>{this.state.creator}</td></tr>;
         }
@@ -256,6 +304,9 @@ export class ItemView extends Component {
         if (this.state.source!=="") {
           sourceRow = <tr><th>Source:</th><td>{this.state.source}</td></tr>
         }
+        if (sessionStorage.getItem('sessionActive')==="true" && this.state.downloadLink) {
+          downloadRow = <tr><th>Download XML:</th><td>{this.state.downloadLink}</td></tr>
+        }
 
       let letterDetailsInfo = <div>
         <table className="letter-details-table">
@@ -269,6 +320,7 @@ export class ItemView extends Component {
             {numpagesRow}
             {sourceRow}
             {sourceCollectionRow}
+            {downloadRow}
           </tbody>
         </table>
       </div>;
@@ -301,8 +353,9 @@ export class ItemView extends Component {
               navText={owlNavText}
               navContainerClass='item-thumbnails-nav'
               dots={false}>
-                {this.state.thumbnails}
+                {owlThumbnails}
               </OwlCarousel>
+              {letterUploadBox}
           </div>
         </div>
 

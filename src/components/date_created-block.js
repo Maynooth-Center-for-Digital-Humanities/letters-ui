@@ -39,10 +39,10 @@ export default class DatecreatedBlock extends React.Component {
       if (dataItem.date_created==="") {
         date_createdLabel = "Unknown";
       }
-      let item = <li key={i}>
+      let item = <li key={i} onClick={this.props.returnfunction.bind(this)}>
         <span className="hidden">{dataItem.date_created}</span>
         <span className="select-source">
-          <i className="fa fa-circle-o" onClick={this.props.returnfunction.bind(this)}>
+          <i className="fa fa-circle-o">
             <span className="hidden">{dataItem.date_created}</span>
           </i>
         </span>

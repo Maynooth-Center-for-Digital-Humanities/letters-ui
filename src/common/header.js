@@ -21,7 +21,7 @@ const pageHeader = () => (
         </div>
       </div>
     </div>
-    <div className="wrapper">
+    <div className="wrapper page-header-wrapper">
       <div className="header-logo-row">
         <div className="col-xs-12 col-sm-8 col-md-8"></div>
         <div className="col-xs-12 col-sm-4 col-md-4 logo-r"></div>

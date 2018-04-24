@@ -2,6 +2,8 @@ import React from 'react';
 import {Modal} from 'react-bootstrap';
 import axios from 'axios';
 import {Link} from 'react-router-dom';
+import {DropdownButton, MenuItem} from 'react-bootstrap';
+import {APIPath} from '../common/constants.js';
 
 class LoginModal extends React.Component {
 	constructor(props) {
@@ -48,12 +50,12 @@ class LoginModal extends React.Component {
 	handleFormSubmit(event) {
 		event.preventDefault();
 		var loginModalContext = this;
-		var APIPath = "http://localhost:8008/api/";
 		axios.get(APIPath+'login?email='+this.state.email+'&password='+this.state.password)
 	  .then(function (response) {
 	    let status = response.data.status;
 	    if (typeof status!== undefined && status===true) {
-	      sessionStorage.setItem('active', true);
+	      sessionStorage.setItem('userName', response.data.data.userName);
+	      sessionStorage.setItem('sessionActive', true);
 	      sessionStorage.setItem('accessToken', response.data.data.accessToken);
 	      window.location.reload();
 	    }
@@ -65,7 +67,6 @@ class LoginModal extends React.Component {
 	      }
 	      loginModalContext.setState({login_error:errorText});
 	      loginModalContext.setState({login_error_class:'error-container-visible'});
-				console.log(loginModalContext.state.login_error);
 	    }
 	  })
 	  .catch(function (error) {
@@ -74,22 +75,33 @@ class LoginModal extends React.Component {
   }
 
 	handleLogout() {
-		sessionStorage.setItem('active', false);
+		sessionStorage.setItem('sessionActive', false);
 		sessionStorage.setItem('accessToken', '');
 		window.location.reload();
 	}
 
 	render() {
 		var link = "";
-		let sessionActive = sessionStorage.getItem('active');
+		let sessionActive = sessionStorage.getItem('sessionActive');
 		if (sessionActive!=='true') {
 	    link = (
 	      <a onClick={this.handleShow}><i className="fa fa-user-circle"></i> Login/Register</a>
 	    );
 		}
 		else {
+			let userName = sessionStorage.getItem("userName");
+			let dropdownTitle = <span><i className="fa fa-user-circle"></i> {userName}</span>;
 			link = (
-	      <a onClick={this.handleLogout}><i className="fa fa-sign-out"></i> Logout</a>
+				<DropdownButton
+					bsSize="small"
+					title={dropdownTitle}
+					key="user-dropdown"
+					id={"session-dropdown"}
+				>
+					{/*<MenuItem eventKey="1" componentClass={Link} href="/upload-xml" to="/upload-xml"> <i className="fa fa-upload"></i> Upload XML</MenuItem>
+					*/}
+					<MenuItem eventKey="2" onClick={this.handleLogout}><i className="fa fa-sign-out"></i> Logout</MenuItem>
+				</DropdownButton>
 	    );
 		}
 		let loginErrorHTML = "";

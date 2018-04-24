@@ -14,6 +14,7 @@ import LanguagesBlock from '../components/languages-block.js';
 import DatecreatedBlock from '../components/date_created-block.js';
 import Pagination from '../helpers/pagination.js';
 import {PreloaderCards,ToggleClass,ReplaceClass,Emptyitemscard,CompareFilterTopics,CompareFilterGeneral} from '../helpers/helpers.js';
+import { loadProgressBar } from 'axios-progress-bar';
 
 export class BrowseView extends Component {
   constructor() {
@@ -105,8 +106,12 @@ export class BrowseView extends Component {
   }
 
   topicFilter(e) {
-    let element = e.target;
-    let parent = ReactDOM.findDOMNode(element).parentNode.parentNode;
+    e.preventDefault();
+    let parent = e.currentTarget;
+
+    let element = parent.querySelectorAll(".select-topic")[0].querySelectorAll("i")[0];
+    let label = parent.querySelectorAll(".topic-label")[0];
+
     let className = element.className;
     this.selectedTopicsToggleChildren(parent,className);
     let prevTopics = this.state.selectedTopics;
@@ -132,10 +137,15 @@ export class BrowseView extends Component {
       keywords_ids:selectedTopics
     });
     ToggleClass(element, "fa-circle-o", "fa-check-circle-o");
+    ToggleClass(label, "", "active");
   }
 
   sourcesFilter(e) {
-    let element = e.target;
+    e.preventDefault();
+    let parent = e.currentTarget;
+    let element = parent.querySelectorAll(".select-source")[0].querySelectorAll("i")[0];
+    let label = parent.querySelectorAll(".source-label")[0];
+
     let className = element.className;
     let prevSources = this.state.sources;
     let selectedSources = [];
@@ -155,6 +165,7 @@ export class BrowseView extends Component {
       }
     }
     ToggleClass(element, "fa-circle-o", "fa-check-circle-o");
+    ToggleClass(label, "", "active");
     this.setState({
       loading:true,
       sources: selectedSources
@@ -162,7 +173,11 @@ export class BrowseView extends Component {
   }
 
   authorsFilter(e) {
-    let element = e.target;
+    e.preventDefault();
+    let parent = e.currentTarget;
+    let element = parent.querySelectorAll(".select-source")[0].querySelectorAll("i")[0];
+    let label = parent.querySelectorAll(".source-label")[0];
+
     let className = element.className;
     let prevAuthors = this.state.authors;
     let selectedAuthors = [];
@@ -182,6 +197,7 @@ export class BrowseView extends Component {
       }
     }
     ToggleClass(element, "fa-circle-o", "fa-check-circle-o");
+    ToggleClass(label, "", "active");
     this.setState({
       loading:true,
       authors: selectedAuthors
@@ -190,7 +206,11 @@ export class BrowseView extends Component {
   }
 
   gendersFilter(e) {
-    let element = e.target;
+    e.preventDefault();
+    let parent = e.currentTarget;
+    let element = parent.querySelectorAll(".select-source")[0].querySelectorAll("i")[0];
+    let label = parent.querySelectorAll(".source-label")[0];
+
     let className = element.className;
     let prevGenders = this.state.genders;
     let selectedGenders = [];
@@ -210,6 +230,7 @@ export class BrowseView extends Component {
       }
     }
     ToggleClass(element, "fa-circle-o", "fa-check-circle-o");
+    ToggleClass(label, "", "active");
     this.setState({
       loading:true,
       genders: selectedGenders
@@ -217,7 +238,11 @@ export class BrowseView extends Component {
   }
 
   languagesFilter(e) {
-    let element = e.target;
+    e.preventDefault();
+    let parent = e.currentTarget;
+    let element = parent.querySelectorAll(".select-source")[0].querySelectorAll("i")[0];
+    let label = parent.querySelectorAll(".source-label")[0];
+
     let className = element.className;
     let prevLanguages = this.state.languages;
     let selectedLanguages = [];
@@ -237,6 +262,7 @@ export class BrowseView extends Component {
       }
     }
     ToggleClass(element, "fa-circle-o", "fa-check-circle-o");
+    ToggleClass(label, "", "active");
     this.setState({
       loading:true,
       languages: selectedLanguages
@@ -244,7 +270,11 @@ export class BrowseView extends Component {
   }
 
   datecreatedFilter(e) {
-    let element = e.target;
+    e.preventDefault();
+    let parent = e.currentTarget;
+    let element = parent.querySelectorAll(".select-source")[0].querySelectorAll("i")[0];
+    let label = parent.querySelectorAll(".source-label")[0];
+
     let className = element.className;
     let prevDate_sent = this.state.languages;
     let selectedDate_sent = [];
@@ -264,6 +294,7 @@ export class BrowseView extends Component {
       }
     }
     ToggleClass(element, "fa-circle-o", "fa-check-circle-o");
+    ToggleClass(label, "", "active");
     this.setState({
       loading:true,
       date_sent: selectedDate_sent
@@ -335,10 +366,14 @@ export class BrowseView extends Component {
       }
       else browseItems = <Emptyitemscard />;
       // update state
+      let currentPage = responseData.current_page;
+      if (responseData.last_page<responseData.current_page) {
+        currentPage = responseData.last_page;
+      }
       browseContext.setState({
         loading:false,
         browseItems: browseItems,
-        current_page: responseData.current_page,
+        current_page: currentPage,
         last_page: responseData.last_page,
         total: responseData.total,
         firstLoad:0
@@ -355,7 +390,7 @@ export class BrowseView extends Component {
     axios.get(path, {
       params: {
         sort: this.state.sort,
-        page: this.state.current_page,
+        page: 1,
         paginate: this.state.paginate,
         keywords: this.state.keywords_ids,
         sources: this.state.sources,
@@ -367,7 +402,7 @@ export class BrowseView extends Component {
     })
     .then(function (response) {
       let responseData = response.data.data;
-      console.log(responseData);
+      //console.log(responseData);
       // topics
       let topics = responseData.keywords;
       CompareFilterTopics(topics);
@@ -444,11 +479,20 @@ export class BrowseView extends Component {
         var keyword = <span data-id={topic.topic_ID} key={j}>{comma}{topic.topic_name}</span>;
         keywords.push(keyword);
       }
+      let transcription = "";
+      if (element.pages[0].transcription!=="") {
+        let transcriptionText = element.pages[0].transcription.replace(/<[^>]+>/ig," ");
+        transcriptionText = transcriptionText.replace("&amp;", "&");
+        if (transcriptionText.length>200) {
+          transcriptionText = transcriptionText.substring(0,200);
+        }
 
+        transcription = transcriptionText+"...";
+      }
       var browseItem = <li data-id={item.id} key={i}>
           <h4><Link to={ 'item/'+item.id}>{element.title}</Link></h4>
           <span className='browse-item-keywords'>Keywords: {keywords}</span>
-          <p>{element.description}</p>
+          <p>{transcription}</p>
         </li>;
       browseItems.push(browseItem);
     }
@@ -457,6 +501,7 @@ export class BrowseView extends Component {
 
   componentDidMount() {
     this.filterContent();
+    loadProgressBar();
   }
 
   componentDidUpdate(prevProps, prevState) {

@@ -39,10 +39,10 @@ export default class LanguageBlock extends React.Component {
       if (dataItem.language==="") {
         languageLabel = "Unknown";
       }
-      let item = <li key={i}>
+      let item = <li key={i} onClick={this.props.returnfunction.bind(this)}>
         <span className="hidden">{dataItem.language}</span>
         <span className="select-source">
-          <i className="fa fa-circle-o" onClick={this.props.returnfunction.bind(this)}>
+          <i className="fa fa-circle-o">
             <span className="hidden">{dataItem.language}</span>
           </i>
         </span>

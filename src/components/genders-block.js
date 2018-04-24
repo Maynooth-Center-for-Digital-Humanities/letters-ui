@@ -15,7 +15,7 @@ export default class GendersBlock extends React.Component {
 
   loadItems() {
     if (sessionStorage.getItem("genders_list")!==null && sessionStorage.getItem("genders_list").length>0) {
-      let data = JSON.parse(sessionStorage.getItem("genders_list"));      
+      let data = JSON.parse(sessionStorage.getItem("genders_list"));
       this.setItems(data);
     }
     else {
@@ -39,10 +39,10 @@ export default class GendersBlock extends React.Component {
       if (dataItem.gender==="") {
         genderLabel = "Unknown";
       }
-      let item = <li key={i}>
+      let item = <li key={i} onClick={this.props.returnfunction.bind(this)}>
         <span className="hidden">{dataItem.gender}</span>
         <span className="select-source">
-          <i className="fa fa-circle-o" onClick={this.props.returnfunction.bind(this)}>
+          <i className="fa fa-circle-o">
             <span className="hidden">{dataItem.gender}</span>
           </i>
         </span>
