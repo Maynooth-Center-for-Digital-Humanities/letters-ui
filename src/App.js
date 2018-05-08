@@ -24,6 +24,7 @@ import {ItemView} from './views/item.js';
 import {UploadXML} from './views/upload-xml.js';
 import {ContentView} from './views/content.js';
 import {WPContentView} from './views/wp-content.js';
+import {WPPagesView} from './views/wp-pages.js';
 import {BlankView} from './views/blank.js';
 
 class App extends Component {
@@ -51,7 +52,8 @@ class App extends Component {
               <Route path="/letter/:letterId" component={ItemView}/>
               <Route path="/upload-xml" component={UploadXML}/>
               <Route path="/content/:contentName" component={ContentView}/>
-              <Route path="/wp-content/:slug" component={WPContentView}/>
+              <Route path="/wp-post/:slug" component={WPContentView}/>
+              <Route path="/wp-page/:slug" component={WPPagesView}/>
             </Switch>
           </div>
           <PageFooter></PageFooter>

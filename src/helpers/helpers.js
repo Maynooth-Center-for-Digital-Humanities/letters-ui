@@ -1,4 +1,5 @@
 import React from 'react';
+import {domain} from '../common/constants.js';
 
 export function ToggleClass(node, class1, class2) {
   let currentClassName = node.className;
@@ -89,6 +90,7 @@ export function CompareFilterTopics(compareArray) {
     }
   }
 }
+
 export function CompareFilterGeneral(selector,compareArray) {
   let group = document.getElementsByClassName(selector)[0];
   let groupChildren = group.childNodes;
@@ -104,4 +106,57 @@ export function CompareFilterGeneral(selector,compareArray) {
       groupChild.classList.remove("disabled");
     }
   }
+}
+
+export function NormalizeWPURL(href) {
+  let normalizedURL = href;
+  if (typeof href!=="undefined" && href!=="") {
+    let newHref = href.replace("http://letters1916.maynoothuniversity.ie/learn/index.php/", domain+"/wp-post/");
+    newHref = newHref.replace(domain+"/learn/index.php/", domain+"/wp-post/");
+    if (newHref.includes(domain+"/wp-post/")) {
+      let lastChar = newHref.slice(-1);
+      if (lastChar==="/") {
+        newHref = newHref.slice(0,-1);
+      }
+
+      let hrefEnding = newHref.substr(newHref.lastIndexOf('/') + 1);
+      let hrefParent = "";
+      hrefParent = newHref.replace(domain+"/wp-post/","");
+      hrefParent = hrefParent.replace(hrefEnding,"");
+      if (hrefParent!=="") {
+        let hrefParentLastChar = hrefParent.slice(-1);
+        if (hrefParentLastChar==="/") {
+          hrefParent = hrefParent.slice(0,-1)+"%2F";
+        }
+      }
+      normalizedURL = "/wp-post/"+hrefParent+hrefEnding;
+    }
+  }
+  return normalizedURL;
+}
+
+export function NormalizeMenuWPURL(href) {
+  let normalizedURL = href;
+  if (href!=="/browse") {
+    let newHref = href.replace("http://letters1916.maynoothuniversity.ie/learn/index.php/", domain+"/wp-post/");
+    newHref = newHref.replace(domain+"/learn/index.php/", domain+"/wp-post/");
+    let lastChar = newHref.slice(-1);
+    if (lastChar==="/") {
+      newHref = newHref.slice(0,-1);
+    }
+
+    let hrefEnding = newHref.substr(newHref.lastIndexOf('/') + 1);
+    let hrefParent = "";
+    hrefParent = newHref.replace(domain+"/wp-post/","");
+    hrefParent = newHref.replace(domain+"/learn/","");
+    hrefParent = hrefParent.replace(hrefEnding,"");
+    if (hrefParent!=="") {
+      let hrefParentLastChar = hrefParent.slice(-1);
+      if (hrefParentLastChar==="/") {
+        hrefParent = hrefParent.slice(0,-1)+"%2F";
+      }
+    }
+    normalizedURL = "/wp-post/"+hrefParent+hrefEnding;
+  }
+  return normalizedURL;
 }

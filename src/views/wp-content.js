@@ -2,7 +2,10 @@ import React, {Component} from 'react';
 import BreadCrumbs from '../components/breadcrumbs';
 import axios from 'axios';
 import ReactLoading from 'react-loading';
-import {WPRestPath} from '../common/constants.js';
+import {WPCustomRestPath,domain} from '../common/constants.js';
+import {NormalizeWPURL} from '../helpers/helpers.js';
+import {Link} from 'react-router-dom';
+import Parser from 'html-react-parser';
 
 export class WPContentView extends Component {
   constructor() {
@@ -16,14 +19,14 @@ export class WPContentView extends Component {
   getPage() {
     let slug = this.props.match.params.slug;
     let context = this;
-    axios.get(WPRestPath+"pages", {
+    axios.get(WPCustomRestPath+"post", {
         params: {
           "slug": slug
         }
       })
   	  .then(function (response) {
-        let pageData = response.data[0];
-        if (response.data.length>0) {
+        let pageData = response.data;
+        if (response.statusText==="OK") {
           context.setState({
             content:pageData,
             loading:false
@@ -39,6 +42,38 @@ export class WPContentView extends Component {
     this.getPage();
   }
 
+  componentDidUpdate(prevProps, prevState) {
+    if (prevProps.match.url!==this.props.match.url) {
+      this.setState({
+        loading:true
+      });
+      this.getPage();
+    }
+  }
+
+  cleanContentURLs(content) {
+    let newContent;
+    if (typeof content !=="undefined" && content!=="") {
+      newContent = Parser("<div>"+content+"<div>", {
+        replace: function(domNode) {
+          if (domNode.name==="a") {
+            if (typeof domNode.attribs.href!=="undefined") {
+              let href = domNode.attribs.href;
+              let newHref = NormalizeWPURL(href);
+              if (newHref.includes("wp-post")) {
+                let text = domNode.children[0].data;
+
+                newHref = newHref.replace(domain, "");
+                return <Link to={newHref}>{text}</Link>;
+              }
+            }
+          }
+        }
+      });
+    }
+    return newContent;
+  }
+
   render() {
     let contentHTML,contentTitle;
     let breadCrumbsArr = [];
@@ -49,16 +84,16 @@ export class WPContentView extends Component {
           </div>;
     }
     else {
-      contentTitle = this.state.content.title.rendered;
-      contentHTML = this.state.content.content.rendered;
+      let cleanContent = this.cleanContentURLs(this.state.content.rendered);
+      contentTitle = <span dangerouslySetInnerHTML={{__html:this.state.content.post_title}}></span>;
+      contentHTML = cleanContent;
       breadCrumbsArr.push({label:contentTitle,path:''});
-      console.log(breadCrumbsArr);
       pageContent = <div className="container">
         <div className="row">
           <div className="col-xs-12">
             <BreadCrumbs items={breadCrumbsArr}></BreadCrumbs>
             <h1>{contentTitle}</h1>
-            <div dangerouslySetInnerHTML={{__html: contentHTML}}></div>
+            <div className="item-container">{contentHTML}</div>
           </div>
         </div>
       </div>
