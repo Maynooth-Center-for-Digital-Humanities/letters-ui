@@ -32,10 +32,10 @@ const pageFooter = () => (
           <div className="col-xs-12 col-sm-5 col-md-6 col-lg-6">
 
             <ul className="footer-social-links">
-              <li><a><i className="fa fa-facebook"></i></a></li>
-              <li><a><i className="fa fa-twitter"></i></a></li>
-              <li><a><i className="fa fa-tumblr"></i></a></li>
-              <li><a><i className="fa fa-soundcloud"></i></a></li>
+              <li><a><i className="fab fa-facebook"></i></a></li>
+              <li><a><i className="fab fa-twitter"></i></a></li>
+              <li><a><i className="fab fa-tumblr"></i></a></li>
+              <li><a><i className="fab fa-soundcloud"></i></a></li>
             </ul>
 
           </div>

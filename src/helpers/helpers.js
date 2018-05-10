@@ -137,7 +137,8 @@ export function NormalizeWPURL(href) {
 
 export function NormalizeMenuWPURL(href) {
   let normalizedURL = href;
-  if (href!=="/browse") {
+  let escapeURLs = ["/browse", "/fullsearch", "/password-restore", "/register","/item","/letter","/upload-xml", "/content","/vizualizations","/vizualizations/map"];
+  if (escapeURLs.indexOf(href)===-1) {
     let newHref = href.replace("http://letters1916.maynoothuniversity.ie/learn/index.php/", domain+"/wp-post/");
     newHref = newHref.replace(domain+"/learn/index.php/", domain+"/wp-post/");
     let lastChar = newHref.slice(-1);

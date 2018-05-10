@@ -2,7 +2,7 @@ import React, { Component } from 'react';
 import {BrowserRouter as Router, Route, Switch} from 'react-router-dom';
 import 'axios-progress-bar/dist/nprogress.css';
 import './assets/bootstrap/css/bootstrap.min.css';
-import './assets/font-awesome/css/font-awesome.min.css';
+import './assets/font-awesome/css/fontawesome-all.min.css';
 import './assets/open-sans/css/open-sans.css';
 import './App.css';
 import {basename} from './common/constants.js';
@@ -26,6 +26,7 @@ import {ContentView} from './views/content.js';
 import {WPContentView} from './views/wp-content.js';
 import {WPPagesView} from './views/wp-pages.js';
 import {BlankView} from './views/blank.js';
+import {VizualizationsView} from './views/vizualizations.js';
 
 class App extends Component {
   componentDidMount() {
@@ -54,6 +55,7 @@ class App extends Component {
               <Route path="/content/:contentName" component={ContentView}/>
               <Route path="/wp-post/:slug" component={WPContentView}/>
               <Route path="/wp-page/:slug" component={WPPagesView}/>
+              <Route path="/vizualizations/:type" component={VizualizationsView}/>
             </Switch>
           </div>
           <PageFooter></PageFooter>
