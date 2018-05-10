@@ -268,9 +268,29 @@ a {
   margin-top: 0;
   font-weight: 800;
 }
-.featured-collections {
+.featured-collections, .home-highlights {
   background-color: #e8eff2;
   padding: 30px 0;
+}
+@media (max-width: 767px) {
+  .highlights-thumbnail {
+    max-height: auto;
+  }
+}
+@media (min-width: 600px) {
+  .highlights-thumbnail {
+    max-height: 142px;
+  }
+}
+@media (min-width: 768px) {
+  .highlights-thumbnail {
+    max-height: 117px;
+  }
+}
+@media (min-width: 993px) {
+  .highlights-thumbnail {
+    max-height: 114px;
+  }
 }
 .home-collection {
   background-color: #fff;

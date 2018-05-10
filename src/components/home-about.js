@@ -38,10 +38,12 @@ export default class HomeAbout extends Component {
           let newData = response.data[0];
           let newTitle = newData.title.rendered;
           let newContent = context.stripHTML(newData.content.rendered);
-          newContent = newContent.substring(0,500)+"...";
+          newContent = newContent.substring(0,750)+"...";
+          console.log(newData);
           let about = {
             title: newTitle,
-            content: newContent
+            content: newContent,
+            slug: newData.slug
           }
           context.setState({
             about:about,
@@ -72,7 +74,7 @@ export default class HomeAbout extends Component {
             <h2>{this.state.about.title}</h2>
             <div dangerouslySetInnerHTML={{__html: this.state.about.content}} className="wrap-text"></div>
             <br/>
-            <Link className="btn btn-default" to="/wp-content/about-the-project">Read more...</Link>
+            <Link className="btn btn-default" to={"/wp-post/"+this.state.about.slug}>Read more...</Link>
           </div>
       }
       return(
