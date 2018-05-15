@@ -11,6 +11,9 @@
 h1, h2, h3 {
   margin: 10px 0;
 }
+h1 {
+  font-size: 30px;
+}
 h5 {
   font-size: 16px;
   font-weight: 600;
@@ -272,6 +275,7 @@ a {
   background-color: #e8eff2;
   padding: 30px 0;
 }
+/*
 @media (max-width: 767px) {
   .highlights-thumbnail {
     max-height: auto;
@@ -292,6 +296,7 @@ a {
     max-height: 114px;
   }
 }
+*/
 .home-collection {
   background-color: #fff;
   padding: 15px;
@@ -411,10 +416,52 @@ a {
   display: block;
   position: relative;
 }
+.browse-items > li .list-thumbnail {
+  float: left;
+  margin: 0 15px 0 0;
+  max-width: 140px;
+}
+.img-clearfix::after {
+    content: "";
+    clear: both;
+    display: table;
+}
 .browse-items > li > h4 {
-  margin-bottom: 0;
+  margin: 0;
 }
 .browse-items > li > .browse-item-keywords {
+  color: #B7AE9A;
+}
+.search-checkboxes {
+  text-align: right;
+}
+.search-checkboxes .checkbox {
+  display: inline-block;
+  margin-right: 15px;
+}
+
+.search-items {
+  margin: 0;
+  padding: 0;
+  list-style-type: none;
+}
+.search-items > li {
+  padding: 10px 15px;
+  background-color: #fff;
+  border-bottom: 1px solid #efefef;
+  margin-bottom: 15px;
+  display: block;
+  position: relative;
+}
+.search-items > li .list-thumbnail {
+  float: left;
+  margin: 0 15px 0 0;
+  max-height: 80px;
+}
+.search-items > li > h4 {
+  margin: 0;
+}
+.search-items > li > .browse-item-keywords {
   color: #B7AE9A;
 }
 .page-thumbnail {
@@ -423,6 +470,7 @@ a {
 }
 .letter-details-table {
   margin-bottom: 20px;
+  width: 100%;
 }
 .letter-details-table th {
   min-width: 140px;
@@ -432,6 +480,9 @@ a {
   vertical-align: top;
   padding: 2px;
   border-bottom: 1px solid #ededed;
+}
+.letter-details-table tr:last-child th, .letter-details-table tr:last-child td {
+  border-bottom: none;
 }
 .letter-details-big-img {
   cursor:pointer;
@@ -830,6 +881,13 @@ a {
   margin-top: -32px;
 }
 .letter-description {
+  vertical-align: bottom;
+  display: block;
+  position: relative;
+  top: 0;
+  border-top: 1px solid #eee;
+  margin-top: 20px;
+  padding-top: 20px;
   color: #777;
   font-size: 13px;
   font-style: italic;
@@ -956,6 +1014,7 @@ unclear::after {
 .map-container {
   position: relative;
   display: block;
+  background-color: #fff;
 }
 .toggle-fullscreen {
 	position: absolute;
@@ -974,4 +1033,29 @@ unclear::after {
 .btn-white {
 	color: #000;
 	background-color: #fff;
+}
+.search-letters-container {
+  margin: 20px 0;
+  padding: 15px;
+  background-color: #fff;
+  box-shadow: 0px 1px 3px 0px rgba(0, 0, 0, 0.21);
+  display: block;
+  position: relative;
+}
+.results-found {
+  float: right;
+  font-size: 13px;
+  padding-top: 15px;
+}
+.alignleft {
+  display: inline;
+  float: left;
+  margin-right: 1.5em;
+  margin-bottom: 10px;
+}
+.alignright {
+  display: inline;
+  float: right;
+  margin-left: 1.5em;
+  margin-bottom: 10px;
 }

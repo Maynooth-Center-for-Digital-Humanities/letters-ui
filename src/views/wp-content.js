@@ -87,6 +87,9 @@ export class WPContentView extends Component {
       let cleanContent = this.cleanContentURLs(this.state.content.rendered);
       contentTitle = <span dangerouslySetInnerHTML={{__html:this.state.content.post_title}}></span>;
       contentHTML = cleanContent;
+      if (typeof this.state.content.categories!=="undefined" && this.state.content.categories.length>0) {
+        breadCrumbsArr.push({label:this.state.content.categories[0].name,path:'/wp-category/'+this.state.content.categories[0].slug});
+      }
       breadCrumbsArr.push({label:contentTitle,path:''});
       pageContent = <div className="container">
         <div className="row">

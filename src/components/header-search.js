@@ -6,7 +6,7 @@ class SearchInput extends React.Component {
     super();
     this.state ={
       term: "",
-      redirect: 0
+      redirect: false
     }
     this.handleChange = this.handleChange.bind(this);
     this.handleSubmit = this.handleSubmit.bind(this);
@@ -15,44 +15,34 @@ class SearchInput extends React.Component {
   handleChange(event) {
     this.setState({
       term: event.target.value,
-      redirect: 0
+      redirect: false
     });
   }
 
   handleSubmit(event) {
     event.preventDefault();
     this.setState({
-      redirect: 1
+      redirect: true
     });
   }
 
   componentDidMount() {
     this.setState({
-      redirect: 0
+      redirect: false
     });
   }
 
   componentDidUpdate(prevProps, prevState) {
-    if (prevState.redirect===1) {
+    if (prevState.redirect===false && this.state.redirect===true) {
       this.setState({
-        redirect: 2
-      })
+        redirect: false
+      });
     }
-
   }
 
   render() {
     let redirectElement;
-
-    if (this.state.redirect===1) {
-      redirectElement = <Redirect to={{
-        pathname: '/blank',
-        state: {from: 'header_search'},
-        key: 'header_search'
-      }}
-      />
-    }
-    if (this.state.redirect===2) {
+    if (this.state.redirect===true) {
       redirectElement = <Redirect to={{
         pathname: '/fullsearch/'+this.state['term'],
         state: {from: 'header_search'},

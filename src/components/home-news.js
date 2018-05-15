@@ -4,6 +4,7 @@ import ReactLoading from 'react-loading';
 import {WPCustomRestPath} from '../common/constants.js';
 import OwlCarousel from 'react-owl-carousel';
 import {Link} from 'react-router-dom';
+import {stripHTML} from '../helpers/helpers.js';
 
 export default class HomeNews extends React.Component {
   constructor() {
@@ -37,8 +38,7 @@ export default class HomeNews extends React.Component {
     let items = [];
     for (let i=0; i<data.length; i++) {
       let highlight = data[i];
-      let descriptionText = highlight.description.replace(/<[^>]+>/ig," ");
-      descriptionText = descriptionText.replace("&amp;", "&");
+      let descriptionText = stripHTML(highlight.description);
       if (descriptionText.length>100) {
         descriptionText = descriptionText.substring(0,100)+"...";
       }

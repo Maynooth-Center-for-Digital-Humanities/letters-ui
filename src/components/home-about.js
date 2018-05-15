@@ -3,6 +3,7 @@ import {Link} from 'react-router-dom';
 import axios from 'axios';
 import {WPRestPath} from '../common/constants.js';
 import ReactLoading from 'react-loading';
+import {stripHTML} from '../helpers/helpers.js';
 
 export default class HomeAbout extends Component {
   constructor(props) {
@@ -11,12 +12,6 @@ export default class HomeAbout extends Component {
       about: [],
       loading: true
     };
-  }
-
-  stripHTML(html) {
-    let tmp = document.createElement("DIV");
-    tmp.innerHTML = html;
-    return tmp.textContent || tmp.innerText;
   }
 
   loadAbout() {
@@ -37,7 +32,7 @@ export default class HomeAbout extends Component {
     	  .then(function (response) {
           let newData = response.data[0];
           let newTitle = newData.title.rendered;
-          let newContent = context.stripHTML(newData.content.rendered);
+          let newContent = stripHTML(newData.content.rendered);
           newContent = newContent.substring(0,750)+"...";
           console.log(newData);
           let about = {

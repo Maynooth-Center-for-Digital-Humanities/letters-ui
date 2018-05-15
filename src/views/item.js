@@ -304,7 +304,7 @@ export class ItemView extends Component {
         if (this.state.source!=="") {
           sourceRow = <tr><th>Source:</th><td>{this.state.source}</td></tr>
         }
-        if (sessionStorage.getItem('sessionActive')==="true" && this.state.downloadLink) {
+        if (sessionStorage.getItem('sessionActive')==="true" && this.state.downloadLink.length>0) {
           downloadRow = <tr><th>Download XML:</th><td>{this.state.downloadLink}</td></tr>
         }
 
@@ -336,9 +336,9 @@ export class ItemView extends Component {
                 </div>
               </h4>
               {letterDetailsInfo}
-              <p className="letter-description">{this.state.description}</p>
             </div>
             {this.state.transcriptionActive}
+            <p className="letter-description">{this.state.description}</p>
           </div>
           <div className="col-xs-12 col-sm-4 col-md-4 col-lg-5">
             <div className="letter-big-img-container">

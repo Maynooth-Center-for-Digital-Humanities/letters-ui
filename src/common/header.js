@@ -10,10 +10,10 @@ const pageHeader = () => (
       <div className="wrapper">
         <div className="container">
           <ul className="pull-left">
-            <li><a><i className="fab fa-facebook"></i></a></li>
-            <li><a><i className="fab fa-twitter"></i></a></li>
-            <li><a><i className="fab fa-tumblr"></i></a></li>
-            <li><a><i className="fab fa-soundcloud"></i></a></li>
+            <li><a><i className="fa fa-facebook"></i></a></li>
+            <li><a><i className="fa fa-twitter"></i></a></li>
+            <li><a><i className="fa fa-tumblr"></i></a></li>
+            <li><a><i className="fa fa-soundcloud"></i></a></li>
           </ul>
           <ul className="pull-right">
             <LoginModal></LoginModal>

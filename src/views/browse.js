@@ -5,7 +5,7 @@ import axios from 'axios';
 import {Link} from 'react-router-dom';
 import BreadCrumbs from '../components/breadcrumbs';
 import {DropdownButton, MenuItem} from 'react-bootstrap';
-import {APIPath} from '../common/constants.js';
+import {APIPath, domain} from '../common/constants.js';
 import TopicsBlock from '../components/topics-block.js';
 import SourcesBlock from '../components/sources-block.js';
 import AuthorsBlock from '../components/authors-block.js';
@@ -14,7 +14,7 @@ import LanguagesBlock from '../components/languages-block.js';
 import DatecreatedBlock from '../components/date_created-block.js';
 import Pagination from '../helpers/pagination.js';
 import {PreloaderCards,ToggleClass,ReplaceClass,Emptyitemscard,CompareFilterTopics,CompareFilterGeneral} from '../helpers/helpers.js';
-import { loadProgressBar } from 'axios-progress-bar';
+import {loadProgressBar} from 'axios-progress-bar';
 
 export class BrowseView extends Component {
   constructor() {
@@ -470,6 +470,10 @@ export class BrowseView extends Component {
     for (let i=0; i<itemsData.length; i++) {
       let item = itemsData[i];
       let element = JSON.parse(item.element);
+      let defaultThumbnail;
+      if (element.pages.length>0) {
+        defaultThumbnail = <img className="list-thumbnail img-responsive" src={domain+"/diyhistory/archive/square_thumbnails/"+element.pages[0].archive_filename} alt={element.title} />
+      }
 
       var keywords = [];
       for (var j=0;j<element.topics.length; j++) {
@@ -483,13 +487,14 @@ export class BrowseView extends Component {
       if (element.pages[0].transcription!=="") {
         let transcriptionText = element.pages[0].transcription.replace(/<[^>]+>/ig," ");
         transcriptionText = transcriptionText.replace("&amp;", "&");
-        if (transcriptionText.length>200) {
-          transcriptionText = transcriptionText.substring(0,200);
+        if (transcriptionText.length>400) {
+          transcriptionText = transcriptionText.substring(0,400);
         }
 
         transcription = transcriptionText+"...";
       }
-      var browseItem = <li data-id={item.id} key={i}>
+      var browseItem = <li data-id={item.id} key={i} className="img-clearfix">
+          <Link to={ 'item/'+item.id}>{defaultThumbnail}</Link>
           <h4><Link to={ 'item/'+item.id}>{element.title}</Link></h4>
           <span className='browse-item-keywords'>Keywords: {keywords}</span>
           <p>{transcription}</p>
