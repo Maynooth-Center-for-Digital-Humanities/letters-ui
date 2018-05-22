@@ -98,8 +98,6 @@ class LoginModal extends React.Component {
 					key="user-dropdown"
 					id={"session-dropdown"}
 				>
-					{/*<MenuItem eventKey="1" componentClass={Link} href="/upload-xml" to="/upload-xml"> <i className="fa fa-upload"></i> Upload XML</MenuItem>
-					*/}
 					<MenuItem eventKey="2" onClick={this.handleLogout}><i className="fa fa-sign-out"></i> Logout</MenuItem>
 				</DropdownButton>
 	    );

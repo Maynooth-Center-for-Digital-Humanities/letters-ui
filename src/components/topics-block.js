@@ -16,19 +16,20 @@ export default class TopicsBlock extends React.Component {
   }
 
   toggleElementChildren(e) {
-    if (e.target.nextSibling===null) {
+    e.preventDefault();
+    let targetNode = e.currentTarget;
+    if (targetNode.nextSibling===null) {
       return false;
     }
-    let toggle = e.target.attributes['data-toggle'].value;
+    let toggle = targetNode.attributes['data-toggle'].value;
     let newValue = "closed";
     if (toggle==="closed") {
       newValue = "open";
     }
-    e.target.setAttribute('data-toggle',newValue);
+    targetNode.setAttribute('data-toggle',newValue);
     // update dropdown arrow
-    ToggleClass(e.target.nextSibling, toggle, newValue);
-    ToggleClass(e.target.nextSibling.nextSibling, toggle, newValue);
-
+    ToggleClass(targetNode.nextSibling, toggle, newValue);
+    ToggleClass(targetNode, toggle, newValue);
   }
 
   loadTopics() {
@@ -75,21 +76,25 @@ export default class TopicsBlock extends React.Component {
     let hasChildrenClass = "";
     if (children.length>0) {
       childrenHTML = this.topicChildren(children, i);
-      toggleChildren = <span className="toggle-children">
+      toggleChildren = <span className="toggle-children"
+      onClick={this.toggleElementChildren}
+      data-toggle="closed"
+      >
         <i className="fa fa-angle-left"></i>
       </span>;
       hasChildrenClass = " has-children";
     }
-    let topic = <li key={i} data-key={i} onClick={this.props.returnfunction.bind(this)}>
-      <span className="hidden">{item.name}</span>
-      <span className="select-topic">
-        <i className="fa fa-circle-o" data-id={item.id}></i>
-      </span>
+    let topic = <li key={i} data-key={i}>
+      <a onClick={this.props.returnfunction.bind(this)}>
+        <span className="hidden">{item.name}</span>
+        <span className="select-topic">
+          <i className="fa fa-circle-o" data-id={item.id}></i>
+        </span>
       <span
         className={"topic-label"+hasChildrenClass}
         data-toggle="closed"
-        //onClick={this.toggleElementChildren}
           >{item.name} (<span className="count" data-default={item.count}>{item.count}</span>)</span>
+      </a>
       {toggleChildren}
       {childrenHTML}
     </li>;

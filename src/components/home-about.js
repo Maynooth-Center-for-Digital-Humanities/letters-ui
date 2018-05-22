@@ -34,7 +34,6 @@ export default class HomeAbout extends Component {
           let newTitle = newData.title.rendered;
           let newContent = stripHTML(newData.content.rendered);
           newContent = newContent.substring(0,750)+"...";
-          console.log(newData);
           let about = {
             title: newTitle,
             content: newContent,

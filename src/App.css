@@ -722,7 +722,14 @@ a {
   animation: anim .3s ease-in-out;
   margin-bottom: -6px;
 }
+.topics-list a {
+  color: #333;
+}
 .topics-list .toggle-children {
+  width: 20px;
+  height: 20px;
+  line-height: 20px;
+  text-align: center;
   margin: 2px 0 0 10px;
   transition: 0.2s all;
   display: inline-block;
@@ -742,7 +749,6 @@ a {
     max-height: 100%;
   }
 }
-.topics-list li,
 .sources-list li,
 .authors-list li,
 .genders-list li,
@@ -753,15 +759,17 @@ a {
   display: block;
   transition: all 0.3s;
   white-space: nowrap;
-}
-.topics-list li:hover,
-.sources-list li:hover,
-.authors-list li:hover,
-.genders-list li:hover,
-.languages-list li:hover,
-.date_sent-list li:hover
-{
   cursor: pointer;
+}
+.topics-list li
+{
+  padding: 6px 0 6px 1px;
+  display: block;
+  transition: all 0.3s;
+  white-space: nowrap;
+}
+.topics-list li  .toggle-children{
+  cursor: pointer;  
 }
 
 .topics-list li.disabled,

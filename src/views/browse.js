@@ -51,7 +51,7 @@ export class BrowseView extends Component {
     this.topicFilter = this.topicFilter.bind(this);
     this.filterContent = this.filterContent.bind(this);
     this.browserItems = this.browserItems.bind(this);
-    this.selectedTopicsToggleChildren = this.selectedTopicsToggleChildren.bind(this);
+    //this.selectedTopicsToggleChildren = this.selectedTopicsToggleChildren.bind(this);
     this.sourcesFilter = this.sourcesFilter.bind(this);
     this.authorsFilter = this.authorsFilter.bind(this);
     this.gendersFilter = this.gendersFilter.bind(this);
@@ -108,12 +108,12 @@ export class BrowseView extends Component {
   topicFilter(e) {
     e.preventDefault();
     let parent = e.currentTarget;
-
+    console.log(parent);
     let element = parent.querySelectorAll(".select-topic")[0].querySelectorAll("i")[0];
     let label = parent.querySelectorAll(".topic-label")[0];
 
     let className = element.className;
-    this.selectedTopicsToggleChildren(parent,className);
+    //this.selectedTopicsToggleChildren(parent,className);
     let prevTopics = this.state.selectedTopics;
     let selectedTopics = [];
     for (let i=0;i<prevTopics.length;i++) {
@@ -402,7 +402,6 @@ export class BrowseView extends Component {
     })
     .then(function (response) {
       let responseData = response.data.data;
-      //console.log(responseData);
       // topics
       let topics = responseData.keywords;
       CompareFilterTopics(topics);

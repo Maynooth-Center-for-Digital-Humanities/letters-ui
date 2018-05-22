@@ -28,6 +28,7 @@ import {WPCategoryView} from './views/wp-category.js';
 import {WPPagesView} from './views/wp-pages.js';
 import {BlankView} from './views/blank.js';
 import {VizualizationsView} from './views/vizualizations.js';
+import {ContactFormView} from './views/wp-contact-form.js';
 
 class App extends Component {
   componentDidMount() {
@@ -58,6 +59,7 @@ class App extends Component {
               <Route path="/wp-category/:slug" component={WPCategoryView}/>
               <Route path="/wp-page/:slug" component={WPPagesView}/>
               <Route path="/vizualizations/:type" component={VizualizationsView}/>
+              <Route path="/contact-form" component={ContactFormView}/>
             </Switch>
           </div>
           <PageFooter></PageFooter>
