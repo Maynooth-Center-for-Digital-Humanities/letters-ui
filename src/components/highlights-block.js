@@ -22,7 +22,7 @@ export default class HighlightsBlock extends React.Component {
     }
     else {
       let context = this;
-      axios.get(WPCustomRestPath+"category?slug=highlights&posts_per_page=6")
+      axios.get(WPCustomRestPath+"category?slug=highlights&posts_per_page=9")
     	  .then(function (response) {
           let data = response.data;
           context.setItems(data);
@@ -82,15 +82,14 @@ export default class HighlightsBlock extends React.Component {
     let content;
     if (this.state.loading) {
       content = <div className="loader-container">
-          <ReactLoading type='spinningBubbles' color='#738759' height='60px' width='60px' delay={0} />
+          <ReactLoading type='spinningBubbles' color='#738759' height={60} width={60} delay={0} />
           </div>;
     }
     else {
       content =  <div className="container">
           <OwlCarousel
             className="owl-theme"
-            autoplay={true}
-            autoplaytimeoutloop={5000}
+            autoplay={false}
             autoplayhoverpause="true"
             margin={10}
             nav
@@ -106,10 +105,14 @@ export default class HighlightsBlock extends React.Component {
     }
     return (
       <section className="home-highlights">
-        <h2 className="section-title">
-          <span>Highlights</span>
-        </h2>
-        {content}
+        <div className="row">
+          <div className="col-xs-12">
+            <h2 className="section-title">
+              <span>Highlights</span>
+            </h2>
+            {content}
+          </div>
+        </div>
       </section>
     );
   }

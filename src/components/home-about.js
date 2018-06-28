@@ -59,7 +59,7 @@ export default class HomeAbout extends Component {
       if (this.state.loading) {
         content = <div>
             <div className="loader-container">
-            <ReactLoading type='spinningBubbles' color='#738759' height='60px' width='60px' delay={0} />
+            <ReactLoading type='spinningBubbles' color='#738759' height={60} width={60} delay={0} />
             </div>
           </div>;
       }

@@ -69,11 +69,11 @@ export default class HomeNews extends React.Component {
     let content;
     if (this.state.loading) {
       content = <div className="loader-container">
-          <ReactLoading type='spinningBubbles' color='#738759' height='60px' width='60px' delay={0} />
+          <ReactLoading type='spinningBubbles' color='#738759' height={60} width={60} delay={0} />
           </div>;
     }
     else {
-      content =  <OwlCarousel className="owl-theme" loop margin={10} nav items={1} navText={owlNavText} navContainerClass='news-nav-class' dots={false}>
+      content =  <OwlCarousel className="owl-theme home-news" loop margin={10} nav items={1} navText={owlNavText} navContainerClass='news-nav-class' dots={false}>
             {this.state.items}
           </OwlCarousel>;
     }

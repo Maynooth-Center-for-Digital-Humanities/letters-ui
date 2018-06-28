@@ -40,6 +40,8 @@ export class BrowseView extends Component {
       genders: [],
       languages: [],
       date_sent: [],
+      queryStatus: 1,
+      queryTranscriptionStatus: 2,
     };
 
     this.updatePage = this.updatePage.bind(this);
@@ -113,7 +115,6 @@ export class BrowseView extends Component {
     let label = parent.querySelectorAll(".topic-label")[0];
 
     let className = element.className;
-    //this.selectedTopicsToggleChildren(parent,className);
     let prevTopics = this.state.selectedTopics;
     let selectedTopics = [];
     for (let i=0;i<prevTopics.length;i++) {
@@ -355,6 +356,8 @@ export class BrowseView extends Component {
         genders: this.state.genders,
         languages: this.state.languages,
         date_sent: this.state.date_sent,
+        status: this.state.queryStatus,
+        transcription_status: this.state.queryTranscriptionStatus
       }
     })
     .then(function (response) {

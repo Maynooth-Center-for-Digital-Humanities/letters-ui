@@ -111,7 +111,7 @@ export class ContactFormView extends Component {
     let pageContent;
     if (this.state.loading) {
       pageContent = <div className="loader-container">
-          <ReactLoading type='spinningBubbles' color='#738759' height='60px' width='60px' delay={0} />
+          <ReactLoading type='spinningBubbles' color='#738759' height={60} width={60} delay={0} />
           </div>;
     }
     else {

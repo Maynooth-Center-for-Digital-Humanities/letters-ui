@@ -1,5 +1,5 @@
 import React from 'react';
-import {domain} from '../common/constants.js';
+import {domain,escapeURLs} from '../common/constants.js';
 
 export function ToggleClass(node, class1, class2) {
   let currentClassName = node.className;
@@ -149,7 +149,6 @@ export function NormalizeWPURL(href) {
 
 export function NormalizeMenuWPURL(href) {
   let normalizedURL = href;
-  let escapeURLs = ["/browse", "/contact-form", "/fullsearch", "/password-restore", "/register","/item","/letter","/upload-xml", "/content","/vizualizations","/vizualizations/map"];
   if (escapeURLs.indexOf(href)===-1) {
     let newHref = href.replace("http://letters1916.maynoothuniversity.ie/learn/index.php/", domain+"/wp-post/");
     newHref = newHref.replace(domain+"/learn/index.php/", domain+"/wp-post/");
@@ -178,4 +177,61 @@ export function stripHTML(html) {
   let tmp = document.createElement("DIV");
   tmp.innerHTML = html;
   return tmp.textContent || tmp.innerText;
+}
+
+export function calculateDaysInMonth(year, month) {
+  let monthStart = new Date(year, month, 1);
+  let monthEnd = new Date(year, month + 1, 1);
+  let monthLength = (monthEnd - monthStart) / (1000 * 60 * 60 * 24);
+  return monthLength;
+}
+
+export function flattenDeep(arr) {
+  return arr.reduce((acc, e) => Array.isArray(e) ? acc.concat(flattenDeep(e)) : acc.concat(e), []);
+}
+
+export function sessionCookie(userName, sessionActive, accessToken, expired) {
+  let currentDate = new Date();
+  let tomorrow = new Date();
+  tomorrow.setDate(currentDate.getDate() + 1);
+
+  let expiredDate = new Date();
+  expiredDate.setDate(currentDate.getDate() - 1);
+  if (expired) {
+    tomorrow = expiredDate;
+  }
+  document.cookie = "lettersUsername="+userName+";expires="+tomorrow;
+  document.cookie = "lettersSessionactive="+sessionActive+";expires="+tomorrow;
+  document.cookie = "lettersAccesstoken="+accessToken+";expires="+tomorrow;
+}
+
+export function checkSessionCookies() {
+  if (getCookie('lettersSessionactive')) {
+    let userName = getCookie('lettersUsername');
+    let accessToken = getCookie('lettersAccesstoken');
+    sessionStorage.setItem('userName', userName);
+    sessionStorage.setItem('sessionActive', true);
+    sessionStorage.setItem('accessToken', accessToken);
+  }
+  else {
+    sessionStorage.setItem('userName', '');
+    sessionStorage.setItem('sessionActive', false);
+    sessionStorage.setItem('accessToken', '');
+  }
+}
+
+function getCookie(cname) {
+  let name = cname + "=";
+  let decodedCookie = decodeURIComponent(document.cookie);
+  let ca = decodedCookie.split(';');
+  for(let i = 0; i <ca.length; i++) {
+      let c = ca[i];
+      while (c.charAt(0) === ' ') {
+          c = c.substring(1);
+      }
+      if (c.indexOf(name) === 0) {
+          return c.substring(name.length, c.length);
+      }
+  }
+  return "";
 }

@@ -4,6 +4,7 @@ import axios from 'axios';
 import {Link} from 'react-router-dom';
 import {DropdownButton, MenuItem} from 'react-bootstrap';
 import {APIPath} from '../common/constants.js';
+import {sessionCookie} from '../helpers/helpers';
 
 class LoginModal extends React.Component {
 	constructor(props) {
@@ -50,13 +51,17 @@ class LoginModal extends React.Component {
 	handleFormSubmit(event) {
 		event.preventDefault();
 		var loginModalContext = this;
-		axios.get(APIPath+'login?email='+this.state.email+'&password='+this.state.password)
+		axios.post(APIPath+'login', {
+			email: this.state.email,
+			password: this.state.password
+		})
 	  .then(function (response) {
 	    let status = response.data.status;
 	    if (typeof status!== undefined && status===true) {
 	      sessionStorage.setItem('userName', response.data.data.userName);
 	      sessionStorage.setItem('sessionActive', true);
 	      sessionStorage.setItem('accessToken', response.data.data.accessToken);
+				sessionCookie(response.data.data.userName, true, response.data.data.accessToken, false);
 	      window.location.reload();
 	    }
 	    else {
@@ -77,6 +82,8 @@ class LoginModal extends React.Component {
 	handleLogout() {
 		sessionStorage.setItem('sessionActive', false);
 		sessionStorage.setItem('accessToken', '');
+		sessionStorage.setItem('userName', '');
+		sessionCookie('', false, '', true);
 		window.location.reload();
 	}
 
@@ -98,7 +105,11 @@ class LoginModal extends React.Component {
 					key="user-dropdown"
 					id={"session-dropdown"}
 				>
-					<MenuItem eventKey="2" onClick={this.handleLogout}><i className="fa fa-sign-out"></i> Logout</MenuItem>
+					<MenuItem eventKey="1" componentClass={Link} href="/user-profile" to="/user-profile"><i className="fa fa-user"></i> Profile</MenuItem>
+					<MenuItem eventKey="2" componentClass={Link} href="/user-letter/0" to="/user-letter/0"><i className="fa fa-file-o"></i> Add new Letter</MenuItem>
+					<MenuItem eventKey="3" componentClass={Link} href="/user-letters" to="/user-letters"><i className="fa fa-files-o"></i> My letters</MenuItem>
+					<MenuItem eventKey="4" componentClass={Link} href="/user-transcriptions" to="/user-transcriptions"><i className="fa fa-file-text-o"></i> My transcriptions</MenuItem>
+					<MenuItem eventKey="5" onClick={this.handleLogout}><i className="fa fa-sign-out"></i> Logout</MenuItem>
 				</DropdownButton>
 	    );
 		}

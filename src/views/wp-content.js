@@ -6,6 +6,7 @@ import {WPCustomRestPath,domain} from '../common/constants.js';
 import {NormalizeWPURL} from '../helpers/helpers.js';
 import {Link} from 'react-router-dom';
 import Parser from 'html-react-parser';
+import domToReact from 'html-react-parser/lib/dom-to-react';
 
 export class WPContentView extends Component {
   constructor() {
@@ -62,7 +63,9 @@ export class WPContentView extends Component {
               let newHref = NormalizeWPURL(href);
               if (newHref.includes("wp-post")) {
                 let text = domNode.children[0].data;
-
+                if (typeof text==="undefined") {
+                  text = domToReact(domNode.children);
+                }
                 newHref = newHref.replace(domain, "");
                 return <Link to={newHref}>{text}</Link>;
               }
@@ -80,7 +83,7 @@ export class WPContentView extends Component {
     let pageContent;
     if (this.state.loading) {
       pageContent = <div className="loader-container">
-          <ReactLoading type='spinningBubbles' color='#738759' height='60px' width='60px' delay={0} />
+          <ReactLoading type='spinningBubbles' color='#738759' height={60} width={60} delay={0} />
           </div>;
     }
     else {
@@ -90,6 +93,7 @@ export class WPContentView extends Component {
       if (typeof this.state.content.categories!=="undefined" && this.state.content.categories.length>0) {
         breadCrumbsArr.push({label:this.state.content.categories[0].name,path:'/wp-category/'+this.state.content.categories[0].slug});
       }
+      console.log(cleanContent);
       breadCrumbsArr.push({label:contentTitle,path:''});
       pageContent = <div className="container">
         <div className="row">
