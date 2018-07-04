@@ -38,7 +38,7 @@ export default class HomeNews extends React.Component {
     let items = [];
     for (let i=0; i<data.length; i++) {
       let highlight = data[i];
-      let descriptionText = stripHTML(highlight.description);
+      let descriptionText = stripHTML(highlight.post_excerpt);
       if (descriptionText.length>100) {
         descriptionText = descriptionText.substring(0,100)+"...";
       }

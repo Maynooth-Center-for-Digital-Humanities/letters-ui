@@ -37,7 +37,7 @@ export default class HighlightsBlock extends React.Component {
     let items = [];
     for (let i=0; i<data.length; i++) {
       let highlight = data[i];
-      let descriptionText = highlight.description.replace(/<[^>]+>/ig," ");
+      let descriptionText = highlight.post_excerpt.replace(/<[^>]+>/ig," ");
       descriptionText = descriptionText.replace("&amp;", "&");
       if (descriptionText.length>100) {
         descriptionText = descriptionText.substring(0,100)+"...";

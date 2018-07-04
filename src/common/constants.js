@@ -22,4 +22,5 @@ export const escapeURLs = [
   "/user-transcriptions",
   "/vizualizations",
   "/vizualizations/map",
+  "/admin/list-transcriptions",
 ];

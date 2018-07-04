@@ -1,22 +1,22 @@
 import React from 'react';
 import {Link} from 'react-router-dom';
 import logo from '../assets/images/logo-update.png';
-import LoginModal from '../components/login.modal.js';
-import SearchInput from '../components/header-search.js';
+import LoginModal from '../components/login.modal';
+import SearchInput from '../components/header-search';
 
 const pageHeader = () => (
   <div className="page-header">
     <div className="top-bar">
       <div className="wrapper">
         <div className="container">
-          <ul className="pull-left">
+          <ul className="pull-left social-icons">
             <li><a><i className="fa fa-facebook"></i></a></li>
             <li><a><i className="fa fa-twitter"></i></a></li>
             <li><a><i className="fa fa-tumblr"></i></a></li>
             <li><a><i className="fa fa-soundcloud"></i></a></li>
           </ul>
           <ul className="pull-right">
-            <LoginModal></LoginModal>
+            <LoginModal/>
           </ul>
         </div>
       </div>

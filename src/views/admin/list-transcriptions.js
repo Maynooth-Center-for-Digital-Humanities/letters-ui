@@ -1,15 +1,16 @@
 import React, {Component} from 'react';
 import axios from 'axios';
 import {Link} from 'react-router-dom';
-import BreadCrumbs from '../components/breadcrumbs';
+import {Redirect} from 'react-router';
+import BreadCrumbs from '../../components/breadcrumbs';
 import {DropdownButton, MenuItem} from 'react-bootstrap';
-import {APIPath, domain} from '../common/constants.js';
-import Pagination from '../helpers/pagination.js';
+import {APIPath, domain} from '../../common/constants.js';
+import Pagination from '../../helpers/pagination.js';
 import {loadProgressBar} from 'axios-progress-bar';
-import {PreloaderCards,Emptyitemscard} from '../helpers/helpers.js';
-import ConfirmModal from '../components/confirm-modal';
+import {PreloaderCards,Emptyitemscard} from '../../helpers/helpers.js';
+import ConfirmModal from '../../components/confirm-modal';
 
-export class UserLettersView extends Component {
+export class TranscriptionsListView extends Component {
   constructor(props) {
     super(props);
     this.state = {
@@ -28,7 +29,8 @@ export class UserLettersView extends Component {
       showDeleteLetterConfirm:false,
       deleteLetterId: 0,
       showBtnDisabledConfirm: false,
-      btnDisabledText: ''
+      btnDisabledText: '',
+      redirect: false
     };
 
     this.updatePage = this.updatePage.bind(this);
@@ -93,7 +95,7 @@ export class UserLettersView extends Component {
 
   loadItems() {
     let context = this;
-    let path = APIPath+"user-letters/";
+    let path = APIPath+"admin/transcriptions-list";
     let params = {
       sort: this.state.sort,
       page: this.state.current_page,
@@ -127,7 +129,17 @@ export class UserLettersView extends Component {
       });
     })
     .catch(function (error) {
-      console.log(error);
+      let responseData = error.response.data;
+      let message = "";
+      for (let k in responseData.errors) {
+        message = responseData.errors[k];
+      }
+      if (message==="") {
+        message = responseData.message;
+      }
+      context.setState({
+        redirect: true,
+      });
     });
   }
 
@@ -145,7 +157,7 @@ export class UserLettersView extends Component {
       }
       let status = item.status;
       let transcription_status = item.transcription_status;
-      //let enableTranscriptionBtn = [];
+      let enableTranscriptionBtn = [];
 
       let gotoTranscriptionBtn= <li><button className="action-button" title="Transcribe letter" onClick={this.showBtnDisabledConfirm.bind(this, cannotTranscribeText)}>
         <i className="fa fa-file-text-o color-grey"></i>
@@ -165,20 +177,20 @@ export class UserLettersView extends Component {
       </div>;
 
       if (status===0 && transcription_status===-1) {
-      /*  enableTranscriptionBtn = <li><button className="action-button" title="Enable transcription" onClick={this.toggleTranscriptionStatus.bind(this, item.id)}>
+        enableTranscriptionBtn = <li><button className="action-button" title="Enable transcription" onClick={this.toggleTranscriptionStatus.bind(this, item.id)}>
           <i className="fa fa-minus color-red"></i>
-        </button></li>;*/
+        </button></li>;
 
         editBtn = <li><Link to={ 'user-letter/'+item.id} className="action-button" title="Edit letter">
           <i className="fa fa-pencil color-blue"></i>
         </Link></li>;
       }
       else if (status===0 && transcription_status===0) {
-      /*  enableTranscriptionBtn = <li><button className="action-button" title="Disable transcription" onClick={this.toggleTranscriptionStatus.bind(this, item.id)}>
+        enableTranscriptionBtn = <li><button className="action-button" title="Disable transcription" onClick={this.toggleTranscriptionStatus.bind(this, item.id)}>
           <i className="fa fa-check color-green"></i>
-        </button></li>;*/
+        </button></li>;
 
-        gotoTranscriptionBtn = <li><Link to={ 'letter-transcribe/'+item.id} className="action-button" title="Transcribe letter">
+        gotoTranscriptionBtn = <li><Link to={{ pathname: '/letter-transcribe/'+item.id, prevlocation: "List Transcriptions", prevlocationpath: "/admin/list-transcriptions" }} className="action-button" title="Transcribe letter">
           <i className="fa fa-file-text-o"></i>
         </Link></li>;
 
@@ -202,7 +214,7 @@ export class UserLettersView extends Component {
           </div>
           <div className="col-sm-4 col-md-3">
             <ul className="action-buttons-list">
-            {/*  {enableTranscriptionBtn} */}
+              {enableTranscriptionBtn}
               {gotoTranscriptionBtn}
               {editBtn}
               {deleteBtn}
@@ -297,13 +309,17 @@ export class UserLettersView extends Component {
   }
 
   render() {
-    let breadCrumbsArr = [{label:'My Letters',path:''}];
+    let contentTitle = 'List Transcriptions';
+    let breadCrumbsArr = [{label:contentTitle,path:''}];
     let contentHTML = [];
     let sessionActive = sessionStorage.getItem('sessionActive');
     if (sessionActive!=='true') {
       contentHTML = <div className="item-container">
         <p className="text-center">This is a protected page. <br/>To view this page you must first login or register.</p>
       </div>;
+    }
+    else if (this.state.redirect) {
+      contentHTML = <Redirect to="/"  />;
     }
     else {
       let content;
@@ -406,7 +422,7 @@ export class UserLettersView extends Component {
         <div className="row">
           <div className="col-xs-12">
             <BreadCrumbs items={breadCrumbsArr}/>
-            <h1><span>My Letters</span></h1>
+            <h1><span>{contentTitle}</span></h1>
             {contentHTML}
           </div>
         </div>

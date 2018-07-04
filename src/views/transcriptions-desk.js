@@ -628,7 +628,7 @@ export class TranscriptionsDeskView extends Component {
             <h3 className="column-title">Filters</h3>
           </div>
           <div className="col-xs-12 col-sm-9">
-            <h2>Browse</h2>
+            <h2>{contentTitle}</h2>
           </div>
         </div>
         <div className="row">

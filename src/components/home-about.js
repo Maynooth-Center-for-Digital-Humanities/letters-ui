@@ -32,7 +32,7 @@ export default class HomeAbout extends Component {
     	  .then(function (response) {
           let newData = response.data[0];
           let newTitle = newData.title.rendered;
-          let newContent = stripHTML(newData.content.rendered);
+          let newContent = stripHTML(newData.excerpt.rendered);
           newContent = newContent.substring(0,750)+"...";
           let about = {
             title: newTitle,

@@ -194,15 +194,15 @@ export function sessionCookie(userName, sessionActive, accessToken, expired) {
   let currentDate = new Date();
   let tomorrow = new Date();
   tomorrow.setDate(currentDate.getDate() + 1);
-
+  let expires = tomorrow;
   let expiredDate = new Date();
   expiredDate.setDate(currentDate.getDate() - 1);
   if (expired) {
-    tomorrow = expiredDate;
+    expires = expiredDate;
   }
-  document.cookie = "lettersUsername="+userName+";expires="+tomorrow;
-  document.cookie = "lettersSessionactive="+sessionActive+";expires="+tomorrow;
-  document.cookie = "lettersAccesstoken="+accessToken+";expires="+tomorrow;
+  setCookie('lettersUsername',userName,expires);
+  setCookie('lettersSessionactive',sessionActive,expires);
+  setCookie('lettersAccesstoken',accessToken,expires);
 }
 
 export function checkSessionCookies() {
@@ -234,4 +234,8 @@ function getCookie(cname) {
       }
   }
   return "";
+}
+
+function setCookie(name,value,expires){
+   document.cookie = name + "=" + value + ((expires==null) ? "" : ";expires=" + expires.toGMTString())
 }

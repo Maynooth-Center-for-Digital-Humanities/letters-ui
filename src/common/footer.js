@@ -2,7 +2,6 @@ import React from 'react';
 import MULogo from '../assets/images/mu-logo-white-footer.png';
 import {Link} from 'react-router-dom';
 
-
 let date = new Date();
 let year = date.getFullYear();
 const pageFooter = () => (

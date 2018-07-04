@@ -1,4 +1,5 @@
 import React, { Component } from 'react';
+import axios from 'axios';
 import {BrowserRouter as Router, Route, Switch} from 'react-router-dom';
 import 'axios-progress-bar/dist/nprogress.css';
 import './assets/bootstrap/css/bootstrap.min.css';
@@ -7,15 +8,17 @@ import './assets/open-sans/css/open-sans.css';
 import 'owl.carousel/dist/assets/owl.carousel.css';
 import 'owl.carousel/dist/assets/owl.theme.default.css';
 import './App.css';
-import {basename} from './common/constants.js';
+import {APIPath,basename} from './common/constants.js';
 import {Helmet} from "react-helmet";
 import {preloadContent} from './helpers/preload-content.js';
 
 // components
-import PageHeader from './common/header.js';
-import PageFooter from './common/footer.js';
-import Navbar from './components/navbar.js';
-import ScrollToTop from './components/scrolltotop.js';
+import PageHeader from './common/header';
+import PageFooter from './common/footer';
+import Navbar from './components/navbar';
+import ScrollToTop from './components/scrolltotop';
+import AdminMenu from './components/admin-menu';
+
 
 // views
 import {HomeView} from './views/home.js';
@@ -38,13 +41,55 @@ import {UserLetterView} from './views/user-letter.js';
 import {UserLettersView} from './views/user-letters.js';
 import {UserTranscriptionsView} from './views/user-transcriptions.js';
 import {TranscriptionsDeskView} from './views/transcriptions-desk.js';
+// admin
+import {TranscriptionsListView} from './views/admin/list-transcriptions.js';
 
 import {checkSessionCookies} from './helpers/helpers.js';
 
 class App extends Component {
+  constructor() {
+    super();
+
+    this.state={
+      isAdmin: false
+    }
+    this.checkAdminState = this.checkAdminState.bind(this);
+  }
+
+  checkAdminState() {
+    let sessionActive = sessionStorage.getItem('sessionActive');
+    if (sessionActive) {
+      let context = this;
+      let accessToken = sessionStorage.getItem('accessToken');
+      axios.defaults.headers.common['Authorization'] = 'Bearer '+accessToken;
+      axios.get(APIPath+'user-profile')
+      .then(function (response) {
+        let status = response.data.status;
+        if (typeof status!== undefined && status===true) {
+          let roles = response.data.data.roles;
+          let isAdmin = false;
+          for (let i=0;i<roles.length; i++) {
+            let role = roles[i];
+            if (role.is_admin===1) {
+              isAdmin = true;
+            }
+          }
+          context.setState({
+            isAdmin: isAdmin
+          });
+        }
+      })
+      .catch(function (error) {
+        console.log(error);
+      });
+    }
+  }
+
   componentWillMount() {
     checkSessionCookies();
+    this.checkAdminState();
   }
+
   componentDidMount() {
     preloadContent();
   }
@@ -67,7 +112,7 @@ class App extends Component {
               <Route path="/fullsearch" component={SearchView}/>
               <Route path="/item/:itemId" component={ItemView}/>
               <Route path="/letter/:letterId" component={ItemView}/>
-              <Route path="/letter-transcribe/:itemId" component={TranscriptionLetterView}/>
+              <Route path="/letter-transcribe/:itemId" component={props=><TranscriptionLetterView isAdmin={this.state.isAdmin} {...props} />} />
               <Route path="/password-restore" component={PasswordRestoreView}/>
               <Route path="/register" component={RegisterView}/>
               <Route path="/transcriptions-desk" component={TranscriptionsDeskView}/>
@@ -80,10 +125,12 @@ class App extends Component {
               <Route path="/wp-post/:slug" component={WPContentView}/>
               <Route path="/wp-category/:slug" component={WPCategoryView}/>
               <Route path="/wp-page/:slug" component={WPPagesView}/>
+              <Route path="/admin/list-transcriptions" component={TranscriptionsListView}/>
             </Switch>
           </div>
-          <PageFooter></PageFooter>
-          <ScrollToTop></ScrollToTop>
+          <PageFooter/>
+          <ScrollToTop/>
+          <AdminMenu isAdmin={this.state.isAdmin}/>
         </div>
       </Router>
     );

@@ -1,8 +1,7 @@
 import React from 'react';
-import {Modal} from 'react-bootstrap';
 import axios from 'axios';
 import {Link} from 'react-router-dom';
-import {DropdownButton, MenuItem} from 'react-bootstrap';
+import {Modal, DropdownButton, MenuItem} from 'react-bootstrap';
 import {APIPath} from '../common/constants.js';
 import {sessionCookie} from '../helpers/helpers';
 
@@ -70,8 +69,10 @@ class LoginModal extends React.Component {
 	      for (var e in error) {
 					errorText = error[e];
 	      }
-	      loginModalContext.setState({login_error:errorText});
-	      loginModalContext.setState({login_error_class:'error-container-visible'});
+	      loginModalContext.setState({
+					login_error:errorText,
+					login_error_class:'error-container-visible'
+				});
 	    }
 	  })
 	  .catch(function (error) {
@@ -80,6 +81,7 @@ class LoginModal extends React.Component {
   }
 
 	handleLogout() {
+
 		sessionStorage.setItem('sessionActive', false);
 		sessionStorage.setItem('accessToken', '');
 		sessionStorage.setItem('userName', '');

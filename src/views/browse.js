@@ -39,7 +39,9 @@ export class BrowseView extends Component {
       authors: [],
       genders: [],
       languages: [],
-      date_sent: [],
+      dates_sent: [],
+      date_start: [],
+      date_end: [],
       queryStatus: 1,
       queryTranscriptionStatus: 2,
     };
@@ -110,7 +112,6 @@ export class BrowseView extends Component {
   topicFilter(e) {
     e.preventDefault();
     let parent = e.currentTarget;
-    console.log(parent);
     let element = parent.querySelectorAll(".select-topic")[0].querySelectorAll("i")[0];
     let label = parent.querySelectorAll(".topic-label")[0];
 
@@ -270,35 +271,13 @@ export class BrowseView extends Component {
     });
   }
 
-  datecreatedFilter(e) {
-    e.preventDefault();
-    let parent = e.currentTarget;
-    let element = parent.querySelectorAll(".select-source")[0].querySelectorAll("i")[0];
-    let label = parent.querySelectorAll(".source-label")[0];
-
-    let className = element.className;
-    let prevDate_sent = this.state.languages;
-    let selectedDate_sent = [];
-    for (let i=0;i<prevDate_sent.length;i++) {
-      selectedDate_sent.push(prevDate_sent[i]);
-    }
-    let currentDate_sent = element.children[0].innerText;
-    if (className==="fa fa-circle-o") {
-      if (selectedDate_sent.indexOf(currentDate_sent)===-1) {
-        selectedDate_sent.push(currentDate_sent);
-      }
-    }
-    else {
-      if (selectedDate_sent.indexOf(currentDate_sent)>-1) {
-        let index = selectedDate_sent.indexOf(currentDate_sent);
-         selectedDate_sent.splice(index, 1);
-      }
-    }
-    ToggleClass(element, "fa-circle-o", "fa-check-circle-o");
-    ToggleClass(label, "", "active");
+  datecreatedFilter(value) {
+    let dateStart = value.startValue;
+    let dateEnd = value.endValue;
     this.setState({
       loading:true,
-      date_sent: selectedDate_sent
+      date_start: dateStart,
+      date_end: dateEnd,
     });
   }
 
@@ -355,7 +334,8 @@ export class BrowseView extends Component {
         authors: this.state.authors,
         genders: this.state.genders,
         languages: this.state.languages,
-        date_sent: this.state.date_sent,
+        date_start: this.state.date_start,
+        date_end: this.state.date_end,
         status: this.state.queryStatus,
         transcription_status: this.state.queryTranscriptionStatus
       }
@@ -388,7 +368,7 @@ export class BrowseView extends Component {
   }
 
   updateFilters() {
-    //let browseContext = this;
+    let context = this;
     let path = APIPath+"indexfilteredfilters/";
     axios.get(path, {
       params: {
@@ -400,7 +380,10 @@ export class BrowseView extends Component {
         authors: this.state.authors,
         genders: this.state.genders,
         languages: this.state.languages,
-        date_sent: this.state.date_sent,
+        date_start: this.state.date_start,
+        date_end: this.state.date_end,
+        status: this.state.queryStatus,
+        transcription_status: this.state.queryTranscriptionStatus,
       }
     })
     .then(function (response) {
@@ -425,9 +408,11 @@ export class BrowseView extends Component {
       let languages = responseData.languages;
       CompareFilterGeneral("languages-list",languages);
 
-      // dates_sent
-      let dates_sent = responseData.dates_sent;
-      CompareFilterGeneral("date_sent-list",dates_sent);
+      // dates
+      context.setState({
+        dates_sent: responseData.dates_sent
+      });
+
     })
     .catch(function (error) {
       console.log(error);
@@ -523,7 +508,8 @@ export class BrowseView extends Component {
         prevState.authors!==this.state.authors ||
         prevState.genders!==this.state.genders ||
         prevState.languages!==this.state.languages ||
-        prevState.date_sent!==this.state.date_sent
+        prevState.date_start!==this.state.date_start ||
+        prevState.date_end!==this.state.date_end
       )
     )
     {
@@ -622,7 +608,7 @@ export class BrowseView extends Component {
             <AuthorsBlock returnfunction={this.authorsFilter} />
             <GendersBlock returnfunction={this.gendersFilter} />
             <LanguagesBlock returnfunction={this.languagesFilter} />
-            <DatecreatedBlock returnfunction={this.datecreatedFilter} />
+            <DatecreatedBlock returnfunction={this.datecreatedFilter} availableDates={this.state.dates_sent}/>
           </div>
           <div className="col-xs-12 col-sm-9">
 

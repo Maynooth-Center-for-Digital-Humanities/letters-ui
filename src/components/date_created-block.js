@@ -2,15 +2,26 @@ import React from 'react';
 import axios from 'axios';
 import ReactLoading from 'react-loading';
 import {APIPath} from '../common/constants.js';
+import DatePicker from './datepicker';
+import moment from 'moment';
 
 export default class DatecreatedBlock extends React.Component {
-  constructor() {
-    super();
+  constructor(props) {
+    super(props);
     this.state = {
       loading: true,
-      items: [],
+      startValue: null,
+      endValue: null,
+      startOpen: false,
+      endOpen: false,
+      calendarDates: [],
+      excludedDates: []
     }
-
+    this.loadItems = this.loadItems.bind(this);
+    this.setItems = this.setItems.bind(this);
+    this.onChange = this.onChange.bind(this);
+    this.startDateClear = this.startDateClear.bind(this);
+    this.endDateClear = this.endDateClear.bind(this);
   }
 
   loadItems() {
@@ -32,33 +43,92 @@ export default class DatecreatedBlock extends React.Component {
   }
 
   setItems(data) {
-    let items = [];
+    let calendarDates = [];
     for (let i=0; i<data.length; i++) {
       let dataItem = data[i];
-      let date_createdLabel = dataItem.date_created;
-      if (dataItem.date_created==="") {
-        date_createdLabel = "Unknown";
+      let dateCreated = dataItem.date_created;
+      let dateArr = dateCreated.split("-");
+      if (dateArr.length>=2) {
+        let newDate = moment(dateCreated);
+        if (!calendarDates.includes(newDate)) {
+          calendarDates.push(newDate);
+        }
       }
-      let item = <li key={i} onClick={this.props.returnfunction.bind(this)}>
-        <span className="hidden">{dataItem.date_created}</span>
-        <span className="select-source">
-          <i className="fa fa-circle-o">
-            <span className="hidden">{dataItem.date_created}</span>
-          </i>
-        </span>
-        <span className="source-label">{date_createdLabel} (<span className="count" data-default={dataItem.count}>{dataItem.count}</span>)</span>
-        </li>;
-      items.push(item);
-
     }
     this.setState({
       loading: false,
-      items: items
+      calendarDates: calendarDates
+    });
+  }
+
+  updateItems(data) {
+    let dataToArr = Object.keys(data).map(function(key) {
+      return key;
+    });
+    let calendarDates = [];
+    for (let i=0;i<dataToArr.length; i++) {
+      let dateCreated = dataToArr[i];
+      let dateArr = dateCreated.split("-");
+      if (dateArr.length>=2) {
+        let newDate = moment(dateCreated);
+        if (!calendarDates.includes(newDate)) {
+          calendarDates.push(newDate);
+        }
+      }
+    }
+    this.setState({
+      loading: false,
+      calendarDates: calendarDates
+    });
+  }
+
+  onChange (field, value){
+    if (field==="endValue" && this.state.startValue!==null) {
+      let startValue = moment(this.state.startValue);
+      let endValue = moment(value);
+      if (endValue<startValue) {
+        value = this.state.startValue;
+      }
+    }
+    this.setState({
+      [field]: value,
+    });
+  }
+
+  startDateClear() {
+    this.setState({
+      startValue: null
+    });
+  }
+  endDateClear() {
+    this.setState({
+      endValue: null
     });
   }
 
   componentDidMount() {
     this.loadItems();
+  }
+
+  componentDidUpdate(prevProps, prevState) {
+    if (prevState.startValue!==this.state.startValue || prevState.endValue!==this.state.endValue) {
+      let newStartValue = null;
+      let newEndValue = null;
+      if (this.state.startValue!==null) {
+        newStartValue = moment(this.state.startValue).format("YYYY-MM-DD");
+      }
+      if (this.state.endValue!==null) {
+        newEndValue = moment(this.state.endValue).format("YYYY-MM-DD");
+      }
+      let returnValues = {
+        startValue: newStartValue,
+        endValue: newEndValue
+      }
+      this.props.returnfunction(returnValues);
+    }
+    if (prevProps.availableDates!== this.props.availableDates) {
+      this.updateItems(this.props.availableDates);
+    }
   }
 
   render() {
@@ -69,7 +139,27 @@ export default class DatecreatedBlock extends React.Component {
           </div>;
     }
     else {
-      content = <ul className="date_sent-list">{this.state.items}</ul>;
+
+      content = <div className="row">
+        <div className="col-xs-12">
+          <DatePicker
+            placeholder="From"
+            value={this.state.startValue}
+            onChange={this.onChange.bind(this, 'startValue')}
+            clearFunction={this.startDateClear}
+            dates={this.state.calendarDates}
+          />
+        </div>
+        <div className="col-xs-12">
+          <DatePicker
+            placeholder="To"
+            value={this.state.endValue}
+            onChange={this.onChange.bind(this, 'endValue')}
+            clearFunction={this.endDateClear}
+            dates={this.state.calendarDates}
+          />
+        </div>
+      </div>;
     }
     return (
       <div className="topics-container">

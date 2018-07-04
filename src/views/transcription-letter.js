@@ -18,12 +18,19 @@ export class TranscriptionLetterView extends Component {
       page: [],
       containerClass: "container",
       error: false,
-      msg: ""
+      msg: "",
+      isAdmin: this.props.isAdmin,
+      prevlocation: '',
+      prevlocationpath: '',
+      completed: false,
+      approved: false,
     };
 
     this.showPage = this.showPage.bind(this);
     this.updatePages = this.updatePages.bind(this);
     this.updateErrorState = this.updateErrorState.bind(this);
+    this.updateTranscriptionPageStatus = this.updateTranscriptionPageStatus.bind(this);
+    this.setPageTranscriptionStatus = this.setPageTranscriptionStatus.bind(this);
   }
 
   loadItem() {
@@ -50,6 +57,11 @@ export class TranscriptionLetterView extends Component {
           page: responseData.pages[0],
           loading: false
         });
+        let newPageStatus = 0;
+        if (typeof responseData.pages[0].transcription_status!=="undefined") {
+          newPageStatus = parseInt(responseData.pages[0].transcription_status,10);
+          context.setPageTranscriptionStatus(newPageStatus);
+        }
       }
       else {
         context.setState({
@@ -67,6 +79,20 @@ export class TranscriptionLetterView extends Component {
 
   componentDidMount() {
     this.loadItem();
+    if (typeof this.props.history.location.prevlocation!=="undefined") {
+      this.setState({
+        prevlocation: this.props.history.location.prevlocation,
+        prevlocationpath: this.props.history.location.prevlocationpath,
+      })
+    }
+  }
+
+  componentDidUpdate(prevProps) {
+    if (prevProps.isAdmin!==this.props.isAdmin) {
+      this.setState({
+        isAdmin: this.props.isAdmin,
+      })
+    }
   }
 
   showPage(i) {
@@ -74,6 +100,13 @@ export class TranscriptionLetterView extends Component {
     this.setState({
       page: newPage
     });
+    let newPageStatus=0;
+    console.log(newPage);
+    if (typeof newPage.transcription_status!=="undefined") {
+
+      newPageStatus = parseInt(newPage.transcription_status,10);
+      this.setPageTranscriptionStatus(newPageStatus);
+    }
   }
 
   updatePages(pages) {
@@ -89,8 +122,69 @@ export class TranscriptionLetterView extends Component {
     });
   }
 
+  updateTranscriptionPageStatus(status) {
+    let archive_filename = this.state.page.archive_filename;
+    let itemId = 0;
+    let postPath;
+    let context = this;
+    if (typeof this.props.match.params.itemId!=="undefined") {
+      itemId = this.props.match.params.itemId;
+      postPath = APIPath+'update-letter-transcription-page-status/'+itemId;
+    }
+    else {
+      return false;
+    }
+    let accessToken = sessionStorage.getItem('accessToken');
+    axios.defaults.headers.common['Authorization'] = 'Bearer '+accessToken;
+		axios.post(postPath, {
+      'archive_filename': archive_filename,
+      'transcription_status': status
+    })
+	  .then(function (response) {
+      if (response.data.status===true) {
+        let pages = response.data.data;
+        let updatedPage = [];
+        for (let i=0; i<pages.length; i++) {
+          let page = pages[i];
+          if (page.archive_filename===archive_filename) {
+            updatedPage = page;
+          }
+        }
+        context.setState({
+          page: updatedPage
+        });
+        context.setPageTranscriptionStatus(status);
+      }
+	  })
+	  .catch(function (error) {
+	    console.log(error);
+	  });
+  }
+
+  setPageTranscriptionStatus(status) {
+    if (status===0) {
+      this.setState({
+        completed: false,
+        approved: false,
+      });
+    }
+    if (status===1) {
+      this.setState({
+        completed: true,
+        approved: false,
+      });
+    }
+    if (status===2) {
+      this.setState({
+        completed: true,
+        approved: true,
+      });
+    }
+
+  }
+
   render() {
-    let contentHTML,contentTitle;
+    let contentHTML,contentTitle,adminButtons;
     let sessionActive = sessionStorage.getItem('sessionActive');
     let breadCrumbsArr = [];
 		if (sessionActive!=='true') {
@@ -105,6 +199,26 @@ export class TranscriptionLetterView extends Component {
               </div>;
         }
         else if (this.state.loading===false) {
+          if (this.state.isAdmin) {
+            let completeButton, approveButton;
+            if (!this.state.completed) {
+              completeButton = <button className="btn btn-success" onClick={this.updateTranscriptionPageStatus.bind(this,1)}>Open</button>;
+            }
+            else {
+              completeButton = <button className="btn btn-danger disabled"  onClick={this.updateTranscriptionPageStatus.bind(this,0)}>Closed</button>;
+            }
+            if (!this.state.approved) {
+              approveButton = <button className="btn btn-letters" onClick={this.updateTranscriptionPageStatus.bind(this,2)}>Approve</button>
+            }
+            else {
+              approveButton = <button className="btn btn-letters disabled"  onClick={this.updateTranscriptionPageStatus.bind(this,1)}>Approved</button>
+            }
+            adminButtons = <div className="transcribe-approve-btns">
+              {completeButton}
+              &nbsp;
+              {approveButton}
+            </div>;
+          }
           contentTitle = this.state.title;
           contentHTML = <div>
             <TranscriptionPagesList pages={this.state.pages} function={this.showPage}/>
@@ -112,7 +226,12 @@ export class TranscriptionLetterView extends Component {
             <TranscriptionEditor updatePages={this.updatePages} letterId={this.props.match.params.itemId} page={this.state.page} id="letter-edit" error={this.updateErrorState} />
           </div>;
         }
-        breadCrumbsArr = [{label:'My transcriptions', path:'/user-transcriptions'},{label:contentTitle,path:''}];
+        let breadCrumbsPath = {label:'My transcriptions', path:'/user-transcriptions'};
+        if (this.state.prevlocation!=="") {
+          breadCrumbsPath = {label: this.state.prevlocation, path: this.state.prevlocationpath}
+        }
+        breadCrumbsArr.push(breadCrumbsPath);
+        breadCrumbsArr.push({label:contentTitle,path:''});
       }
       else {
         contentTitle = this.state.title;
@@ -129,6 +248,7 @@ export class TranscriptionLetterView extends Component {
               <h1><span>{contentTitle}</span></h1>
               <div className="item-container">
                 {contentHTML}
+                {adminButtons}
               </div>
             </div>
           </div>
