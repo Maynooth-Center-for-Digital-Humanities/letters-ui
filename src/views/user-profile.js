@@ -6,6 +6,7 @@ import {APIPath} from '../common/constants.js';
 import ConfirmModal from '../components/confirm-modal';
 import {loadProgressBar} from 'axios-progress-bar';
 import {Modal} from 'react-bootstrap';
+import {sessionCookie} from '../helpers/helpers';
 
 
 export class UserProfileView extends Component {
@@ -33,7 +34,8 @@ export class UserProfileView extends Component {
       passwordErrorMessage: '',
       strengthClass: '',
       strengthLabel: '',
-
+      forgetMeErrorShow: false,
+      forgetMeErrorMessage: '',
       showForgetMeConfirm: false,
     }
     this.loadItem = this.loadItem.bind(this);
@@ -248,7 +250,16 @@ export class UserProfileView extends Component {
     axios.defaults.headers.common['Authorization'] = 'Bearer '+accessToken;
     axios.get(APIPath+'forget-me')
     .then(function (response) {
-      context.handleLogout();
+      if (response.data.data.status==="error") {
+        context.setState({
+          forgetMeErrorShow: true,
+          forgetMeErrorMessage: response.data.message,
+          showForgetMeConfirm: false
+        })
+      }
+      else {
+        context.handleLogout();
+      }
     })
     .catch(function (error) {
       console.log(error);
@@ -256,9 +267,11 @@ export class UserProfileView extends Component {
   }
 
   handleLogout() {
-		sessionStorage.setItem('sessionActive', false);
-		sessionStorage.setItem('accessToken', '');
-		window.location.reload();
+    sessionStorage.setItem('sessionActive', false);
+    sessionStorage.setItem('accessToken', '');
+    sessionStorage.setItem('userName', '');
+    sessionCookie('', false, '', true);
+    window.location.reload();
 	}
 
   loadItem() {
@@ -312,6 +325,10 @@ export class UserProfileView extends Component {
           </div>;
       }
       else {
+        let forgetMeErrorClass = "error-container";
+    		if (this.state.forgetMeErrorShow) {
+    			forgetMeErrorClass = "error-container-visible";
+    		}
 
     		let updateErrorClass = "error-container";
     		if (this.state.updateErrorShow) {
@@ -413,7 +430,10 @@ export class UserProfileView extends Component {
             <div className="col-xs-12">
               <BreadCrumbs items={breadCrumbsArr}></BreadCrumbs>
               <h1>{contentTitle}</h1>
-              <div className="item-container">{contentHTML}</div>
+              <div className="item-container">
+                <div className={forgetMeErrorClass}>{this.state.forgetMeErrorMessage}</div>
+                {contentHTML}
+              </div>
             </div>
           </div>
         </div>

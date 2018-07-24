@@ -39,13 +39,9 @@ export default class AdminMenu extends React.Component {
       }
       // set active items
       let transcriptionsActive = "";
-      let userRolesActive = "";
       let usersActive = "";
       if (window.location.pathname==="/admin/list-transcriptions") {
         transcriptionsActive = "active";
-      }
-      if (window.location.pathname==="/admin/user-roles") {
-        userRolesActive = "active";
       }
       if (window.location.pathname==="/admin/users") {
         usersActive = "active";
@@ -64,10 +60,6 @@ export default class AdminMenu extends React.Component {
             <ul className="admin-menu-items">
               <li className={transcriptionsActive}>
                 <Link href="/admin/list-transcriptions" to="/admin/list-transcriptions">Transcriptions list</Link>
-              </li>
-              <li className="separator">USERS</li>
-              <li className={userRolesActive}>
-                <Link href="/admin/user-roles" to="/admin/user-roles">User Roles</Link>
               </li>
               <li className={usersActive}>
                 <Link href="/admin/users" to="/admin/users">Users</Link>

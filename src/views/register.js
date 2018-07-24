@@ -215,6 +215,10 @@ export class RegisterView extends Component {
       }} />
     }
     else {
+      let submitPreloader = [];
+      if (this.state.submitStatus) {
+        submitPreloader = <i className="fa fa-spin fa-circle-o-notch"></i>;
+      }
       contentTitle = 'User registration';
       if (this.state.showResponse) {
         contentHTML = <div className="row">
@@ -294,7 +298,7 @@ export class RegisterView extends Component {
                 <label>
                   <input name="subscribe_to_newsletter" type="checkbox" onChange={this.handleChange.bind(this)} /> Subscribe to newsletter</label>
               </div>
-              <button type="submit" className="btn btn-letters">Submit</button>
+              <button type="submit" className="btn btn-letters">Submit {submitPreloader}</button>
             </form>
           </div>
         </div>;

@@ -134,11 +134,12 @@ export class UserLettersView extends Component {
   parseItems(itemsData) {
     // list of items to display
     let items = [];
-    let cannotEditText = "To edit this letter you must disable the letter transcription first!";
-    let cannotTranscribeText = "To edit the transcription of this letter you must enable the letter transcription first!";
+    let cannotEditText = "The letter transcription is enabled. You cannot edit this letter.";
+    let cannotTranscribeText = "This letter has not been approved for transcription yet. Please select another item from the transcription desk.";
     for (let i=0; i<itemsData.length; i++) {
       let item = itemsData[i];
       let element = JSON.parse(item.element);
+
       let defaultThumbnail;
       if (element.pages.length>0) {
         defaultThumbnail = <img className="list-thumbnail small img-responsive" src={domain+"/diyhistory/archive/square_thumbnails/"+element.pages[0].archive_filename} alt={element.title} />
@@ -147,7 +148,7 @@ export class UserLettersView extends Component {
       let transcription_status = item.transcription_status;
       //let enableTranscriptionBtn = [];
 
-      let gotoTranscriptionBtn= <li><button className="action-button" title="Transcribe letter" onClick={this.showBtnDisabledConfirm.bind(this, cannotTranscribeText)}>
+      let gotoTranscriptionBtn = <li><button className="action-button" title="Transcribe letter" onClick={this.showBtnDisabledConfirm.bind(this, cannotTranscribeText)}>
         <i className="fa fa-file-text-o color-grey"></i>
       </button></li>;
 
@@ -165,19 +166,11 @@ export class UserLettersView extends Component {
       </div>;
 
       if (status===0 && transcription_status===-1) {
-      /*  enableTranscriptionBtn = <li><button className="action-button" title="Enable transcription" onClick={this.toggleTranscriptionStatus.bind(this, item.id)}>
-          <i className="fa fa-minus color-red"></i>
-        </button></li>;*/
-
         editBtn = <li><Link to={ 'user-letter/'+item.id} className="action-button" title="Edit letter">
           <i className="fa fa-pencil color-blue"></i>
         </Link></li>;
       }
       else if (status===0 && transcription_status===0) {
-      /*  enableTranscriptionBtn = <li><button className="action-button" title="Disable transcription" onClick={this.toggleTranscriptionStatus.bind(this, item.id)}>
-          <i className="fa fa-check color-green"></i>
-        </button></li>;*/
-
         gotoTranscriptionBtn = <li><Link to={ 'letter-transcribe/'+item.id} className="action-button" title="Transcribe letter">
           <i className="fa fa-file-text-o"></i>
         </Link></li>;
@@ -193,6 +186,15 @@ export class UserLettersView extends Component {
         deleteBtn = <li><button className="action-button" title="Delete letter" onClick={this.showDeleteLetterConfirm.bind(this,item.id, element.title)}>
             <i className="fa fa-trash color-red"></i>
           </button></li>;
+      }
+      if (element.pages.length===0) {
+        editBtn = <li><Link to={ 'user-letter/'+item.id} className="action-button" title="Edit letter">
+          <i className="fa fa-pencil color-blue"></i>
+        </Link></li>;
+
+        gotoTranscriptionBtn = <li><button className="action-button" title="Transcribe letter" onClick={this.showBtnDisabledConfirm.bind(this, cannotTranscribeText)}>
+          <i className="fa fa-file-text-o color-grey"></i>
+        </button></li>
       }
 
       let viewItem = <li data-id={item.id} key={i} className="img-clearfix">
@@ -294,6 +296,16 @@ export class UserLettersView extends Component {
   componentDidMount() {
     this.loadItems();
     loadProgressBar();
+  }
+  
+  componentDidUpdate(prevProps, prevState) {
+    if (
+      prevState.current_page!==this.state.current_page
+    || prevState.paginate!==this.state.paginate
+    || prevState.sort!==this.state.sort
+    ) {
+      this.loadItems();
+    }
   }
 
   render() {

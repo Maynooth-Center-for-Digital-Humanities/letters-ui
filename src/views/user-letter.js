@@ -49,6 +49,8 @@ export class UserLetterView extends Component {
         terms: false,
         license: false,
       },
+      filesErrorText: '',
+      filesError: false,
       imageBlocks: [],
       daysOptions: [],
       upload_loader: false,
@@ -66,11 +68,14 @@ export class UserLetterView extends Component {
       deleteConfirmSubmit:'',
       showDeleteLetterConfirm:false,
       deleteLetterConfirmSubmit: '',
+      prevlocation: '',
+      prevlocationpath: '',
     }
     this.loadItem = this.loadItem.bind(this);
     this.calculateDays = this.calculateDays.bind(this);
     this.yearOfDeathList = this.yearOfDeathList.bind(this);
     this.handleFormChange = this.handleFormChange.bind(this);
+    this.propChecked = this.propChecked.bind(this);
     this.handleSelectFormChange = this.handleSelectFormChange.bind(this);
     this.removeImageBlock = this.removeImageBlock.bind(this);
     this.addImageBlock = this.addImageBlock.bind(this);
@@ -127,6 +132,37 @@ export class UserLetterView extends Component {
     this.setState({
       newState
     });
+    if (name==="terms_of_use" || name==="copyright_statement") {
+      this.propChecked(name, value);
+    }
+  }
+
+  propChecked(name, value) {
+    if (name==="terms_of_use") {
+      this.setState({
+        terms_of_useChecked: value
+      });
+    }
+    else if (name==="copyright_statement") {
+      if (value==="the Material is out of copyright protection (i.e. that you are aware that the author of the Material died prior to 1 January 1943);") {
+        this.setState({
+          copyright_statementChecked1: true
+        });
+      }
+      else if (value==="you have the rights to upload the Material in question for use or you have the permission of the relevant rightholder(s) to do so as outlined in the Letters of 1916 Terms for User Contributions") {
+        this.setState({
+          copyright_statementChecked2: true
+        });
+      }
+    }
+
+
+    //
+
+    //
+    if (this.value===true) {
+
+    }
   }
 
   handleSelectFormChange(elementName, multiple, selectValue) {
@@ -229,6 +265,32 @@ export class UserLetterView extends Component {
   	  .then(function (response) {
         submitStatus = 0;
         if (response.data.status===true) {
+          // show file errors
+          let errorFiles = response.data.errors.files;
+          if (errorFiles.length>0) {
+
+            let fileLabels = "";
+            for (var i=0;i<errorFiles.length; i++) {
+              let errorFile = errorFiles[i];
+              if (i>0) {
+                fileLabels += ", ";
+              }
+              fileLabels += "\""+errorFile.filename+"\"";
+            }
+            let filesErrorText = "";
+
+            if (errorFiles.length===1) {
+              filesErrorText = "The file "+fileLabels+" is not a valid image file and it will not be added to your letter.";
+            }
+            else if (errorFiles.length>1){
+              filesErrorText = "The files "+fileLabels+" are not a valid image files and will not be added to your letter.";
+            }
+
+            context.setState({
+              filesErrorText: filesErrorText,
+              filesError: true
+            });
+          }
           if (parseInt(letterId,10)===0) {
             context.setState({
               updateBtnText: <span>Saved successfully <i className="fa fa-check"></i></span>
@@ -604,6 +666,12 @@ export class UserLetterView extends Component {
     }
     this.yearOfDeathList();
     loadProgressBar();
+    if (typeof this.props.history.location.prevlocation!=="undefined") {
+      this.setState({
+        prevlocation: this.props.history.location.prevlocation,
+        prevlocationpath: this.props.history.location.prevlocationpath,
+      })
+    }
   }
 
   removeImageBlock() {
@@ -708,6 +776,10 @@ export class UserLetterView extends Component {
         if (this.state.errors.source) {
           licenseError = " error-container-visible";
         }
+        let filesError = "";
+        if (this.state.filesError) {
+          filesError = " error-container-visible";
+        }
         let yearOfDeathListOptions = this.yearOfDeathList();
         if (parseInt(letterId,10)===0) {
           contentTitle = "New Letter";
@@ -739,13 +811,13 @@ export class UserLetterView extends Component {
               </div>
               <label><sup>*</sup>Title/Caption</label>
               <input className="form-control" type="text" name="title" value={this.state.form.title} onChange={this.handleFormChange.bind(this, 0)} ref={(input) => { this.titleInput = input; }} />
-              <p className="letter-form-description">For example, letter from Joseph MacDonagh to his sister Mary MacDonagh, 4 May 1916. Or letter from Jennifer to her friend Ellen Martin [January 1916].</p>
+              <p className="letter-form-description">For example: “Letter from Joseph MacDonagh to his sister Mary MacDonagh, 4 May 1916” or “Letter from Jennifer to her friend Ellen Martin [January 1916]”. Brackets indicate that information is unclear.</p>
             </div>
 
             <div className="form-group">
               <label>Additional Information</label>
               <textarea className="form-control" name="additional_information" onChange={this.handleFormChange.bind(this, 0)} value={this.state.form.additional_information}></textarea>
-              <p className="letter-form-description">Please give as detailed description of the item as possible, such as background information.</p>
+              <p className="letter-form-description">Here you may provide a brief summary of the letter and biographical information about the correspondents. This field is optional.</p>
             </div>
 
             <div className="form-group">
@@ -756,7 +828,7 @@ export class UserLetterView extends Component {
                 multi={true}
                 selected={this.state.form.keywords}
                 removeSelected={false}/>
-              <p className="letter-form-description">Choose any of the themes that describe your letter. You may choose as many as are applicable.</p>
+              <p className="letter-form-description">Choose keywords that best describe your letter. You may choose as many as are applicable.</p>
             </div>
 
             <div className="form-group">
@@ -808,6 +880,7 @@ export class UserLetterView extends Component {
                 multi={false}
                 selected={this.state.form.letter_from}
                 removeSelected={true}/>
+                <p className="letter-form-description">Select author’s name from the list or add a new name. If you know the person’s full name, please do not mention any titles (such as Mr, Mrs, Dr, Rev, Lord, Lady, Captain etc.) here but add them in the “title” field. Provide middle names if possible to help us identify individual authors.</p>
             </div>
 
             <div className="form-group">
@@ -831,7 +904,7 @@ export class UserLetterView extends Component {
                 multi={false}
                 selected={this.state.form.letter_to}
                 removeSelected={true}/>
-              <p className="letter-form-description">Recipient of letter, such as Mary MacDonagh</p>
+              <p className="letter-form-description">Add recipient of letter, such as “Mary MacDonagh”. If you know the person’s full name, please do not mention any titles (such as Mr, Mrs, Dr, Rev, Lord, Lady, Captain etc.) here but add them in the “title” field. Provide middle names if possible to help us identify individual authors.</p>
             </div>
 
             <div className="form-group">
@@ -864,25 +937,25 @@ export class UserLetterView extends Component {
                 selected={this.state.form.source}
                 removeSelected={true}
                 />
-              <p className="letter-form-description">This may be a public institution, such as the National Library of Ireland, or it may be a private collection, such as the MacDonagh Family Collection</p>
+              <p className="letter-form-description">This may be a public institution, such as the “National Library of Ireland”, or a private collection, such as the “MacDonagh Family Collection”.</p>
             </div>
 
             <div className="form-group">
               <label>Document Collection/Number</label>
               <input className="form-control" type="text" name="doc_collection" onChange={this.handleFormChange.bind(this, 0)} value={this.state.form.doc_collection}/>
-              <p className="letter-form-description">This field is for letters coming from public institutions to give further information as to the letter collection and item number</p>
+              <p className="letter-form-description">If your letter comes from a catalogued collection, please add further information such as the collection name and fond / item numbers.</p>
             </div>
 
             <div className="form-group">
               <label>Place (letter sent to)</label>
               <input className="form-control" type="text" name="recipient_location" onChange={this.handleFormChange.bind(this, 0)} value={this.state.form.recipient_location}/>
-              <p className="letter-form-description">e.g. Paris, France</p>
+              <p className="letter-form-description">e.g. “Paris, France” Please add name of region wherever possible. Countries are treated as geographical rather than political entities. Use “Ireland” for places in Ulster and “England”, “Scotland” or “Wales” for places in Great Britain.</p>
             </div>
 
             <div className="form-group">
               <label>Place (letter sent from)</label>
               <input className="form-control" type="text" name="creator_location" onChange={this.handleFormChange.bind(this, 0)} value={this.state.form.creator_location}/>
-              <p className="letter-form-description">e.g. Dublin, Ireland</p>
+              <p className="letter-form-description">e.g. “Dublin, Ireland” Please add name of region wherever possible. Countries are treated as geographical rather than political entities. Use “Ireland” for places in Ulster and “England”, “Scotland” or “Wales” for places in Great Britain.</p>
             </div>
 
             <div className="form-group">
@@ -899,7 +972,7 @@ export class UserLetterView extends Component {
             <div className="form-group">
               <label>Additional Notes</label>
               <textarea className="form-control" name="notes" onChange={this.handleFormChange.bind(this, 0)} value={this.state.form.notes}></textarea>
-              <p className="letter-form-description">Please enter additional notes for the Letters 1916-1923 administrators</p>
+              <p className="letter-form-description">Please enter additional notes for the Letters 1916-1923 administrators, e.g. information about missing pages.</p>
             </div>
 
             <hr/>
@@ -907,6 +980,9 @@ export class UserLetterView extends Component {
             <h4>Upload Image</h4>
             <div className="letter-form-image-block">
               <div className="form-group">
+                <div className={"error-container"+filesError}>
+                  <p>{this.state.filesErrorText}</p>
+                </div>
                 <label>Image file</label>
                 <input name="images" accept="image/*" type="file" onClick={(event)=> {event.target.value = null }} onChange={this.handleFormChange.bind(this,0)} />
               </div>
@@ -974,7 +1050,13 @@ export class UserLetterView extends Component {
             {redirectElement}
           </form>
         </div>;
-        breadCrumbsArr.push({label:'User Letters', path:'/user-letters'},{label:contentTitle,path:''});
+
+        let breadCrumbsPath = {label:'User Letters', path:'/user-letters'};
+        if (this.state.prevlocation!=="") {
+          breadCrumbsPath = {label: this.state.prevlocation, path: this.state.prevlocationpath};
+        }
+        breadCrumbsArr.push(breadCrumbsPath);
+        breadCrumbsArr.push({label:contentTitle,path:''});
         pageContent = <div className="container">
           <div className="row">
             <div className="col-xs-12">

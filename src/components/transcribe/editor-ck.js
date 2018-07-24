@@ -68,9 +68,6 @@ export default class TranscriptionEditor extends React.Component {
   }
 
   componentDidMount() {
-    // resize handlers
-    //window.addEventListener('mousemove', this.resizeMouseMove.bind(this), false);
-    //window.addEventListener('mouseup', this.unsetResize.bind(this), false);
 
     loadProgressBar();
     let context = this;
@@ -87,42 +84,36 @@ export default class TranscriptionEditor extends React.Component {
         textarea_disabled: false
       });
     }
+
     window.CKEDITOR.replace(this.elementName, {
       on: {
         instanceReady: function(e) {
           if (context.props.page.transcription!==null) {
             newTranscription = context.props.page.transcription;
           }
-            context.updateTranscription(newTranscription);
+          context.updateTranscription(newTranscription);
 
 
-            // add change event listener
-            let inputTimeout = null;
-            window.CKEDITOR.instances[context.elementName].on('change', function () {
-              if (context.state.firstMount===1) {
-                return false;
-              }
-              let data = window.CKEDITOR.instances[this.elementName].getData();
-              if (inputTimeout !== null) {
-                clearTimeout(inputTimeout);
-              }
-              inputTimeout = setTimeout(function () {
-                context.onInput(data);
-              }, 2000);
+          // add change event listener
+          let inputTimeout = null;
+          window.CKEDITOR.instances[context.elementName].on('change', function () {
+            if (context.state.firstMount===1) {
+              return false;
+            }
+            let data = window.CKEDITOR.instances[this.elementName].getData();
+            if (inputTimeout !== null) {
+              clearTimeout(inputTimeout);
+            }
+            inputTimeout = setTimeout(function () {
+              context.onInput(data);
+            }, 2000);
 
-            }.bind(context));
+          }.bind(context));
         }
       }
     });
 
   }
-
-
-  componentWillUnmount() {
-    //window.removeEventListener('mousemove', this.resizeMouseMove.bind(this), false);
-    //window.removeEventListener('mouseup', this.unsetResize.bind(this), false);
-  }
-
 
   onInput(data) {
     this.setState({
@@ -179,11 +170,9 @@ export default class TranscriptionEditor extends React.Component {
     });
     let context = this;
     let contentMarkup = editorImportTranscription(data);
-    for (this.elementName in window.CKEDITOR.instances) {
-      setTimeout(function() {
-        window.CKEDITOR.instances[context.elementName].setData(contentMarkup, context.resetFirstMount);
-      },500);
 
+    if (window.CKEDITOR.instances[context.elementName]!==null) {
+      window.CKEDITOR.instances[context.elementName].setData(contentMarkup, context.resetFirstMount);
     }
 
   }
@@ -301,7 +290,7 @@ export default class TranscriptionEditor extends React.Component {
 
   render() {
     let resizeHandleClass="hidden";
-    let undockedStyle = {};
+    let undockedStyle = [];
     let dropzoneClass = "";
     if (!this.state.docked) {
       undockedStyle = {
@@ -325,6 +314,7 @@ export default class TranscriptionEditor extends React.Component {
       >
       </div>;
     resizeHandle = [];
+
     let dragHandle = <div
       className="transcription-editor-move-handle"
       onMouseDown={this.setHandle.bind(this)}
@@ -365,7 +355,6 @@ export default class TranscriptionEditor extends React.Component {
             onDragEnd={this.endDrag.bind(this)}
             >
             {dragHandle}
-            {resizeHandle}
               <div className="transcription-saving-container">
                 <div className="transcription-saving">{this.state.saving}</div>
               </div>

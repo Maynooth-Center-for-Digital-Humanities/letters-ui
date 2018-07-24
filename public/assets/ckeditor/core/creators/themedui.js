@@ -437,7 +437,8 @@ CKEDITOR.replaceClass = 'ckeditor';
 
 		// Make top and bottom spaces unelectable, but not content space,
 		// otherwise the editable area would be affected.
-		topHtml && editor.ui.space( 'top' ).unselectable();
+
+		topHtml!==null && editor.ui.space( 'top' )!==null && editor.ui.space( 'top' ).unselectable();
 		bottomHtml && editor.ui.space( 'bottom' ).unselectable();
 
 		var width = editor.config.width, height = editor.config.height;
@@ -446,7 +447,7 @@ CKEDITOR.replaceClass = 'ckeditor';
 
 		// The editor height is applied to the contents space.
 		if ( height )
-			editor.ui.space( 'contents' ).setStyle( 'height', CKEDITOR.tools.cssLength( height ) );
+			editor.ui.space( 'contents' )!==null && editor.ui.space( 'contents' ).setStyle( 'height', CKEDITOR.tools.cssLength( height ) );
 
 		// Disable browser context menu for editor's chrome.
 		container.disableContextMenu();

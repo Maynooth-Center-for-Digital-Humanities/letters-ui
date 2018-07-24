@@ -282,7 +282,7 @@ CKEDITOR.config = {
 	 *
 	 * @cfg {Number/String}
 	 */
-	height: 200,
+	height: '200px',
 
 	/**
 	 * The CSS file(s) to be used to apply style to editor content. It should

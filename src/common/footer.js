@@ -1,6 +1,7 @@
 import React from 'react';
 import MULogo from '../assets/images/mu-logo-white-footer.png';
 import {Link} from 'react-router-dom';
+import NewsletterSubscribe from '../helpers/subscribe-to-newsletter';
 
 let date = new Date();
 let year = date.getFullYear();
@@ -36,7 +37,7 @@ const pageFooter = () => (
               <li><a><i className="fa fa-tumblr"></i></a></li>
               <li><a><i className="fa fa-soundcloud"></i></a></li>
             </ul>
-
+            <NewsletterSubscribe />
           </div>
         </div>
       </div>

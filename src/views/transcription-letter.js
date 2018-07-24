@@ -83,7 +83,7 @@ export class TranscriptionLetterView extends Component {
       this.setState({
         prevlocation: this.props.history.location.prevlocation,
         prevlocationpath: this.props.history.location.prevlocationpath,
-      })
+      });
     }
   }
 
@@ -101,7 +101,6 @@ export class TranscriptionLetterView extends Component {
       page: newPage
     });
     let newPageStatus=0;
-    console.log(newPage);
     if (typeof newPage.transcription_status!=="undefined") {
 
       newPageStatus = parseInt(newPage.transcription_status,10);
@@ -123,7 +122,11 @@ export class TranscriptionLetterView extends Component {
   }
 
   updateTranscriptionPageStatus(status) {
-    let archive_filename = this.state.page.archive_filename;
+    let archive_filename;
+    if (typeof this.state.page.archive_filename!=="undefined") {
+      archive_filename = this.state.page.archive_filename;
+    }
+
     let itemId = 0;
     let postPath;
     let context = this;

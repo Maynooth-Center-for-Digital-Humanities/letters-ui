@@ -269,6 +269,16 @@ export class UserTranscriptionsView extends Component {
     loadProgressBar();
   }
 
+  componentDidUpdate(prevProps, prevState) {
+    if (
+      prevState.current_page!==this.state.current_page
+    || prevState.paginate!==this.state.paginate
+    || prevState.sort!==this.state.sort
+    ) {
+      this.loadItems();
+    }
+  }
+
   render() {
     let breadCrumbsArr = [{label:'My Transcriptions',path:''}];
     let content;
@@ -282,14 +292,6 @@ export class UserTranscriptionsView extends Component {
     else {
       content = <ul className="browse-items">{this.state.items}</ul>;
     }
-
-    let activeDesc="",activeAsc="";
-    if (this.state.sort==="desc") {
-      activeDesc = "active";
-    }
-    if (this.state.sort==="asc") {
-      activeAsc = "active";
-    }
     let paginate10Active="",paginate25Active="",paginate50Active="";
     if (this.state.paginate===10) {
       paginate10Active = "active";
@@ -302,13 +304,6 @@ export class UserTranscriptionsView extends Component {
     }
 
     let paginationHTML = <div className="browse-filters">
-      <DropdownButton
-        title="Sort"
-        id="sort-filter"
-        >
-        <MenuItem key="1" onClick={this.updateSort.bind(this,"desc")} className={activeDesc}><i className="fa fa-sort-amount-desc"></i> Desc</MenuItem>
-        <MenuItem key="2" onClick={this.updateSort.bind(this,"asc")} className={activeAsc}><i className="fa fa-sort-amount-asc"></i> Asc</MenuItem>
-      </DropdownButton>
 
       <DropdownButton
         title="Limit"

@@ -40,6 +40,8 @@ export class TranscriptionsDeskView extends Component {
       genders: [],
       languages: [],
       date_sent: [],
+      date_start: [],
+      date_end: [],
       queryStatus: 0,
       queryTranscriptionStatus: 0,
     };
@@ -269,35 +271,13 @@ export class TranscriptionsDeskView extends Component {
     });
   }
 
-  datecreatedFilter(e) {
-    e.preventDefault();
-    let parent = e.currentTarget;
-    let element = parent.querySelectorAll(".select-source")[0].querySelectorAll("i")[0];
-    let label = parent.querySelectorAll(".source-label")[0];
-
-    let className = element.className;
-    let prevDate_sent = this.state.languages;
-    let selectedDate_sent = [];
-    for (let i=0;i<prevDate_sent.length;i++) {
-      selectedDate_sent.push(prevDate_sent[i]);
-    }
-    let currentDate_sent = element.children[0].innerText;
-    if (className==="fa fa-circle-o") {
-      if (selectedDate_sent.indexOf(currentDate_sent)===-1) {
-        selectedDate_sent.push(currentDate_sent);
-      }
-    }
-    else {
-      if (selectedDate_sent.indexOf(currentDate_sent)>-1) {
-        let index = selectedDate_sent.indexOf(currentDate_sent);
-         selectedDate_sent.splice(index, 1);
-      }
-    }
-    ToggleClass(element, "fa-circle-o", "fa-check-circle-o");
-    ToggleClass(label, "", "active");
+  datecreatedFilter(value) {
+    let dateStart = value.startValue;
+    let dateEnd = value.endValue;
     this.setState({
       loading:true,
-      date_sent: selectedDate_sent
+      date_start: dateStart,
+      date_end: dateEnd,
     });
   }
 
@@ -354,7 +334,8 @@ export class TranscriptionsDeskView extends Component {
         authors: this.state.authors,
         genders: this.state.genders,
         languages: this.state.languages,
-        date_sent: this.state.date_sent,
+        date_start: this.state.date_start,
+        date_end: this.state.date_end,
         status: this.state.queryStatus,
         transcription_status: this.state.queryTranscriptionStatus
       }
@@ -387,7 +368,7 @@ export class TranscriptionsDeskView extends Component {
   }
 
   updateFilters() {
-    //let browseContext = this;
+    let context = this;
     let path = APIPath+"indexfilteredfilters";
     axios.get(path, {
       params: {
@@ -399,14 +380,14 @@ export class TranscriptionsDeskView extends Component {
         authors: this.state.authors,
         genders: this.state.genders,
         languages: this.state.languages,
-        date_sent: this.state.date_sent,
+        date_start: this.state.date_start,
+        date_end: this.state.date_end,
         status: this.state.queryStatus,
         transcription_status: this.state.queryTranscriptionStatus
       }
     })
     .then(function (response) {
       let responseData = response.data.data;
-      console.log(responseData);
       // topics
       let topics = responseData.keywords;
       CompareFilterTopics(topics);
@@ -427,9 +408,10 @@ export class TranscriptionsDeskView extends Component {
       let languages = responseData.languages;
       CompareFilterGeneral("languages-list",languages);
 
-      // dates_sent
-      let dates_sent = responseData.dates_sent;
-      CompareFilterGeneral("date_sent-list",dates_sent);
+      // dates
+      context.setState({
+        dates_sent: responseData.dates_sent
+      });
     })
     .catch(function (error) {
       console.log(error);
@@ -488,22 +470,26 @@ export class TranscriptionsDeskView extends Component {
         keywords.push(keyword);
       }
       let transcription = "";
-      if (element.pages[0].transcription!=="") {
-        let transcriptionText = element.pages[0].transcription.replace(/<[^>]+>/ig," ");
-        transcriptionText = transcriptionText.replace("&amp;", "&");
-        if (transcriptionText.length>400) {
-          transcriptionText = transcriptionText.substring(0,400);
+      if (element.pages.length>0) {
+        if (element.pages[0].transcription!=="") {
+          let transcriptionText = element.pages[0].transcription.replace(/<[^>]+>/ig," ");
+          transcriptionText = transcriptionText.replace("&amp;", "&");
+          if (transcriptionText.length>400) {
+            transcriptionText = transcriptionText.substring(0,400);
+          }
+
+          transcription = transcriptionText+"...";
         }
 
-        transcription = transcriptionText+"...";
+
+        let browseItem = <li data-id={item.id} key={i} className="img-clearfix">
+            <Link to={ 'letter-transcribe/'+item.id}>{defaultThumbnail}</Link>
+            <h4><Link to={ 'letter-transcribe/'+item.id}>{element.title}</Link></h4>
+            <span className='browse-item-keywords'>Keywords: {keywords}</span>
+            <p>{transcription}</p>
+          </li>;
+        browseItems.push(browseItem);
       }
-      var browseItem = <li data-id={item.id} key={i} className="img-clearfix">
-          <Link to={ 'letter-transcribe/'+item.id}>{defaultThumbnail}</Link>
-          <h4><Link to={ 'letter-transcribe/'+item.id}>{element.title}</Link></h4>
-          <span className='browse-item-keywords'>Keywords: {keywords}</span>
-          <p>{transcription}</p>
-        </li>;
-      browseItems.push(browseItem);
     }
     return browseItems;
   }
@@ -538,7 +524,7 @@ export class TranscriptionsDeskView extends Component {
   render() {
     let contentHTML,pageContent;
     let contentTitle = "Transcriptions Desk";
-    let breadCrumbsArr = {label:contentTitle, path: ''};
+    let breadCrumbsArr = [];
     let sessionActive = sessionStorage.getItem('sessionActive');
 		if (sessionActive!=='true') {
       contentHTML = <p className="text-center">This is a protected page. <br/>To view this page you must first login or register.</p>
@@ -554,6 +540,7 @@ export class TranscriptionsDeskView extends Component {
     }
     else {
       let content;
+      breadCrumbsArr = [{label:contentTitle, path: ''}];
       if (this.state.loading && this.state.firstLoad===1) {
         let browseItems = PreloaderCards(11);
         content = <ul className="browse-items">{browseItems}</ul>;
@@ -651,8 +638,6 @@ export class TranscriptionsDeskView extends Component {
         </div>
       </div>;
     }
-
-
     return (
       <div>{pageContent}</div>
     );

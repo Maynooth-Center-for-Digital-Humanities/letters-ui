@@ -43,6 +43,7 @@ import {UserTranscriptionsView} from './views/user-transcriptions.js';
 import {TranscriptionsDeskView} from './views/transcriptions-desk.js';
 // admin
 import {TranscriptionsListView} from './views/admin/list-transcriptions.js';
+import {UsersListView} from './views/admin/list-users.js';
 
 import {checkSessionCookies} from './helpers/helpers.js';
 
@@ -126,6 +127,7 @@ class App extends Component {
               <Route path="/wp-category/:slug" component={WPCategoryView}/>
               <Route path="/wp-page/:slug" component={WPPagesView}/>
               <Route path="/admin/list-transcriptions" component={TranscriptionsListView}/>
+              <Route path="/admin/users" component={UsersListView}/>
             </Switch>
           </div>
           <PageFooter/>

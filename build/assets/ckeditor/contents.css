@@ -227,10 +227,12 @@ lb {
 addresstag::before {
 	content: "[A] ";
 	font-style: normal;
+	font-size:10px;
 }
 addresstag::after {
-	content: " [/A]";
+	content: " [A]";
 	font-style: normal;
+	font-size:10px;
 }
 addressTag {
 	font-style: italic;
@@ -238,83 +240,97 @@ addressTag {
 addtag::before {
 	content: "[+] ";
 	font-style: normal;
+	font-size:10px;
 }
 addtag {
 	font-style: italic;
 }
 addtag::after {
-	content: " [/+]";
+	content: " [+]";
 	font-style: normal;
+	font-size:10px;
 }
 uncleartag::before {
 	font-family: 'FontAwesome';
 	content: "[\f059] ";
 	font-style: normal;
+	font-size:10px;
 }
 uncleartag {
 	font-style: italic;
 }
 uncleartag::after {
 	font-family: 'FontAwesome';
-	content: " [/\f059]";
+	content: " [\f059]";
 	font-style: normal;
+	font-size:10px;
 }
 notetag::before {
 	font-family: 'FontAwesome';
 	content: "[\f27a] ";
 	font-style: normal;
+	font-size:10px;
 }
 notetag {
 	font-style: italic;
 }
 notetag::after {
 	font-family: 'FontAwesome';
-	content: " [/\f27a]";
+	content: " [\f27a]";
 	font-style: normal;
+	font-size:10px;
 }
 sictag::before {
 	content: "[sic] ";
 	font-style: normal;
+	font-size:10px;
 }
 sictag {
 	font-style: italic;
 }
 sictag::after {
-	content: " [/sic]";
+	content: " [sic]";
 	font-style: normal;
+	font-size:10px;
 }
 foreigntag::before {
 	content: "[fr] ";
 	font-style: normal;
+	font-size:10px;
 }
 foreigntag {
 	font-style: italic;
 }
 foreigntag::after {
-	content: " [/fr]";
+	content: " [fr]";
 	font-style: normal;
+	font-size:10px;
 }
 salutetag::before {
 	content: "[sal] ";
 	font-style: normal;
+	font-size:10px;
 }
 salutetag {
 	font-style: italic;
 }
 salutetag::after {
-	content: " [/sal]";
+	content: " [sal]";
 	font-style: normal;
+	font-size:10px;
 }
 datetag::before {
 	font-family: 'FontAwesome';
 	content: "[\f073]";
 	font-style: normal;
+	font-size:10px;
 }
 datetag {
 	font-style: italic;
 }
 datetag::after {
 	font-family: 'FontAwesome';
-	content: " [/\f073]";
+	content: " [\f073]";
 	font-style: normal;
+	font-size:10px;
 }

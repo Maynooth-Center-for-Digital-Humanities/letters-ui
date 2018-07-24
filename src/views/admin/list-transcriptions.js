@@ -169,10 +169,12 @@ export class TranscriptionsListView extends Component {
 
       let deleteBtn = [];
       let rowTitle = <div>
-        <Link to={ 'user-letter/'+item.id}>{defaultThumbnail}</Link>
+        <Link
+          to={{ pathname: '/user-letter/'+item.id, prevlocation: "List Transcriptions", prevlocationpath: "/admin/list-transcriptions" }}
+        >{defaultThumbnail}</Link>
         <h4 className="user-letters-heading">
           <small className="pull-right">{item.created_at}</small>
-          <Link to={ 'user-letter/'+item.id}>{element.title}</Link>
+          <Link to={{ pathname: '/user-letter/'+item.id, prevlocation: "List Transcriptions", prevlocationpath: "/admin/list-transcriptions" }}>{element.title}</Link>
         </h4>
       </div>;
 
@@ -181,7 +183,7 @@ export class TranscriptionsListView extends Component {
           <i className="fa fa-minus color-red"></i>
         </button></li>;
 
-        editBtn = <li><Link to={ 'user-letter/'+item.id} className="action-button" title="Edit letter">
+        editBtn = <li><Link to={{ pathname: '/user-letter/'+item.id, prevlocation: "List Transcriptions", prevlocationpath: "/admin/list-transcriptions" }} className="action-button" title="Edit letter">
           <i className="fa fa-pencil color-blue"></i>
         </Link></li>;
       }
@@ -205,6 +207,15 @@ export class TranscriptionsListView extends Component {
         deleteBtn = <li><button className="action-button" title="Delete letter" onClick={this.showDeleteLetterConfirm.bind(this,item.id, element.title)}>
             <i className="fa fa-trash color-red"></i>
           </button></li>;
+      }
+      if (element.pages.length===0) {
+        editBtn = <li><Link to={{ pathname: '/user-letter/'+item.id, prevlocation: "List Transcriptions", prevlocationpath: "/admin/list-transcriptions" }} className="action-button" title="Edit letter">
+          <i className="fa fa-pencil color-blue"></i>
+        </Link></li>;
+
+        gotoTranscriptionBtn = <li><button className="action-button" title="Transcribe letter" onClick={this.showBtnDisabledConfirm.bind(this, cannotTranscribeText)}>
+          <i className="fa fa-file-text-o color-grey"></i>
+        </button></li>
       }
 
       let viewItem = <li data-id={item.id} key={i} className="img-clearfix">
@@ -306,6 +317,16 @@ export class TranscriptionsListView extends Component {
   componentDidMount() {
     this.loadItems();
     loadProgressBar();
+  }
+
+  componentDidUpdate(prevProps, prevState) {
+    if (
+      prevState.current_page!==this.state.current_page
+    || prevState.paginate!==this.state.paginate
+    || prevState.sort!==this.state.sort
+    ) {
+      this.loadItems();
+    }
   }
 
   render() {

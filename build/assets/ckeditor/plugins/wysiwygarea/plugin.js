@@ -43,7 +43,7 @@
 				iframe.addClass( 'cke_wysiwyg_frame' ).addClass( 'cke_reset' );
 
 				var contentSpace = editor.ui.space( 'contents' );
-				contentSpace.append( iframe );
+				contentSpace!==null && contentSpace.append( iframe );
 
 
 				// Asynchronous iframe loading is only required in IE>8 and Gecko (other reasons probably).
@@ -89,8 +89,8 @@
 
 				function onLoad( evt ) {
 					evt && evt.removeListener();
-					editor.editable( new framedWysiwyg( editor, iframe.$.contentWindow.document.body ) );
-					editor.setData( editor.getData( 1 ), callback );
+					editor!==null && editor.editable( new framedWysiwyg( editor, iframe.$.contentWindow.document.body ) );
+					editor!==null && editor.setData( editor.getData( 1 ), callback );
 				}
 			} );
 		}

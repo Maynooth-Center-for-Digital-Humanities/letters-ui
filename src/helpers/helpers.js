@@ -120,11 +120,18 @@ export function CompareFilterGeneral(selector, filterArray) {
   }
 }
 
+// replace without /index.php/
+
 export function NormalizeWPURL(href) {
   let normalizedURL = href;
   if (typeof href!=="undefined" && href!=="") {
     let newHref = href.replace("http://letters1916.maynoothuniversity.ie/learn/index.php/", domain+"/wp-post/");
+    newHref = href.replace("http://letters1916.maynoothuniversity.ie/learn/", domain+"/wp-post/");
     newHref = newHref.replace(domain+"/learn/index.php/", domain+"/wp-post/");
+    newHref = newHref.replace(domain+"/learn/", domain+"/wp-post/");
+    if (newHref.includes("wp-content")) {
+      newHref = newHref.replace("wp-post/", "");
+    }
     if (newHref.includes(domain+"/wp-post/")) {
       let lastChar = newHref.slice(-1);
       if (lastChar==="/") {
