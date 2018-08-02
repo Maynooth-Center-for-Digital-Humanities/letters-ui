@@ -13,7 +13,7 @@ export class WPContentView extends Component {
     super();
     this.state = {
       loading:true,
-      content: []
+      content: [],
     }
   }
 
@@ -87,11 +87,15 @@ export class WPContentView extends Component {
           </div>;
     }
     else {
+      let postDate = "";
       let cleanContent = this.cleanContentURLs(this.state.content.rendered);
       contentTitle = <span dangerouslySetInnerHTML={{__html:this.state.content.post_title}}></span>;
       contentHTML = cleanContent;
       if (typeof this.state.content.categories!=="undefined" && this.state.content.categories.length>0) {
         breadCrumbsArr.push({label:this.state.content.categories[0].name,path:'/wp-category/'+this.state.content.categories[0].slug});
+      }
+      if (this.state.content.post_modified!=="") {
+        postDate = <div className="post-date">{this.state.content.post_modified}</div>;
       }
       breadCrumbsArr.push({label:contentTitle,path:''});
       pageContent = <div className="container">
@@ -99,7 +103,10 @@ export class WPContentView extends Component {
           <div className="col-xs-12">
             <BreadCrumbs items={breadCrumbsArr}></BreadCrumbs>
             <h1>{contentTitle}</h1>
-            <div className="item-container">{contentHTML}</div>
+            <div className="wp-content item-container">
+              {postDate}
+              {contentHTML}
+            </div>
           </div>
         </div>
       </div>

@@ -42,7 +42,6 @@ class ControlledCarousel extends React.Component {
       let context = this;
       axios.get(WPRestPath+"pages/?slug=carousel")
     	  .then(function (response) {
-          sessionStorage.setItem("carousel_images", JSON.stringify(response));
           let newContent = response.data[0].content.rendered;
           context.parseCarouselJSON(newContent);
         })

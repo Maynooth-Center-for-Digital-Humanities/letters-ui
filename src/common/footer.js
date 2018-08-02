@@ -1,7 +1,9 @@
 import React from 'react';
 import MULogo from '../assets/images/mu-logo-white-footer.png';
-import {Link} from 'react-router-dom';
+import IRCLogo from '../assets/images/IRC_LOGO_White.png';
+import SFILogo from '../assets/images/SFI_logo_2017_greyscaled.png';
 import NewsletterSubscribe from '../helpers/subscribe-to-newsletter';
+import FooterMenu from '../components/footer-menu';
 
 let date = new Date();
 let year = date.getFullYear();
@@ -10,23 +12,19 @@ const pageFooter = () => (
     <div className="footer-content">
       <div className="container">
         <div className="row">
-          <div className="col-xs-12 col-sm-4 col-md-3 col-lg-3">
+          <div className="col-xs-12 col-sm-4 col-md-3 col-lg-3 text-left">
             <a href="https://www.maynoothuniversity.ie/" target="_blank" rel="noopener noreferrer">
               <img src={MULogo} alt="Maynooth University" className="img-responsive footer-logo" />
+            </a><br/>
+            <a href="http://research.ie/" target="_blank" rel="noopener noreferrer">
+              <img src={IRCLogo} alt="Irish Research Counsil" className="img-responsive footer-logo" />
+            </a><br/>
+            <a href="https://www.sfi.ie/" target="_blank" rel="noopener noreferrer">
+              <img src={SFILogo} alt="Science Foundation Ireland" className="img-responsive footer-logo" />
             </a>
           </div>
           <div className="col-xs-12 col-sm-3 col-md-3 col-lg-3">
-            <ul className="footer-menu">
-              <li>
-                <Link to="/contact">Contact Us</Link>
-              </li>
-              <li>
-                <a href="http://letters1916.maynoothuniversity.ie/diyhistory" target="_blank" rel="noopener noreferrer">Contribute</a>
-              </li>
-              <li>
-                <a href="http://letters1916.maynoothuniversity.ie/learn" target="_blank" rel="noopener noreferrer">Learn</a>
-              </li>
-            </ul>
+            <FooterMenu />
           </div>
 
           <div className="col-xs-12 col-sm-5 col-md-6 col-lg-6">

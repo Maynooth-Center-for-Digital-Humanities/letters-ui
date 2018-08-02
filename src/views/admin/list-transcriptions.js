@@ -148,6 +148,7 @@ export class TranscriptionsListView extends Component {
     let items = [];
     let cannotEditText = "To edit this letter you must disable the letter transcription first!";
     let cannotTranscribeText = "To edit the transcription of this letter you must enable the letter transcription first!";
+    let cannotEnableText = "You must add page(s) to this letter before you can enable the letter's transcription";
     for (let i=0; i<itemsData.length; i++) {
       let item = itemsData[i];
       let element = JSON.parse(item.element);
@@ -179,7 +180,7 @@ export class TranscriptionsListView extends Component {
       </div>;
 
       if (status===0 && transcription_status===-1) {
-        enableTranscriptionBtn = <li><button className="action-button" title="Enable transcription" onClick={this.toggleTranscriptionStatus.bind(this, item.id)}>
+        enableTranscriptionBtn = <li><button className="action-button" title="Transcription disabled">
           <i className="fa fa-minus color-red"></i>
         </button></li>;
 
@@ -209,6 +210,11 @@ export class TranscriptionsListView extends Component {
           </button></li>;
       }
       if (element.pages.length===0) {
+        enableTranscriptionBtn = <li><button className="action-button" title="Transcription disabled"
+        onClick={this.showBtnDisabledConfirm.bind(this, cannotEnableText)}>
+          <i className="fa fa-minus color-grey"></i>
+        </button></li>;
+
         editBtn = <li><Link to={{ pathname: '/user-letter/'+item.id, prevlocation: "List Transcriptions", prevlocationpath: "/admin/list-transcriptions" }} className="action-button" title="Edit letter">
           <i className="fa fa-pencil color-blue"></i>
         </Link></li>;

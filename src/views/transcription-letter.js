@@ -154,7 +154,8 @@ export class TranscriptionLetterView extends Component {
           }
         }
         context.setState({
-          page: updatedPage
+          page: updatedPage,
+          pages: pages,
         });
         context.setPageTranscriptionStatus(status);
       }

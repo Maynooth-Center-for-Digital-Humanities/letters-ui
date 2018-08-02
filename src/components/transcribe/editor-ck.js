@@ -85,6 +85,14 @@ export default class TranscriptionEditor extends React.Component {
       });
     }
 
+     if (window.CKEDITOR.instances[this.elementName]) {
+      try {
+        window.CKEDITOR.instances[this.elementName].destroy(true);
+      } catch (e) {
+        console.log(e);
+      }
+    }
+
     window.CKEDITOR.replace(this.elementName, {
       on: {
         instanceReady: function(e) {

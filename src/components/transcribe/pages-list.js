@@ -8,7 +8,7 @@ export default class TranscriptionPagesList extends React.Component {
     this.state = {
       thumbnails:[],
       images:[],
-      loading: true
+      loading: false,
     };
     this.renderThumbnails = this.renderThumbnails.bind(this);
   }
@@ -19,11 +19,23 @@ export default class TranscriptionPagesList extends React.Component {
       let pages = this.props.pages;
       for (let i=0;i<pages.length; i++) {
         let page = pages[i];
+        let transcriptionStatus = page.transcription_status;
+        let pageStatus = [];
+        if (parseInt(transcriptionStatus,10)===0) {
+          pageStatus = <small className="label label-success">Open</small>;
+        }
+        if (parseInt(transcriptionStatus,10)===1) {
+          pageStatus = <small className="label label-warning">Waiting Approval</small>;
+        }
+        if (parseInt(transcriptionStatus,10)===2) {
+          pageStatus = <small className="label label-danger">Completed</small>;
+        }
         let pageCount = i+1;
         let thumbnail =<div className="item" key={i}>
           <a className='img-thumbnail'
             onClick={this.props.function.bind(this,i)}
             >
+            <div className="transcription-page-select-status">{pageStatus}</div>
             <img
               data-id={page.page_id}
               src={archivePath+'square_thumbnails/'+page.archive_filename}
@@ -34,17 +46,23 @@ export default class TranscriptionPagesList extends React.Component {
         </div>;
         newThumbnails.push(thumbnail);
       }
+      this.setState({
+        thumbnails: newThumbnails,
+        loading:false,
+      });
     }
-    this.setState({
-      thumbnails: newThumbnails,
-      loading:false
-    });
   }
 
   componentDidMount() {
     this.renderThumbnails();
   }
-  
+
+  componentDidUpdate(prevProps) {  
+    if (prevProps!==this.props) {
+      this.renderThumbnails();
+    }
+  }
+
   render() {
     let owlNavText = ['<i class="fa fa-angle-left"></i>','<i class="fa fa-angle-right"></i>'];
     let owlResponsive = {

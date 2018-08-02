@@ -86,7 +86,9 @@ class LoginModal extends React.Component {
 		sessionStorage.setItem('accessToken', '');
 		sessionStorage.setItem('userName', '');
 		sessionCookie('', false, '', true);
-		window.location.reload();
+		setTimeout(function() {
+			window.location.reload();
+		},1000);		
 	}
 
 	render() {

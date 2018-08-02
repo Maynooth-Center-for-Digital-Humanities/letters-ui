@@ -1,11 +1,10 @@
 //import React from 'react';
 import axios from 'axios';
 import {APIPath} from '../common/constants.js';
-import {WPRestPath} from '../common/constants.js';
-import cheerio from 'cheerio';
+import {WPRestPath,WPCustomRestPath} from '../common/constants.js';
 
 export function preloadContent() {
-  sessionStorage.setItem('home_carousel',[]);
+  sessionStorage.setItem('carousel_images',[]);
   sessionStorage.setItem('home_about',[]);
   sessionStorage.setItem('topics_list',[]);
   sessionStorage.setItem('sources_list',[]);
@@ -13,7 +12,7 @@ export function preloadContent() {
   sessionStorage.setItem('genders_list',[]);
   sessionStorage.setItem('languages_list',[]);
   sessionStorage.setItem('date_created_list',[]);
-  
+
   loadHomeCarousel();
   loadHomeAbout();
   loadTopics();
@@ -26,24 +25,9 @@ export function preloadContent() {
 }
 
 function loadHomeCarousel() {
-  axios.get(WPRestPath+"pages/6")
+  axios.get(WPRestPath+"pages/?slug=carousel")
     .then(function (response) {
-      let newContent = response.data.content.rendered;
-      let $ = cheerio.load(newContent);
-      let items = [];
-      $('#slider_2 > li').each(function(index,element) {
-        let imagePath = $(this).attr("data-thumb");
-        let imageTitle = $(this).attr("data-title");
-        let imageDescription = $(this).attr("data-description");
-        let item = {
-          index: index,
-          imagePath: imagePath,
-          imageTitle: imageTitle,
-          imageDescription: imageDescription,
-        }
-        items.push(item);
-      });
-      sessionStorage.setItem('home_carousel',JSON.stringify(items));
+      sessionStorage.setItem("carousel_images", JSON.stringify(response));
     })
     .catch(function (error) {
       console.log(error);
@@ -51,31 +35,25 @@ function loadHomeCarousel() {
 }
 
 function loadHomeAbout() {
-  axios.get(WPRestPath+"pages", {
+  axios.get(WPCustomRestPath+"post", {
       params: {
         "slug": "about-the-project"
       }
     })
     .then(function (response) {
-      let newData = response.data[0];
-      let newTitle = newData.title.rendered;
-      let newContent = stripHTML(newData.content.rendered);
-      newContent = newContent.substring(0,500)+"...";
+      let newData = response.data;
+      let newTitle = newData.post_title;
+      let newContent = newData.post_excerpt;
       let about = {
         title: newTitle,
-        content: newContent
+        content: newContent,
+        slug: newData.slug
       }
-      sessionStorage.setItem('home_about',JSON.stringify(about));
+      sessionStorage.setItem("home_about", JSON.stringify(about));
     })
     .catch(function (error) {
       console.log(error);
   });
-
-  function stripHTML(html) {
-    let tmp = document.createElement("DIV");
-    tmp.innerHTML = html;
-    return tmp.textContent || tmp.innerText;
-  }
 }
 
 function loadTopics() {

@@ -61,6 +61,7 @@ export class TranscriptionsDeskView extends Component {
     this.gendersFilter = this.gendersFilter.bind(this);
     this.languagesFilter = this.languagesFilter.bind(this);
     this.datecreatedFilter = this.datecreatedFilter.bind(this);
+    this.transcriptionStatus = this.transcriptionStatus.bind(this);
 
   }
 
@@ -458,7 +459,7 @@ export class TranscriptionsDeskView extends Component {
       let element = JSON.parse(item.element);
       let defaultThumbnail;
       if (element.pages.length>0) {
-        defaultThumbnail = <img className="list-thumbnail img-responsive" src={domain+"/diyhistory/archive/square_thumbnails/"+element.pages[0].archive_filename} alt={element.title} />
+        defaultThumbnail = <img className="img-responsive" src={domain+"/diyhistory/archive/square_thumbnails/"+element.pages[0].archive_filename} alt={element.title} />
       }
 
       var keywords = [];
@@ -471,20 +472,32 @@ export class TranscriptionsDeskView extends Component {
       }
       let transcription = "";
       if (element.pages.length>0) {
+        let trascriptionStatusCompletion = this.transcriptionStatus(element.pages);
+
         if (element.pages[0].transcription!=="") {
           let transcriptionText = element.pages[0].transcription.replace(/<[^>]+>/ig," ");
           transcriptionText = transcriptionText.replace("&amp;", "&");
-          if (transcriptionText.length>400) {
-            transcriptionText = transcriptionText.substring(0,400);
+          transcriptionText = transcriptionText.replace("&#39;", "'");
+          if (transcriptionText.length>300) {
+            transcriptionText = transcriptionText.substring(0,300);
           }
 
           transcription = transcriptionText+"...";
         }
 
-
+        let itemPath = { pathname: '/letter-transcribe/'+item.id, prevlocation: "Transcriptions Desk", prevlocationpath: "/transcriptions-desk" };
         let browseItem = <li data-id={item.id} key={i} className="img-clearfix">
-            <Link to={ 'letter-transcribe/'+item.id}>{defaultThumbnail}</Link>
-            <h4><Link to={ 'letter-transcribe/'+item.id}>{element.title}</Link></h4>
+            <div className="list-thumbnail">
+              <Link to={itemPath}>{defaultThumbnail}</Link>
+              <div className="clearfix">
+                <small className="pull-left">Completed</small>
+                <small className="pull-right">{trascriptionStatusCompletion}</small>
+              </div>
+              <div className="progress xs">
+                <div className="progress-bar progress-bar-green" style={{width: trascriptionStatusCompletion}}></div>
+              </div>
+            </div>
+            <h4><Link to={itemPath}>{element.title}</Link></h4>
             <span className='browse-item-keywords'>Keywords: {keywords}</span>
             <p>{transcription}</p>
           </li>;
@@ -492,6 +505,23 @@ export class TranscriptionsDeskView extends Component {
       }
     }
     return browseItems;
+  }
+
+  transcriptionStatus(pages) {
+    let countPages = pages.length;
+    let completed = 0;
+    for(let j=0; j<countPages; j++) {
+      let pageTranscriptionStatus = pages[j].transcription_status;
+      if (parseInt(pageTranscriptionStatus,10)>0) {
+        completed++;
+      }
+    }
+    let trascriptionStatusCompletion = "0%";
+    if (completed>0) {
+      let percentage = (completed/countPages)*100;
+      trascriptionStatusCompletion = percentage+"%";
+    }
+    return trascriptionStatusCompletion;
   }
 
   componentDidMount() {
@@ -625,7 +655,7 @@ export class TranscriptionsDeskView extends Component {
             <AuthorsBlock returnfunction={this.authorsFilter} />
             <GendersBlock returnfunction={this.gendersFilter} />
             <LanguagesBlock returnfunction={this.languagesFilter} />
-            <DatecreatedBlock returnfunction={this.datecreatedFilter} />
+            <DatecreatedBlock returnfunction={this.datecreatedFilter} availableDates={this.state.dates_sent}/>
           </div>
           <div className="col-xs-12 col-sm-9">
 

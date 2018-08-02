@@ -227,7 +227,7 @@ export function checkSessionCookies() {
   }
 }
 
-function getCookie(cname) {
+export function getCookie(cname) {
   let name = cname + "=";
   let decodedCookie = decodeURIComponent(document.cookie);
   let ca = decodedCookie.split(';');
@@ -243,6 +243,6 @@ function getCookie(cname) {
   return "";
 }
 
-function setCookie(name,value,expires){
+export function setCookie(name,value,expires){
    document.cookie = name + "=" + value + ((expires==null) ? "" : ";expires=" + expires.toGMTString())
 }

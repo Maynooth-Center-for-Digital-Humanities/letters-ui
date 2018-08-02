@@ -18,6 +18,7 @@ import PageFooter from './common/footer';
 import Navbar from './components/navbar';
 import ScrollToTop from './components/scrolltotop';
 import AdminMenu from './components/admin-menu';
+import CookiesConsent from './components/cookies-consent';
 
 
 // views
@@ -118,7 +119,7 @@ class App extends Component {
               <Route path="/register" component={RegisterView}/>
               <Route path="/transcriptions-desk" component={TranscriptionsDeskView}/>
               <Route path="/upload-xml" component={UploadXML}/>
-              <Route path="/user-letter/:letterId" component={UserLetterView}/>
+              <Route path="/user-letter/:letterId" component={props=><UserLetterView isAdmin={this.state.isAdmin} {...props} />} />
               <Route path="/user-letters" component={UserLettersView}/>
               <Route path="/user-profile" component={UserProfileView}/>
               <Route path="/user-transcriptions" component={UserTranscriptionsView}/>
@@ -131,6 +132,7 @@ class App extends Component {
             </Switch>
           </div>
           <PageFooter/>
+          <CookiesConsent/>
           <ScrollToTop/>
           <AdminMenu isAdmin={this.state.isAdmin}/>
         </div>

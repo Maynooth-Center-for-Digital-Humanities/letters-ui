@@ -100,6 +100,7 @@ export default class DatecreatedBlock extends React.Component {
       startValue: null
     });
   }
+
   endDateClear() {
     this.setState({
       endValue: null

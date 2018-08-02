@@ -1,7 +1,7 @@
 import React, {Component} from 'react';
 import {Link} from 'react-router-dom';
 import axios from 'axios';
-import {WPRestPath} from '../common/constants.js';
+import {WPCustomRestPath} from '../common/constants.js';
 import ReactLoading from 'react-loading';
 import {stripHTML} from '../helpers/helpers.js';
 
@@ -17,6 +17,7 @@ export default class HomeAbout extends Component {
   loadAbout() {
     if (sessionStorage.getItem("home_about")!==null && sessionStorage.getItem("home_about").length>0) {
       let about = JSON.parse(sessionStorage.getItem("home_about"));
+      console.log(about.content);
       this.setState({
         about:about,
         loading: false
@@ -24,16 +25,15 @@ export default class HomeAbout extends Component {
     }
     else {
       let context = this;
-      axios.get(WPRestPath+"pages", {
+      axios.get(WPCustomRestPath+"post", {
           params: {
             "slug": "about-the-project"
           }
         })
     	  .then(function (response) {
-          let newData = response.data[0];
-          let newTitle = newData.title.rendered;
-          let newContent = stripHTML(newData.excerpt.rendered);
-          newContent = newContent.substring(0,750)+"...";
+          let newData = response.data;
+          let newTitle = newData.post_title;
+          let newContent = stripHTML(newData.post_excerpt);
           let about = {
             title: newTitle,
             content: newContent,

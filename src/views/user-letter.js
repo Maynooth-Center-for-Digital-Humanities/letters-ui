@@ -12,6 +12,7 @@ import SourcesSelect from '../components/transcribe/sources-select';
 import ConfirmModal from '../components/confirm-modal';
 import {loadProgressBar} from 'axios-progress-bar';
 import { DragDropContext, Droppable, Draggable } from 'react-beautiful-dnd';
+import Lightbox from 'react-image-lightbox';
 
 
 export class UserLetterView extends Component {
@@ -70,6 +71,10 @@ export class UserLetterView extends Component {
       deleteLetterConfirmSubmit: '',
       prevlocation: '',
       prevlocationpath: '',
+      imagePaths: [],
+      photoIndex: 0,
+      isOpen: false,
+      enableTranscription: false,
     }
     this.loadItem = this.loadItem.bind(this);
     this.calculateDays = this.calculateDays.bind(this);
@@ -91,6 +96,8 @@ export class UserLetterView extends Component {
     this.deleteLetter = this.deleteLetter.bind(this);
     this.showDeleteLetterConfirm = this.showDeleteLetterConfirm.bind(this);
     this.hideDeleteLetterConfirm = this.hideDeleteLetterConfirm.bind(this);
+    this.showBigImage = this.showBigImage.bind(this);
+    this.enableTranscription = this.enableTranscription.bind(this);
   }
 
   handleFormChange(key,e) {
@@ -556,7 +563,6 @@ export class UserLetterView extends Component {
     if (itemData.copyright_statement==="you have the rights to upload the Material in question for use or you have the permission of the relevant rightholder(s) to do so as outlined in the Letters of 1916 Terms for User Contributions") {
       copyright_statementChecked2 = true;
     }
-
     context.setState({
       imagesPreview: imagesPreview,
       terms_of_useChecked: itemData.terms_of_use,
@@ -577,7 +583,7 @@ export class UserLetterView extends Component {
         source: itemData.source,
         doc_collection: itemData.doc_collection,
         recipient_location: itemData.recipient_location,
-        creator_location: itemData.sent_location,
+        creator_location: itemData.creator_location,
         year_of_death_of_author: itemData.year_of_death_of_author,
         notes: itemData.notes,
         images: [],
@@ -592,6 +598,7 @@ export class UserLetterView extends Component {
   loadItemImages(pagesData) {
     if (pagesData.length>0) {
       let imagesPreviewItems = [];
+      let imagePaths = [];
       let grid = 8;
       const getItemStyle = (isDragging, draggableStyle) => ({
         userSelect: 'none',
@@ -616,11 +623,16 @@ export class UserLetterView extends Component {
               )}
             >
               <div className="btn btn-danger btn-xs remove-form-img" onClick={this.showDeleteConfirm.bind(this, pageData.archive_filename)}><i className="fa fa-trash"></i></div>
-              <img key={j} className="img-thumbnail img-responsive form-page-thumbnail" src={domain+"/diyhistory/archive/square_thumbnails/"+pageData.archive_filename} alt="thumbnail" />
+              <img
+                key={j}
+                onClick={this.showBigImage.bind(this,j)}
+                className="img-thumbnail img-responsive form-page-thumbnail" src={domain+"/diyhistory/archive/square_thumbnails/"+pageData.archive_filename}
+                alt="thumbnail" />
             </div>
           )}
         </Draggable>;
         imagesPreviewItems.push(newImage);
+        imagePaths.push(domain+"/diyhistory/archive/fullsize/"+pageData.archive_filename);
       }
 
       let getListStyle = isDraggingOver => ({
@@ -649,6 +661,10 @@ export class UserLetterView extends Component {
         </DragDropContext>
       </div>;
 
+      this.setState({
+        imagePaths: imagePaths
+      });
+
       return imagesPreview;
     }
     else return [];
@@ -672,6 +688,15 @@ export class UserLetterView extends Component {
         prevlocationpath: this.props.history.location.prevlocationpath,
       })
     }
+
+
+    let enableTranscription = false;
+    if (this.props.isAdmin) {
+      enableTranscription = true;
+    }
+    this.setState({
+      enableTranscription: enableTranscription
+    });
   }
 
   removeImageBlock() {
@@ -720,6 +745,34 @@ export class UserLetterView extends Component {
     });
   }
 
+  showBigImage(key) {
+    this.setState({
+      isOpen: true,
+      photoIndex: key
+    });
+  }
+
+  enableTranscription() {
+    let letterId = this.props.match.params.letterId;
+    let context = this;
+    let path = APIPath+"update-letter-transcription-status/"+letterId;
+    let accessToken = sessionStorage.getItem('accessToken');
+    axios.defaults.headers.common['Authorization'] = 'Bearer '+accessToken;
+    axios({
+      method: 'POST',
+      url: path,
+      crossDomain: true,
+    })
+    .then(function (response) {
+      context.setState({
+        redirect: true,
+      });
+    })
+    .catch(function (error) {
+      console.log(error);
+    });
+  }
+
   render() {
     let contentHTML,contentTitle,breadCrumbsArr = [],pageContent;
     let sessionActive = sessionStorage.getItem('sessionActive');
@@ -742,6 +795,9 @@ export class UserLetterView extends Component {
           </div>;
       }
       else {
+        let photoIndex = this.state.photoIndex;
+        let isOpen = this.state.isOpen;
+        let imagePaths = this.state.imagePaths;
         let letterId = this.props.match.params.letterId;
         let deleteBtn = [];
         if (parseInt(letterId,10)>0) {
@@ -749,11 +805,21 @@ export class UserLetterView extends Component {
         }
         let redirectElement;
         if (this.state.redirect===true) {
-          redirectElement = <Redirect to={{
-            pathname: '/user-letters',
-            state: {from: 'user-letters/'+letterId},
-          }}
-          />;
+          if (this.props.isAdmin) {
+            redirectElement = <Redirect to={{
+              pathname: '/admin/list-transcriptions',
+              state: {from: 'user-letters/'+letterId},
+            }}
+            />;
+          }
+          else {
+            redirectElement = <Redirect to={{
+              pathname: '/user-letters',
+              state: {from: 'user-letters/'+letterId},
+            }}
+            />;
+          }
+
         }
 
         let titleError = "";
@@ -800,6 +866,11 @@ export class UserLetterView extends Component {
               <div className="upload-status-bar-text">{stateText}</div>
             </div>;
         }
+        let enableTranscriptionBtn = [];
+        if (this.state.enableTranscription && parseInt(this.props.match.params.letterId,10)>0) {
+          enableTranscriptionBtn = <button type="button" className="btn btn-warning" onClick={this.enableTranscription}><i className="fa fa-check"></i> Enable transcription</button>;
+        }
+
         contentHTML =
         <div>
           {this.state.imagesPreview}
@@ -1039,9 +1110,13 @@ export class UserLetterView extends Component {
               </label>
             </div>
 
-            <button type="submit" className="btn btn-letters"><i className="fa fa-save"></i> {this.state.updateBtnText}</button>
+            <div className="text-center">
+              <button type="submit" className="btn btn-letters pull-left"><i className="fa fa-save"></i> {this.state.updateBtnText}</button>
 
-            {deleteBtn}
+              {enableTranscriptionBtn}
+
+              {deleteBtn}
+            </div>
             <div className="row">
               <div className="col-xs-12">
                 {progressBar}
@@ -1049,6 +1124,25 @@ export class UserLetterView extends Component {
             </div>
             {redirectElement}
           </form>
+
+          {isOpen && (
+            <Lightbox
+              mainSrc={imagePaths[photoIndex]}
+              nextSrc={imagePaths[(photoIndex + 1) % imagePaths.length]}
+              prevSrc={imagePaths[(photoIndex + imagePaths.length - 1) % imagePaths.length]}
+              onCloseRequest={() => this.setState({ isOpen: false })}
+              onMovePrevRequest={() =>
+                this.setState({
+                  photoIndex: (photoIndex + imagePaths.length - 1) % imagePaths.length,
+                })
+              }
+              onMoveNextRequest={() =>
+                this.setState({
+                  photoIndex: (photoIndex + 1) % imagePaths.length,
+                })
+              }
+            />
+          )}
         </div>;
 
         let breadCrumbsPath = {label:'User Letters', path:'/user-letters'};
