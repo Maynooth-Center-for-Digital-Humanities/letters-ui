@@ -7,6 +7,7 @@ import {NormalizeWPURL} from '../helpers/helpers.js';
 import {Link} from 'react-router-dom';
 import Parser from 'html-react-parser';
 import domToReact from 'html-react-parser/lib/dom-to-react';
+import TilesGallery from '../components/wp-tiles-gallery';
 
 export class WPContentView extends Component {
   constructor() {
@@ -62,13 +63,102 @@ export class WPContentView extends Component {
               let href = domNode.attribs.href;
               let newHref = NormalizeWPURL(href);
               if (newHref.includes("wp-post")) {
-                let text = domNode.children[0].data;
-                if (typeof text==="undefined") {
-                  text = domToReact(domNode.children);
+                if (typeof domNode.children[0]!=="undefined") {
+                  if (typeof domNode.children[0].data!=="undefined") {
+                    let text = domNode.children[0].data;
+                    text = domToReact(domNode.children);
+                    newHref = newHref.replace(domain, "");
+                    return <Link to={newHref}>{text}</Link>;
+                  }
                 }
-                newHref = newHref.replace(domain, "");
-                return <Link to={newHref}>{text}</Link>;
               }
+            }
+          }
+          if (domNode.name==="div") {
+
+            if (typeof domNode.attribs.class!=="undefined") {
+
+
+              if (domNode.attribs.class.includes("final-tiles-gallery")) {
+                if (typeof domNode.children[0].attribs.class!=="undefined") {
+
+
+                  let galleryItems = [];
+                  if(domNode.children[0].attribs.class.includes("ftg-items")) {
+                    let items = domNode.children[0];
+                    for (let i=0; i<items.children.length; i++) {
+                      let item = items.children[i];
+                      if (typeof item.attribs.class!=="undefined") {
+                        if (item.attribs.class.includes("tile")) {
+                          let link = "";
+                          let img = "";
+
+                          if (typeof item.children[0]!=="undefined") {
+
+                            if (typeof item.children[0].children[1]!=="undefined") {
+                              if (typeof item.children[0].children[1].attribs.class!=="undefined") {
+
+
+                                if (item.children[0].children[1].attribs.class.includes("ftg-social")) {
+
+                                  link = item.children[0].children[0];
+                                  img = link.children[0];
+                                }
+
+                                else {
+                                  link = item.children[0];
+                                  img = link.children[0];
+                                }
+
+                              }
+                            }
+
+
+                          }
+
+                          if (typeof img!=="undefined") {
+                            let imgWidth = 320;
+                            let imgHeight = 120;
+                            if (typeof img.attribs.width!=="undefined") {
+                               imgWidth = parseInt(img.attribs.width,10);
+                            }
+
+                            if (typeof img.attribs.height!=="undefined") {
+                               imgHeight = parseInt(img.attribs.height,10);
+                            }
+                            let url = "";
+                            if (typeof link.attribs.href!=="undefined") {
+                              url = link.attribs.href;
+                            }
+                            let newImage = {
+                              src:img.attribs.src,
+                              thumbnail:img.attribs.src,
+                              thumbnailWidth: imgWidth,
+                              thumbnailHeight: imgHeight,
+                              caption: <a className="btn btn-letters btn-block btn-flat" href={url} target="_blank">More...</a>,
+                              thumbnailCaption: <a className="btn btn-letters btn-block btn-flat" href={url} target="_blank">More...</a>,
+                              isSelected: false
+                            }
+                            galleryItems.push(newImage);
+                          }
+
+                        }
+                      }
+
+                    }
+
+                  }
+
+                  return <div className="grid-gallery">
+                    <TilesGallery images={galleryItems} enableImageSelection={false} />
+                  </div>;
+                }
+
+
+              }
+
+
+
             }
           }
         }

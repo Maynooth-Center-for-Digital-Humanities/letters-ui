@@ -16,6 +16,7 @@ export class ContactFormView extends Component {
 			form_error_class: 'error-container',
       response_text: '',
       form_status: true,
+      submitBtn: <button type="submit" className="btn btn-primary">Send <i className="fa fa-send-o"></i></button>
     }
     this.handleFormSubmit = this.handleFormSubmit.bind(this);
     this.handleFormChange = this.handleFormChange.bind(this);
@@ -42,22 +43,32 @@ export class ContactFormView extends Component {
       "subject": this.state.subject,
       "message": this.state.message,
     }
+    this.setState({
+      submitBtn: <button type="submit" className="btn btn-primary">Sending... <i className="fa fa-send-o"></i> <i className="fa fa-spin fa-circle-o-notch"></i></button>
+    });
 		let context = this;
 		axios.post(WPCustomRestPath+"contact-form", arrayPost)
 	  .then(function (response) {
       let data = response.data;
-      if (data==="true") {
+      if (data===true) {
         context.setState({
           form_status: false,
-          response_text: <p>Thank you for contacting us. A member fo the staff will respond shortly</p>
+          response_text: <div style={{padding: "50px 15px"}}><p>Thank you for contacting us. A member fo the staff will respond shortly.</p></div>,
+          submitBtn: <button type="submit" className="btn btn-primary">Send success <i className="fa fa-check"></i></button>
         });
       }
       else {
         context.setState({
           form_error: <p>There was an error. Your contact form was not sent. Please try again or send us an email directly at <a href="mailto:letters1916.23@gmail.com">letters1916.23@gmail.com</a></p>,
-          form_error_class: 'error-container-visible'
+          form_error_class: 'error-container-visible',
+          submitBtn: <button type="submit" className="btn btn-primary">Send error <i className="fa fa-times"></i></button>
         });
       }
+      setTimeout(function() {
+        context.setState({
+            submitBtn: <button type="submit" className="btn btn-primary">Send <i className="fa fa-send-o"></i></button>
+        })
+      }, 2000);
 	  })
 	  .catch(function (error) {
 	    console.log(error);
@@ -116,7 +127,7 @@ export class ContactFormView extends Component {
     }
     else {
       contentTitle = "Contact Us";
-      if (this.state.form_status===true) {
+      if (this.state.form_status) {
         contentHTML = <form name='contact-form' onSubmit={this.handleFormSubmit}>
             <div className="row">
               <div className="col-xs-12 col-sm-8">
@@ -137,7 +148,7 @@ export class ContactFormView extends Component {
                   <label>Your Message</label>
     							<textarea name="message" className="form-control" rows="10" placeholder="Please enter your message" onChange={this.handleFormChange} value={this.state.message}></textarea>
     						</div>
-                <button type="submit" className="btn btn-primary">Send <i className="fa fa-send-o"></i></button>
+                {this.state.submitBtn}
                 <br/>
                 <div className="text-right">
                   <small><i>Fields marked with an asterisk (*) are mandatory</i></small>

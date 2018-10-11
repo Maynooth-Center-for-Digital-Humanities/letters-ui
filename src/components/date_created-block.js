@@ -31,7 +31,7 @@ export default class DatecreatedBlock extends React.Component {
     }
     else {
       let context = this;
-      axios.get(APIPath+"date_created")
+      axios.get(APIPath+"date_created?status=1&transcription_status=2")
     	  .then(function (response) {
           let data = response.data.data;
           context.setItems(data);
@@ -49,10 +49,14 @@ export default class DatecreatedBlock extends React.Component {
       let dateCreated = dataItem.date_created;
       let dateArr = dateCreated.split("-");
       if (dateArr.length>=2) {
-        let newDate = moment(dateCreated);
-        if (!calendarDates.includes(newDate)) {
-          calendarDates.push(newDate);
+        dateCreated = dateCreated.replace("T00:00:00","");
+        if (dateCreated.length===10) {
+          let newDate = moment(dateCreated);
+          if (!calendarDates.includes(newDate)) {
+            calendarDates.push(newDate);
+          }
         }
+
       }
     }
     this.setState({
@@ -70,9 +74,12 @@ export default class DatecreatedBlock extends React.Component {
       let dateCreated = dataToArr[i];
       let dateArr = dateCreated.split("-");
       if (dateArr.length>=2) {
-        let newDate = moment(dateCreated);
-        if (!calendarDates.includes(newDate)) {
-          calendarDates.push(newDate);
+        dateCreated = dateCreated.replace("T00:00:00","");
+        if (dateCreated.length===10) {
+          let newDate = moment(dateCreated);
+          if (!calendarDates.includes(newDate)) {
+            calendarDates.push(newDate);
+          }
         }
       }
     }

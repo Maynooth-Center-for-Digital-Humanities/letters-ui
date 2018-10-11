@@ -10,7 +10,6 @@ export default class TranscriptionEditor extends React.Component {
 
     this.state = {
       saving: [],
-      firstMount: 0,
       error: [],
       docked: true,
       positionX: 0,
@@ -22,42 +21,36 @@ export default class TranscriptionEditor extends React.Component {
       width: '600px',
       height: 'auto',
       dragover: false,
-      textarea_disabled: false
+      textarea_disabled: false,
+      allowSave: false
     }
     this.elementName = "editor_" + this.props.id;
     this.onInput = this.onInput.bind(this);
     this.updateTranscription = this.updateTranscription.bind(this);
-    this.resetFirstMount = this.resetFirstMount.bind(this);
+    this.resetAllowSave = this.resetAllowSave.bind(this);
     this.resizing = this.resizing.bind(this);
     this.unsetResize = this.unsetResize.bind(this);
     this.updateEditorView = this.updateEditorView.bind(this);
+
+    // dragging
+    this.setHandle = this.setHandle.bind(this);
+    this.startDrag = this.startDrag.bind(this);
+    this.endDrag = this.endDrag.bind(this);
+    this.dragStop = this.dragStop.bind(this);
+    this.dragOver = this.dragOver.bind(this);
+    this.dragEnter = this.dragEnter.bind(this);
+    this.dragLeave = this.dragLeave.bind(this);
 
     // ref the editor
     this.editorRef = React.createRef();
   }
 
-  componentWillReceiveProps(newProps) {
-    if (
-        newProps.page.transcription!==this.props.page.transcription
-        || newProps.page.transcription_status!==this.props.page.transcription_status
-      ) {
-      this.updateEditorView(newProps);
-    }
-  }
-
   updateEditorView(newProps) {
     if (typeof newProps.page.transcription_status !=="undefined") {
-      if (parseInt(newProps.page.transcription_status,10)>0) {
-        this.setState({
-          textarea_disabled: true
-        });
-      }
-      else {
-        this.setState({
-          textarea_disabled: false
-        });
-        this.updateTranscription(newProps.page.transcription);
-      }
+      this.setState({
+        textarea_disabled: false
+      });
+      this.updateTranscription(newProps.page.transcription);
     }
     else {
       this.setState({
@@ -75,17 +68,19 @@ export default class TranscriptionEditor extends React.Component {
     if (typeof context.props.page.transcription_status !=="undefined") {
       if (parseInt(context.props.page.transcription_status,10)>0) {
         this.setState({
-          textarea_disabled: true
+          textarea_disabled: true,
+          allowSave: false
         });
       }
     }
     else {
       this.setState({
-        textarea_disabled: false
+        textarea_disabled: false,
+        allowSave: false
       });
     }
 
-     if (window.CKEDITOR.instances[this.elementName]) {
+    if (window.CKEDITOR.instances[this.elementName]) {
       try {
         window.CKEDITOR.instances[this.elementName].destroy(true);
       } catch (e) {
@@ -93,102 +88,142 @@ export default class TranscriptionEditor extends React.Component {
       }
     }
 
-    window.CKEDITOR.replace(this.elementName, {
-      on: {
-        instanceReady: function(e) {
-          if (context.props.page.transcription!==null) {
-            newTranscription = context.props.page.transcription;
+    if (this.props.updatePages!==[]) {
+      window.CKEDITOR.replace(this.elementName, {
+        on: {
+          instanceReady: function(e) {
+            if (context.props.page.transcription!==null) {
+              newTranscription = context.props.page.transcription;
+            }
+            context.updateTranscription(newTranscription);
+
+            // add change event listener
+            let inputTimeout = null;
+            window.CKEDITOR.instances[context.elementName].on('change', function (e) {
+              if (!context.state.allowSave) {
+                e.stop();
+                e.cancel();
+                return false;
+              }
+              let data = window.CKEDITOR.instances[this.elementName].getData();
+              if (inputTimeout !== null) {
+                clearTimeout(inputTimeout);
+              }
+              this.props.disableNav();
+              inputTimeout = setTimeout(function () {
+                context.onInput(data);
+              }, 2000);
+
+            }.bind(context));
+
+
           }
-          context.updateTranscription(newTranscription);
-
-
-          // add change event listener
-          let inputTimeout = null;
-          window.CKEDITOR.instances[context.elementName].on('change', function () {
-            if (context.state.firstMount===1) {
-              return false;
-            }
-            let data = window.CKEDITOR.instances[this.elementName].getData();
-            if (inputTimeout !== null) {
-              clearTimeout(inputTimeout);
-            }
-            inputTimeout = setTimeout(function () {
-              context.onInput(data);
-            }, 2000);
-
-          }.bind(context));
         }
-      }
-    });
+      });
+    }
 
+    // dragging
+    window.addEventListener('dragover', this.dragOver);
+    window.addEventListener('drop', this.endDrag);
+  }
+
+  componentWillUnmount() {
+    window.removeEventListener('dragover', this.dragOver);
+    window.removeEventListener('drop', this.endDrag);
+  }
+
+  componentWillReceiveProps(newProps) {
+    if (
+        newProps.page.transcription!==this.props.page.transcription
+        || newProps.page.transcription_status!==this.props.page.transcription_status
+        || newProps.page.archive_filename!==this.props.page.archive_filename
+      ) {
+      this.updateEditorView(newProps);
+
+      this.setState({
+        transcription_content:newProps.page.transcription,
+        allowSave: false,
+      });
+      let context = this;
+      setTimeout(function() {
+        context.resetAllowSave();
+      },50);
+    }
   }
 
   onInput(data) {
-    this.setState({
-      saving: <span><i>Saving</i> <i className="fa fa-spin fa-circle-o-notch"></i></span>
-    })
-    let letterId = this.props.letterId;
-    let archiveFilename = this.props.page.archive_filename;
-    let newData = "";
-    if (data!=="") {
-      newData = editorExportTranscription(data);
-    }
-
-    let context = this;
-    let path = APIPath+"update-letter-transcription-page/"+letterId;
-    let accessToken = sessionStorage.getItem('accessToken');
-    axios.defaults.headers.common['Authorization'] = 'Bearer '+accessToken;
-    axios({
-      method: 'POST',
-      url: path,
-      crossDomain: true,
-      data: {"archive_filename": archiveFilename, "transcription": newData}
-    })
-    .then(function (response) {
-      if (response.data.status) {
-        context.setState({
-          saving: []
-        });
-        context.props.updatePages(response.data.data);
+    if (this.state.allowSave) {
+      this.setState({
+        saving: <span><i>Saving</i> <i className="fa fa-spin fa-circle-o-notch"></i></span>
+      })
+      let letterId = this.props.letterId;
+      let archiveFilename = this.props.page.archive_filename;
+      let newData = "";
+      if (data!=="") {
+        newData = editorExportTranscription(data);
       }
-      else {
-        let newError = {
-          error: true,
-          msg: response.data.message
-        };
-        context.props.error(newError);
-        context.setState({
-          saving: <span><i>Save error </i> <i className="fa fa-times"></i></span>
-        });
-        setTimeout(function() {
+
+      let context = this;
+      let path = APIPath+"update-letter-transcription-page/"+letterId;
+      let accessToken = sessionStorage.getItem('accessToken');
+      axios.defaults.headers.common['Authorization'] = 'Bearer '+accessToken;
+      axios({
+        method: 'POST',
+        url: path,
+        crossDomain: true,
+        data: {"archive_filename": archiveFilename, "transcription": newData}
+      })
+      .then(function (response) {
+        if (response.data.status) {
           context.setState({
             saving: []
           });
-        },1000);
-      }
-    })
-    .catch(function (error) {
-      console.log(error);
-    });
+          context.props.updatePages(response.data.data);
+        }
+        else {
+          let newError = {
+            error: true,
+            msg: response.data.message
+          };
+          context.props.error(newError);
+          context.setState({
+            saving: <span><i>Save error </i> <i className="fa fa-times"></i></span>
+          });
+          setTimeout(function() {
+            context.setState({
+              saving: []
+            });
+          },1000);
+        }
+        context.props.enableNav();
+      })
+      .catch(function (error) {
+        console.log(error);
+      });
+    }
   }
 
   updateTranscription(data) {
-    this.setState({
-      firstMount: 1
-    });
     let context = this;
     let contentMarkup = editorImportTranscription(data);
-
     if (window.CKEDITOR.instances[context.elementName]!==null) {
-      window.CKEDITOR.instances[context.elementName].setData(contentMarkup, context.resetFirstMount);
+      context.setState({
+        allowSave: false
+      });
+      setTimeout(function() {
+        window.CKEDITOR.instances[context.elementName].setData(contentMarkup, context.resetAllowSave);
+      },50);
     }
 
   }
 
-  resetFirstMount() {
-    this.setState({
-      firstMount: 0
-    });
+  resetAllowSave() {
+    let context = this;
+    setTimeout(function() {
+      context.setState({
+        allowSave: true
+      });
+    }, 50);
   }
 
   // drag
@@ -214,15 +249,21 @@ export default class TranscriptionEditor extends React.Component {
     if (!this.state.handle) {
       e.preventDefault();
     }
+    else {
+      e.dataTransfer.setData("text/html", e.target.id);
+      e.dataTransfer.dropEffect = "move";
+    }
   }
 
   endDrag(e) {
-    let newX = e.clientX - this.state.undockedWidth;
+    let newX = e.clientX - this.state.undockedWidth - 78;
+    let newY = e.clientY - 19;
     this.setState({
       handle: false,
       docked: false,
       positionX: newX,
-      positionY: e.clientY,
+      positionY: newY,
+      dragover: false,
     });
     return false;
   }
@@ -245,16 +286,17 @@ export default class TranscriptionEditor extends React.Component {
   }
 
   dragOver(e) {
-    this.setState({
-      dragover: true
-    });
     e.stopPropagation();
     e.preventDefault();
     return false;
   }
 
   dragEnter(e) {
+    this.setState({
+      dragover: true
+    });
     e.preventDefault();
+    e.stopPropagation();
   }
 
   dragLeave(e) {
@@ -297,7 +339,7 @@ export default class TranscriptionEditor extends React.Component {
   }
 
   render() {
-    let resizeHandleClass="hidden";
+    //let resizeHandleClass="hidden";
     let undockedStyle = [];
     let dropzoneClass = "";
     if (!this.state.docked) {
@@ -309,19 +351,19 @@ export default class TranscriptionEditor extends React.Component {
         'width': this.state.width,
         'height': this.state.height
       };
-      resizeHandleClass = "";
+      //resizeHandleClass = "";
       dropzoneClass = " active";
     }
     let dragOverClass="";
     if (this.state.dragover) {
       dragOverClass = " over";
     }
-    let resizeHandle = <div
+    /*let resizeHandle = <div
       className={"transcription-editor-resize-handle "+resizeHandleClass}
         onMouseDown={this.setResize.bind(this)}
       >
       </div>;
-    resizeHandle = [];
+    resizeHandle = [];*/
 
     let dragHandle = <div
       className="transcription-editor-move-handle"
@@ -353,14 +395,15 @@ export default class TranscriptionEditor extends React.Component {
             onDragEnter={this.dragEnter.bind(this)}
             onDragOver={this.dragOver.bind(this)}
             onDragLeave={this.dragLeave.bind(this)}
-            ></div>
+            >
+          </div>
           <div
             className="transcription-editor"
             ref={this.editorRef}
             style={undockedStyle}
             draggable="true"
             onDragStart={this.startDrag.bind(this)}
-            onDragEnd={this.endDrag.bind(this)}
+            //onDragEnd={this.endDrag.bind(this)}
             >
             {dragHandle}
               <div className="transcription-saving-container">

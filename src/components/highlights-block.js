@@ -105,12 +105,14 @@ export default class HighlightsBlock extends React.Component {
     }
     return (
       <section className="home-highlights">
-        <div className="row">
-          <div className="col-xs-12">
-            <h2 className="section-title">
-              <span>Highlights</span>
-            </h2>
-            {content}
+        <div className="container">
+          <div className="row">
+            <div className="col-xs-12">
+              <h2 className="section-title">
+                <span>Highlights</span>
+              </h2>
+              {content}
+            </div>
           </div>
         </div>
       </section>

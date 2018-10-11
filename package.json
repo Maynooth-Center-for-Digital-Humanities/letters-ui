@@ -19,6 +19,7 @@
     "react-dom": "^16.4.1",
     "react-draggable": "^3.0.5",
     "react-dropzone": "^4.2.13",
+    "react-grid-gallery": "^0.5.1",
     "react-helmet": "^5.2.0",
     "react-image-lightbox": "^4.6.0",
     "react-loading": "^1.0.5",
@@ -35,5 +36,5 @@
     "eject": "react-scripts eject"
   },
   "devDependencies": {},
-  "homepage": "http://xl1916apps.mucampus.ie/"
+  "homepage": "http://letters1916.maynoothuniversity.ie"
 }

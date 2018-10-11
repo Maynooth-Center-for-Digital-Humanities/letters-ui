@@ -8,6 +8,7 @@ import Pagination from '../helpers/pagination.js';
 import {loadProgressBar} from 'axios-progress-bar';
 import {PreloaderCards,Emptyitemscard} from '../helpers/helpers.js';
 import ConfirmModal from '../components/confirm-modal';
+import ProtectedPage from '../components/protected-page';
 
 export class UserTranscriptionsView extends Component {
   constructor(props) {
@@ -280,6 +281,7 @@ export class UserTranscriptionsView extends Component {
   }
 
   render() {
+
     let breadCrumbsArr = [{label:'My Transcriptions',path:''}];
     let content;
     if (this.state.loading && this.state.firstLoad===1) {
@@ -331,6 +333,22 @@ export class UserTranscriptionsView extends Component {
       </form>
 
     </div>;
+
+    let contentHTML = <div>
+      {paginationHTML}
+      <div className="list-items-container">
+        {content}
+      </div>      
+      {paginationHTML}
+    </div>;
+    let sessionActive = sessionStorage.getItem('sessionActive');
+    if (sessionActive!=='true') {
+      contentHTML = <div className="item-container">
+        <ProtectedPage
+          loginModalOpen={this.props.loginModalOpen}
+          />
+        </div>;
+    }
     return (
       <div className="container">
         <div className="row">
@@ -345,12 +363,7 @@ export class UserTranscriptionsView extends Component {
         </div>
         <div className="row">
           <div className="col-xs-12">
-
-          {paginationHTML}
-          <div className="list-items-container">
-            {content}
-          </div>
-          {paginationHTML}
+            {contentHTML}
           </div>
         </div>
 

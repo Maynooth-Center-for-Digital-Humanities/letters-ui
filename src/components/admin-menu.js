@@ -38,10 +38,12 @@ export default class AdminMenu extends React.Component {
         openClass = " open";
       }
       // set active items
-      let transcriptionsActive = "";
-      let usersActive = "";
-      if (window.location.pathname==="/admin/list-transcriptions") {
-        transcriptionsActive = "active";
+      let browseActive="",searchActive="",usersActive="";
+      if (window.location.pathname==="/admin/list-items") {
+        browseActive = "active";
+      }
+      if (window.location.pathname==="/admin/search-items") {
+        searchActive = "active";
       }
       if (window.location.pathname==="/admin/users") {
         usersActive = "active";
@@ -58,8 +60,11 @@ export default class AdminMenu extends React.Component {
           <div className="admin-menu-inner">
             <h4>Admin menu</h4>
             <ul className="admin-menu-items">
-              <li className={transcriptionsActive}>
-                <Link href="/admin/list-transcriptions" to="/admin/list-transcriptions">Transcriptions list</Link>
+              <li className={browseActive}>
+                <Link href="/admin/list-transcriptions" to="/admin/list-items">List Items </Link>
+              </li>
+              <li className={searchActive}>
+                <Link href="/admin/list-transcriptions" to="/admin/search-items">Search Items </Link>
               </li>
               <li className={usersActive}>
                 <Link href="/admin/users" to="/admin/users">Users</Link>

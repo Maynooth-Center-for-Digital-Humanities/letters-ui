@@ -18,9 +18,14 @@ export function preloadContent() {
   loadTopics();
   loadSources();
   loadAuthors();
+  loadPeople();
   loadGenders();
   loadLanguages();
   loadDateCreated();
+
+  loadDiscoverPost();
+  loadTranscribePost();
+  loadContributePost();
 
 }
 
@@ -56,8 +61,74 @@ function loadHomeAbout() {
   });
 }
 
+function loadDiscoverPost() {
+  axios.get(WPCustomRestPath+"post", {
+      params: {
+        "slug": "discover-the-collection"
+      }
+    })
+    .then(function (response) {
+      let newData = response.data;
+      let discoverPost = {
+        title: newData.post_title,
+        content: newData.post_excerpt,
+        slug: newData.slug,
+        thumbnail: newData.thumbnail,
+        permalink: newData.permalink,
+      }
+      sessionStorage.setItem("home_discover_collection", JSON.stringify(discoverPost));
+    })
+    .catch(function (error) {
+      console.log(error);
+  });
+}
+
+function loadTranscribePost() {
+  axios.get(WPCustomRestPath+"post", {
+      params: {
+        "slug": "transcribe-letters"
+      }
+    })
+    .then(function (response) {
+      let newData = response.data;
+      let transcribePost = {
+        title: newData.post_title,
+        content: newData.post_excerpt,
+        slug: newData.slug,
+        thumbnail: newData.thumbnail,
+        permalink: newData.permalink,
+      }
+      sessionStorage.setItem("home_transcribe_letters", JSON.stringify(transcribePost));
+    })
+    .catch(function (error) {
+      console.log(error);
+  });
+}
+
+function loadContributePost() {
+  axios.get(WPCustomRestPath+"post", {
+      params: {
+        "slug": "contribute-letters"
+      }
+    })
+    .then(function (response) {
+      let newData = response.data;
+      let contributePost = {
+        title: newData.post_title,
+        content: newData.post_excerpt,
+        slug: newData.slug,
+        thumbnail: newData.thumbnail,
+        permalink: newData.permalink,
+      }
+      sessionStorage.setItem("home_contribute", JSON.stringify(contributePost));
+    })
+    .catch(function (error) {
+      console.log(error);
+  });
+}
+
 function loadTopics() {
-  axios.get(APIPath+"topics")
+  axios.get(APIPath+"topics?status=1&transcription_status=2")
 	  .then(function (response) {
       let data = response.data.data;
       sessionStorage.setItem('topics_list', JSON.stringify(data));
@@ -68,7 +139,7 @@ function loadTopics() {
 }
 
 function loadSources() {
-  axios.get(APIPath+"sources")
+  axios.get(APIPath+"sources?status=1&transcription_status=2")
 	  .then(function (response) {
       let data = response.data.data;
       sessionStorage.setItem('sources_list', JSON.stringify(data));
@@ -79,7 +150,7 @@ function loadSources() {
 }
 
 function loadAuthors() {
-  axios.get(APIPath+"authors")
+  axios.get(APIPath+"authors?status=1&transcription_status=2")
 	  .then(function (response) {
       let data = response.data.data;
       sessionStorage.setItem('authors_list', JSON.stringify(data));
@@ -89,8 +160,19 @@ function loadAuthors() {
 	});
 }
 
+function loadPeople() {
+  axios.get(APIPath+"people?status=1&transcription_status=2")
+	  .then(function (response) {
+      let data = response.data.data;
+      sessionStorage.setItem('people_list', JSON.stringify(data));
+    })
+    .catch(function (error) {
+	    console.log(error);
+	});
+}
+
 function loadGenders() {
-  axios.get(APIPath+"genders")
+  axios.get(APIPath+"genders?status=1&transcription_status=2")
 	  .then(function (response) {
       let data = response.data.data;
       sessionStorage.setItem('genders_list', JSON.stringify(data));
@@ -102,7 +184,7 @@ function loadGenders() {
 
 
 function loadLanguages() {
-  axios.get(APIPath+"languages")
+  axios.get(APIPath+"languages?status=1&transcription_status=2")
 	  .then(function (response) {
       let data = response.data.data;
       sessionStorage.setItem('languages_list', JSON.stringify(data));
@@ -113,7 +195,7 @@ function loadLanguages() {
 }
 
 function loadDateCreated() {
-  axios.get(APIPath+"date_created")
+  axios.get(APIPath+"date_created?status=1&transcription_status=2")
 	  .then(function (response) {
       let data = response.data.data;
       sessionStorage.setItem('date_created_list', JSON.stringify(data));

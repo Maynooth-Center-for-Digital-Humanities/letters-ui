@@ -6,15 +6,16 @@ import {Link} from 'react-router-dom';
 import BreadCrumbs from '../components/breadcrumbs';
 import {DropdownButton, MenuItem} from 'react-bootstrap';
 import {APIPath, domain} from '../common/constants.js';
-import TopicsBlock from '../components/topics-block.js';
-import SourcesBlock from '../components/sources-block.js';
-import AuthorsBlock from '../components/authors-block.js';
-import GendersBlock from '../components/genders-block.js';
-import LanguagesBlock from '../components/languages-block.js';
-import DatecreatedBlock from '../components/date_created-block.js';
+import TopicsBlock from '../components/transcriptions-topics-block.js';
+import SourcesBlock from '../components/transcriptions-sources-block.js';
+import AuthorsBlock from '../components/transcriptions-authors-block.js';
+import GendersBlock from '../components/transcriptions-genders-block.js';
+import LanguagesBlock from '../components/transcriptions-languages-block.js';
+import DatecreatedBlock from '../components/transcriptions-date_created-block.js';
 import Pagination from '../helpers/pagination.js';
-import {PreloaderCards,ToggleClass,ReplaceClass,Emptyitemscard,CompareFilterTopics,CompareFilterGeneral} from '../helpers/helpers.js';
+import {PreloaderCards,ToggleClass,ReplaceClass,Emptyitemscard,CompareFilterTopics,CompareFilterGeneral,SelectedTopicsChecked,SelectedFiltersChecked,fixImagePath} from '../helpers/helpers.js';
 import {loadProgressBar} from 'axios-progress-bar';
+import ProtectedPage from '../components/protected-page';
 
 export class TranscriptionsDeskView extends Component {
   constructor() {
@@ -25,10 +26,7 @@ export class TranscriptionsDeskView extends Component {
       page: 1,
       current_page: 1,
       temp_page: 1,
-      path: APIPath+"index",
-      topics_path: APIPath+"topicsbyid/",
       total: 0,
-      sort: "desc",
       paginate: 10,
       paginationHTML: [],
       length: 0,
@@ -44,6 +42,7 @@ export class TranscriptionsDeskView extends Component {
       date_end: [],
       queryStatus: 0,
       queryTranscriptionStatus: 0,
+      sort: "asc",
     };
 
     this.updatePage = this.updatePage.bind(this);
@@ -55,13 +54,15 @@ export class TranscriptionsDeskView extends Component {
     this.topicFilter = this.topicFilter.bind(this);
     this.filterContent = this.filterContent.bind(this);
     this.browserItems = this.browserItems.bind(this);
-    //this.selectedTopicsToggleChildren = this.selectedTopicsToggleChildren.bind(this);
     this.sourcesFilter = this.sourcesFilter.bind(this);
     this.authorsFilter = this.authorsFilter.bind(this);
     this.gendersFilter = this.gendersFilter.bind(this);
     this.languagesFilter = this.languagesFilter.bind(this);
     this.datecreatedFilter = this.datecreatedFilter.bind(this);
     this.transcriptionStatus = this.transcriptionStatus.bind(this);
+    this.setSessionStorage = this.setSessionStorage.bind(this);
+    this.checkSessionStorage = this.checkSessionStorage.bind(this);
+    this.clearFilters = this.clearFilters.bind(this);
 
   }
 
@@ -324,7 +325,7 @@ export class TranscriptionsDeskView extends Component {
 
   filterContent() {
     let browseContext = this;
-    let path = APIPath+"indexfiltered";
+    let path = APIPath+"transcriptionsdeskfiltered";
     axios.get(path, {
       params: {
         sort: this.state.sort,
@@ -353,15 +354,31 @@ export class TranscriptionsDeskView extends Component {
       let currentPage = responseData.current_page;
       if (responseData.last_page<responseData.current_page) {
         currentPage = responseData.last_page;
+        browseContext.setState({
+          loading:false,
+          current_page: currentPage,
+          browseItems: browseItems,
+          last_page: responseData.last_page,
+          total: responseData.total,
+          firstLoad:0
+        });
       }
-      browseContext.setState({
-        loading:false,
-        browseItems: browseItems,
-        current_page: currentPage,
-        last_page: responseData.last_page,
-        total: responseData.total,
-        firstLoad:0
-      });
+      else {
+        browseContext.setState({
+          loading:false,
+          browseItems: browseItems,
+          last_page: responseData.last_page,
+          total: responseData.total,
+          firstLoad:0
+        });
+      }
+
+
+      SelectedTopicsChecked(browseContext.state.keywords_ids);
+      SelectedFiltersChecked("sources-list", browseContext.state.sources);
+      SelectedFiltersChecked("authors-list", browseContext.state.authors);
+      SelectedFiltersChecked("genders-list", browseContext.state.genders);
+      SelectedFiltersChecked("languages-list", browseContext.state.languages);
     })
     .catch(function (error) {
       console.log(error);
@@ -419,6 +436,31 @@ export class TranscriptionsDeskView extends Component {
     });
   }
 
+  clearFilters() {
+    if (
+      this.state.selectedTopics!==[] ||
+      this.state.keywords_ids!==[] ||
+      this.state.sources!==[] ||
+      this.state.authors!==[] ||
+      this.state.genders!==[] ||
+      this.state.languages!==[] ||
+      this.state.date_start!==[] ||
+      this.state.date_end!==[]
+    ) {
+      this.setState({
+        loading: true,
+        selectedTopics: [],
+        keywords_ids: [],
+        sources: [],
+        authors: [],
+        genders: [],
+        languages: [],
+        date_start: [],
+        date_end: [],
+      });
+    }
+  }
+
   showPage() {
     let browseContext = this;
     let path = this.state.path;
@@ -459,7 +501,8 @@ export class TranscriptionsDeskView extends Component {
       let element = JSON.parse(item.element);
       let defaultThumbnail;
       if (element.pages.length>0) {
-        defaultThumbnail = <img className="img-responsive" src={domain+"/diyhistory/archive/square_thumbnails/"+element.pages[0].archive_filename} alt={element.title} />
+        let thumbPath = fixImagePath(domain+"/diyhistory/archive/square_thumbnails/"+element.pages[0].archive_filename);
+        defaultThumbnail = <img className="img-responsive" src={thumbPath} alt={element.title} />
       }
 
       var keywords = [];
@@ -467,14 +510,16 @@ export class TranscriptionsDeskView extends Component {
         var topic = element.topics[j];
         var comma = '';
         if (j>0) comma = ', ';
-        var keyword = <span data-id={topic.topic_ID} key={j}>{comma}{topic.topic_name}</span>;
+        var keyword = <span data-id={topic.topic_id} key={j}>{comma}{topic.topic_name}</span>;
         keywords.push(keyword);
       }
       let transcription = "";
       if (element.pages.length>0) {
-        let trascriptionStatusCompletion = this.transcriptionStatus(element.pages);
+        let trascriptionStatusCompletion = item.completed+"%";
 
-        if (element.pages[0].transcription!=="") {
+        if (typeof element.pages[0].transcription !=="undefined" && element.pages[0].transcription!=="" &&
+        element.pages[0].transcription!==null
+      ) {
           let transcriptionText = element.pages[0].transcription.replace(/<[^>]+>/ig," ");
           transcriptionText = transcriptionText.replace("&amp;", "&");
           transcriptionText = transcriptionText.replace("&#39;", "'");
@@ -485,7 +530,7 @@ export class TranscriptionsDeskView extends Component {
           transcription = transcriptionText+"...";
         }
 
-        let itemPath = { pathname: '/letter-transcribe/'+item.id, prevlocation: "Transcriptions Desk", prevlocationpath: "/transcriptions-desk" };
+        let itemPath = { pathname: '/letter-transcribe/'+item.id, prevlocation: "Transcription Desk", prevlocationpath: "/transcriptions-desk" };
         let browseItem = <li data-id={item.id} key={i} className="img-clearfix">
             <div className="list-thumbnail">
               <Link to={itemPath}>{defaultThumbnail}</Link>
@@ -519,51 +564,107 @@ export class TranscriptionsDeskView extends Component {
     let trascriptionStatusCompletion = "0%";
     if (completed>0) {
       let percentage = (completed/countPages)*100;
-      trascriptionStatusCompletion = percentage+"%";
+      trascriptionStatusCompletion = Math.round(parseFloat(percentage,10)).toFixed(0)+"%";
     }
     return trascriptionStatusCompletion;
   }
 
+  checkSessionStorage() {
+    if (sessionStorage.getItem('transcriptions_desk')!==null) {
+      let storedState = JSON.parse(sessionStorage.getItem('transcriptions_desk'));
+      this.setState({
+        sort:storedState.sort,
+        current_page:storedState.current_page,
+        paginate:storedState.paginate,
+        keywords_ids:storedState.keywords_ids,
+        sources:storedState.sources,
+        authors:storedState.authors,
+        genders:storedState.genders,
+        languages:storedState.languages,
+        date_start:storedState.date_start,
+        date_end:storedState.date_end,
+        queryStatus:storedState.queryStatus,
+        queryTranscriptionStatus:storedState.queryTranscriptionStatus,
+      });
+    }
+  }
+
+  setSessionStorage() {
+    let newState = {
+      sort: this.state.sort,
+      current_page: this.state.current_page,
+      paginate: this.state.paginate,
+      keywords_ids: this.state.keywords_ids,
+      sources: this.state.sources,
+      authors: this.state.authors,
+      genders: this.state.genders,
+      languages: this.state.languages,
+      date_start: this.state.date_start,
+      date_end: this.state.date_end,
+      queryStatus: this.state.queryStatus,
+      queryTranscriptionStatus: this.state.queryTranscriptionStatus,
+    }
+    sessionStorage.setItem('transcriptions_desk', JSON.stringify(newState));
+  }
+
   componentDidMount() {
-    this.filterContent();
-    this.updateFilters();
-    loadProgressBar();
+    let sessionActive = sessionStorage.getItem('sessionActive');
+		if (sessionActive==='true') {
+      loadProgressBar();
+      this.checkSessionStorage();
+      let context = this;
+      setTimeout(function() {
+        context.filterContent();
+        context.updateFilters();
+      },500);
+    }
   }
 
   componentDidUpdate(prevProps, prevState) {
-    if (
-      prevState.loading!==this.state.loading &&
-      (
-        prevState.current_page!==this.state.current_page ||
-        prevState.paginate!==this.state.paginate ||
-        prevState.sort!==this.state.sort ||
-        prevState.keywords_ids!==this.state.keywords_ids ||
-        prevState.sources!==this.state.sources ||
-        prevState.authors!==this.state.authors ||
-        prevState.genders!==this.state.genders ||
-        prevState.languages!==this.state.languages ||
-        prevState.date_sent!==this.state.date_sent
+    let sessionActive = sessionStorage.getItem('sessionActive');
+		if (sessionActive) {
+      if (
+        prevState.loading!==this.state.loading &&
+        (
+          prevState.current_page!==this.state.current_page ||
+          prevState.paginate!==this.state.paginate ||
+          prevState.sort!==this.state.sort ||
+          prevState.keywords_ids!==this.state.keywords_ids ||
+          prevState.sources!==this.state.sources ||
+          prevState.authors!==this.state.authors ||
+          prevState.genders!==this.state.genders ||
+          prevState.languages!==this.state.languages ||
+          prevState.date_sent!==this.state.date_sent
+        )
       )
-    )
-    {
-      this.filterContent();
-      this.updateFilters();
+      {
+        this.setSessionStorage();
+        let context = this;
+        setTimeout(function() {
+          context.filterContent();
+          context.updateFilters();
+        },500);
+      }
     }
   }
 
   render() {
     let contentHTML,pageContent;
-    let contentTitle = "Transcriptions Desk";
+    let contentTitle = "Transcription Desk";
     let breadCrumbsArr = [];
     let sessionActive = sessionStorage.getItem('sessionActive');
 		if (sessionActive!=='true') {
-      contentHTML = <p className="text-center">This is a protected page. <br/>To view this page you must first login or register.</p>
+      contentHTML = <ProtectedPage
+        loginModalOpen={this.props.loginModalOpen}
+        />
       pageContent = <div className="container">
         <div className="row">
           <div className="col-xs-12">
             <BreadCrumbs items={breadCrumbsArr}></BreadCrumbs>
             <h1>{contentTitle}</h1>
-            <div className="item-container">{contentHTML}</div>
+            <div className="item-container">
+              {contentHTML}
+              </div>
           </div>
         </div>
       </div>
@@ -605,8 +706,8 @@ export class TranscriptionsDeskView extends Component {
           title="Sort"
           id="sort-filter"
           >
-          <MenuItem key="1" onClick={this.updateSort.bind(this,"desc")} className={activeDesc}><i className="fa fa-sort-amount-desc"></i> Desc</MenuItem>
-          <MenuItem key="2" onClick={this.updateSort.bind(this,"asc")} className={activeAsc}><i className="fa fa-sort-amount-asc"></i> Asc</MenuItem>
+          <MenuItem key="1" onClick={this.updateSort.bind(this,"asc")} className={activeAsc}><i className="fa fa-sort-amount-asc"></i> Completed Asc</MenuItem>
+          <MenuItem key="2" onClick={this.updateSort.bind(this,"desc")} className={activeDesc}><i className="fa fa-sort-amount-desc"></i> Completed Desc</MenuItem>
         </DropdownButton>
 
         <DropdownButton
@@ -642,7 +743,11 @@ export class TranscriptionsDeskView extends Component {
         </div>
         <div className="row">
           <div className="col-xs-12 col-sm-3">
-            <h3 className="column-title">Filters</h3>
+            <h3 className="column-title">Filters
+              <small className="pull-right" style={{cursor:"pointer"}} onClick={this.clearFilters} title="Clear all filters">
+                clear all <i className="fa fa-times-circle-o"></i>
+              </small>
+            </h3>
           </div>
           <div className="col-xs-12 col-sm-9">
             <h2>{contentTitle}</h2>

@@ -7,6 +7,7 @@ import ConfirmModal from '../components/confirm-modal';
 import {loadProgressBar} from 'axios-progress-bar';
 import {Modal} from 'react-bootstrap';
 import {sessionCookie} from '../helpers/helpers';
+import ProtectedPage from '../components/protected-page';
 
 
 export class UserProfileView extends Component {
@@ -307,7 +308,9 @@ export class UserProfileView extends Component {
     let breadCrumbsArr = {label:contentTitle, path: ''};
     let sessionActive = sessionStorage.getItem('sessionActive');
 		if (sessionActive!=='true') {
-      contentHTML = <p className="text-center">This is a protected page. <br/>To view this page you must first login or register.</p>
+      contentHTML = <ProtectedPage
+        loginModalOpen={this.props.loginModalOpen}
+        />
       pageContent = <div className="container">
         <div className="row">
           <div className="col-xs-12">

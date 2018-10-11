@@ -1,7 +1,9 @@
 import React, {Component} from 'react';
 import Carousel from '../components/carousel.js';
 import HomeAbout from '../components/home-about.js';
+import HomeLettersBlock from '../components/home-letters-block.js';
 import HighlightsBlock from '../components/highlights-block.js';
+import VizualizationsBlock from '../components/home-vizualizations-block.js';
 import HomeNews from '../components/home-news.js';
 
 export class HomeView extends Component {
@@ -34,7 +36,13 @@ export class HomeView extends Component {
           </div>
         </section>
 
+        <HomeLettersBlock />
+
         <HighlightsBlock />
+
+        <VizualizationsBlock />
+
+
 
       </div>
     );

@@ -20,7 +20,7 @@ export default class GendersBlock extends React.Component {
     }
     else {
       let context = this;
-      axios.get(APIPath+"genders")
+      axios.get(APIPath+"genders?status=1&transcription_status=2")
     	  .then(function (response) {
           let data = response.data.data;
           context.setItems(data);
@@ -67,11 +67,13 @@ export default class GendersBlock extends React.Component {
           </div>;
     }
     else {
-      content = <ul className="genders-list">{this.state.items}</ul>;
+      content = <div>
+        <h5>Gender</h5>
+        <ul className="genders-list">{this.state.items}</ul>
+      </div>;
     }
     return (
       <div className="topics-container">
-        <h5>Gender</h5>
         {content}
       </div>
     );

@@ -13,16 +13,17 @@ export default class AuthorsSelect extends React.Component {
   }
 
   loadItems() {
-    if (sessionStorage.getItem("authors_list")!==null && sessionStorage.getItem("authors_list").length>0) {
-      let data = JSON.parse(sessionStorage.getItem("authors_list"));
+    if (sessionStorage.getItem("upload_people_list")!==null && sessionStorage.getItem("upload_people_list").length>0) {
+      let data = JSON.parse(sessionStorage.getItem("upload_people_list"));
       this.setItems(data);
     }
     else {
       let context = this;
-      axios.get(APIPath+"authors")
+      axios.get(APIPath+"people")
     	  .then(function (response) {
           let data = response.data.data;
           context.setItems(data);
+          sessionStorage.setItem("upload_people_list", JSON.stringify(data));
         })
         .catch(function (error) {
     	    console.log(error);
@@ -34,7 +35,7 @@ export default class AuthorsSelect extends React.Component {
     let items = [];
     for (let i=0; i<data.length; i++) {
       let item = data[i];
-      let row = { label: item.creator, value: item.creator };
+      let row = { label: item, value: item };
       items.push(row);
     }
     this.setState({

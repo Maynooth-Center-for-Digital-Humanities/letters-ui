@@ -42,7 +42,7 @@ export default class CookiesConsent extends React.Component {
     return(
       <div className={"cookies-consent-container"+hiddenClass}>
         <div className="cookies-consent-content">
-          <p>The Letters 1916-23 website uses cookies to ensure the best experience for our visitors. By continuing to use the Letters 1916-23 website you are agreeing to our <a href="/link">
+          <p>The Letters 1916-23 website uses cookies to ensure the best experience for our visitors. By continuing to use the Letters 1916-23 website you are agreeing to our <a href="/wp-post/letters-1916-1923-cookie-policy">
           <i className="fa fa-question-circle"></i> cookies policy</a></p>
 
           <button type="button" className="btn btn-letters" onClick={this.acceptConsent}>Accept</button>

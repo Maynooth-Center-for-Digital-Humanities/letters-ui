@@ -20,7 +20,7 @@ export default class LanguageBlock extends React.Component {
     }
     else {
       let context = this;
-      axios.get(APIPath+"languages")
+      axios.get(APIPath+"languages?status=1&transcription_status=2")
     	  .then(function (response) {
           let data = response.data.data;
           context.setItems(data);

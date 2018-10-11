@@ -1,10 +1,12 @@
 import React from 'react';
 import OwlCarousel from 'react-owl-carousel';
 import {archivePath} from '../../common/constants';
+import {fixImagePath} from '../../helpers/helpers';
 
 export default class TranscriptionPagesList extends React.Component {
   constructor(props, context) {
     super(props, context);
+
     this.state = {
       thumbnails:[],
       images:[],
@@ -14,6 +16,28 @@ export default class TranscriptionPagesList extends React.Component {
   }
 
   renderThumbnails() {
+    let newThumbnails;
+      this.setState({
+        thumbnails: newThumbnails,
+        loading:false,
+      });
+
+  }
+
+  componentDidMount() {
+    this.renderThumbnails();
+  }
+
+  componentDidUpdate(prevProps, prevState) {
+    if (
+        prevProps.selected!==this.props.selected ||
+        prevProps.pages!==this.props.pages
+      ) {
+      this.renderThumbnails();
+    }
+  }
+
+  render() {
     let newThumbnails = [];
     if (typeof this.props.pages!=="undefined" && this.props.pages.length>0) {
       let pages = this.props.pages;
@@ -31,14 +55,19 @@ export default class TranscriptionPagesList extends React.Component {
           pageStatus = <small className="label label-danger">Completed</small>;
         }
         let pageCount = i+1;
-        let thumbnail =<div className="item" key={i}>
+        let selectedClass = "";
+        if (i===this.props.selected) {
+          selectedClass = " selected";
+        }
+        let thumbPath = fixImagePath(archivePath+'square_thumbnails/'+page.archive_filename);
+        let thumbnail =<div className={"item"+selectedClass} key={i}>
           <a className='img-thumbnail'
             onClick={this.props.function.bind(this,i)}
             >
             <div className="transcription-page-select-status">{pageStatus}</div>
             <img
               data-id={page.page_id}
-              src={archivePath+'square_thumbnails/'+page.archive_filename}
+              src={thumbPath}
               alt=''
               className='img-responsive page-thumbnail' />
               <label className="item-count">{pageCount}</label>
@@ -46,24 +75,8 @@ export default class TranscriptionPagesList extends React.Component {
         </div>;
         newThumbnails.push(thumbnail);
       }
-      this.setState({
-        thumbnails: newThumbnails,
-        loading:false,
-      });
     }
-  }
 
-  componentDidMount() {
-    this.renderThumbnails();
-  }
-
-  componentDidUpdate(prevProps) {  
-    if (prevProps!==this.props) {
-      this.renderThumbnails();
-    }
-  }
-
-  render() {
     let owlNavText = ['<i class="fa fa-angle-left"></i>','<i class="fa fa-angle-right"></i>'];
     let owlResponsive = {
         0:{
@@ -79,9 +92,7 @@ export default class TranscriptionPagesList extends React.Component {
           items:12
         }
     };
-    let content = [];
-    if (this.state.loading===false) {
-      content = <OwlCarousel
+    let content = <OwlCarousel
         className="owl-theme item-pages-thumbnails"
         loop={false}
         margin={10}
@@ -90,9 +101,8 @@ export default class TranscriptionPagesList extends React.Component {
         navText={owlNavText}
         navContainerClass='item-thumbnails-nav'
         dots={false}>
-          {this.state.thumbnails}
+          {newThumbnails}
       </OwlCarousel>
-    }
     return (
       <div>
         {content}

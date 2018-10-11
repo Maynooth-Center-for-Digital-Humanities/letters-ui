@@ -1,6 +1,6 @@
 import React from 'react';
 import {archivePath} from '../../common/constants';
-import {ToggleClass} from '../../helpers/helpers';
+import {ToggleClass,fixImagePath} from '../../helpers/helpers';
 import Resizable from 're-resizable';
 import Draggable from 'react-draggable';
 
@@ -164,7 +164,7 @@ export default class TranscriptionImageViewer extends React.Component {
   }
 
   render() {
-    let pageSource = archivePath+"fullsize/"+this.props.page.archive_filename;
+    let pageSource = fixImagePath(archivePath+"fullsize/"+this.props.page.archive_filename);
     let imgStyle = {
       width: this.state.imgWidth,
       height: this.state.imgHeight

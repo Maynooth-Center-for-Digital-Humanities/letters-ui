@@ -17,7 +17,6 @@ export default class HomeAbout extends Component {
   loadAbout() {
     if (sessionStorage.getItem("home_about")!==null && sessionStorage.getItem("home_about").length>0) {
       let about = JSON.parse(sessionStorage.getItem("home_about"));
-      console.log(about.content);
       this.setState({
         about:about,
         loading: false
@@ -68,7 +67,7 @@ export default class HomeAbout extends Component {
             <h2>{this.state.about.title}</h2>
             <div dangerouslySetInnerHTML={{__html: this.state.about.content}} className="wrap-text"></div>
             <br/>
-            <Link className="btn btn-default" to={"/wp-post/"+this.state.about.slug}>Read more...</Link>
+            <Link className="btn btn-default" to={"/wp-post/about-the-project"}>Read more...</Link>
           </div>
       }
       return(

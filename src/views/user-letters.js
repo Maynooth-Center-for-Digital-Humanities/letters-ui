@@ -8,6 +8,7 @@ import Pagination from '../helpers/pagination.js';
 import {loadProgressBar} from 'axios-progress-bar';
 import {PreloaderCards,Emptyitemscard} from '../helpers/helpers.js';
 import ConfirmModal from '../components/confirm-modal';
+import ProtectedPage from '../components/protected-page';
 
 export class UserLettersView extends Component {
   constructor(props) {
@@ -297,7 +298,7 @@ export class UserLettersView extends Component {
     this.loadItems();
     loadProgressBar();
   }
-  
+
   componentDidUpdate(prevProps, prevState) {
     if (
       prevState.current_page!==this.state.current_page
@@ -314,7 +315,9 @@ export class UserLettersView extends Component {
     let sessionActive = sessionStorage.getItem('sessionActive');
     if (sessionActive!=='true') {
       contentHTML = <div className="item-container">
-        <p className="text-center">This is a protected page. <br/>To view this page you must first login or register.</p>
+      <ProtectedPage
+        loginModalOpen={this.props.loginModalOpen}
+        />
       </div>;
     }
     else {

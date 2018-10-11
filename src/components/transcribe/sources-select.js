@@ -13,8 +13,8 @@ export default class SourcesSelect extends React.Component {
   }
 
   loadItems() {
-    if (sessionStorage.getItem("sources_list")!==null && sessionStorage.getItem("sources_list").length>0) {
-      let data = JSON.parse(sessionStorage.getItem("sources_list"));
+    if (sessionStorage.getItem("upload_sources_list")!==null && sessionStorage.getItem("upload_sources_list").length>0) {
+      let data = JSON.parse(sessionStorage.getItem("upload_sources_list"));
       this.setItems(data);
     }
     else {
@@ -23,6 +23,7 @@ export default class SourcesSelect extends React.Component {
     	  .then(function (response) {
           let data = response.data.data;
           context.setItems(data);
+          sessionStorage.setItem("upload_sources_list", JSON.stringify(data));
         })
         .catch(function (error) {
     	    console.log(error);
@@ -44,7 +45,7 @@ export default class SourcesSelect extends React.Component {
 
   componentDidMount() {
     this.loadItems();
-    
+
   }
 
   render() {

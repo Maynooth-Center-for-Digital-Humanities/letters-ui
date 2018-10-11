@@ -12,7 +12,8 @@ const pageFooter = () => (
     <div className="footer-content">
       <div className="container">
         <div className="row">
-          <div className="col-xs-12 col-sm-4 col-md-3 col-lg-3 text-left">
+
+          <div className="col-xs-12 col-sm-4 col-md-3 col-lg-3 pull-left">
             <a href="https://www.maynoothuniversity.ie/" target="_blank" rel="noopener noreferrer">
               <img src={MULogo} alt="Maynooth University" className="img-responsive footer-logo" />
             </a><br/>
@@ -23,6 +24,7 @@ const pageFooter = () => (
               <img src={SFILogo} alt="Science Foundation Ireland" className="img-responsive footer-logo" />
             </a>
           </div>
+          
           <div className="col-xs-12 col-sm-3 col-md-3 col-lg-3">
             <FooterMenu />
           </div>

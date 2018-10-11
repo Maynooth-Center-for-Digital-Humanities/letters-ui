@@ -5,12 +5,13 @@ import Lightbox from 'react-image-lightbox';
 import BreadCrumbs from '../components/breadcrumbs';
 import {APIPath,archivePath} from '../common/constants.js';
 import OwlCarousel from 'react-owl-carousel';
-import {ToggleClass} from '../helpers/helpers.js';
+import {ToggleClass,fixImagePath} from '../helpers/helpers.js';
 import LetterUploadXML from '../helpers/letter-upload-xml.js';
 
 export class ItemView extends Component {
-  constructor() {
-    super();
+  constructor(props) {
+    super(props);
+
     this.state = {
       loading: true,
       title: '',
@@ -18,7 +19,7 @@ export class ItemView extends Component {
       creator: '',
       sent_location: '',
       language: '',
-      letter_ID: 0,
+      document_id: 0,
       recipient: '',
       time_zone: '',
       collection: '',
@@ -27,7 +28,7 @@ export class ItemView extends Component {
       number_pages: 0,
       request_time: '',
       terms_of_use: '',
-      collection_ID: '',
+      collection_id: '',
       creator_gender: '',
       doc_collection: '',
       creator_location: '',
@@ -45,7 +46,8 @@ export class ItemView extends Component {
       imageActiveLoaderHeight: 400,
       photoIndex: 0,
       isOpen: false,
-      downloadLink: []
+      downloadLink: [],
+      notFound: false,
     };
 
     this.toggleLetterInfo = this.toggleLetterInfo.bind(this);
@@ -68,7 +70,6 @@ export class ItemView extends Component {
   }
 
   showPage(key) {
-    console.log(key);
 		this.setState({
       transcriptionActive:this.state.transcriptions[key] ,
       imageActive:this.state.images[key],
@@ -107,102 +108,116 @@ export class ItemView extends Component {
     else {
       return false;
     }
+    let accessToken = sessionStorage.getItem('accessToken');
+    axios.defaults.headers.common['Authorization'] = 'Bearer '+accessToken;
 		axios.get(getPath)
 	  .then(function (response) {
-      let responseData = response.data.data;
-      let dateSent = '';
+      if (response.data.status) {
+        let responseData = response.data.data;
+        let dateSent = '';
 
-      if (responseData.date_created.length>0) {
-        dateSent = new Date(responseData.date_created);
-        let daySent = dateSent.getDate();
-        if (daySent<10) {
-          daySent = '0'+daySent;
+        if (responseData.date_created.length>0) {
+          dateSent = new Date(responseData.date_created);
+          let daySent = dateSent.getDate();
+          if (daySent<10) {
+            daySent = '0'+daySent;
+          }
+          let months = ['January','February','March','April','May','June','July','August','September','October','November','December'];
+          dateSent = daySent+' '+months[dateSent.getMonth()]+ ' '+dateSent.getFullYear();
         }
-        let months = ['January','February','March','May','June','July','August','September','October','November','December'];
-        dateSent = daySent+' '+months[dateSent.getMonth()]+ ' '+dateSent.getFullYear();
-      }
-      // pages
-      let thumbnails = [];
-      let images = [];
-      let transcriptions = [];
-      let imagePaths = [];
-      for (let p=0;p<responseData.pages.length; p++) {
-        let page = responseData.pages[p];
-        let pageCount = p+1;
-        let thumbnail =<div className="item" key={p}>
-          <a className='img-thumbnail'
-            onClick={itemContext.showPage.bind(itemContext,p)}>
-            <img
-              data-id={page.page_id}
-              src={archivePath+'square_thumbnails/'+page.archive_filename}
-              alt=''
-              className='img-responsive page-thumbnail' />
-              <label className="item-count">{pageCount}</label>
-          </a>
+        // pages
+        let thumbnails = [];
+        let images = [];
+        let transcriptions = [];
+        let imagePaths = [];
+        for (let p=0;p<responseData.pages.length; p++) {
+          let page = responseData.pages[p];
+          let pageCount = p+1;
+          let thumbPath = archivePath+'square_thumbnails/'+page.archive_filename;
+          thumbPath = fixImagePath(thumbPath);
+          let thumbnail = <div className="item" key={p}>
+            <a className='img-thumbnail'
+              onClick={itemContext.showPage.bind(itemContext,p)}>
+              <img
+                data-id={page.page_id}
+                src={thumbPath}
+                alt=''
+                className='img-responsive page-thumbnail'
+                />
+                <label className="item-count">{pageCount}</label>
+            </a>
 
-        </div>;
-        thumbnails.push(thumbnail);
+          </div>;
+          thumbnails.push(thumbnail);
 
-        let image = <img
-          onClick={itemContext.showBigImage.bind(itemContext,p)}
-          key={'image-'+p}
-          data-id={page.page_id}
-          src={archivePath+'fullsize/'+page.archive_filename}
-          alt=''
-          className='letter-details-big-img img-thumbnail img-responsive'
-          onLoad={itemContext.handleImageLoaded.bind(itemContext, p)}
-          ref={(imageContainer) => { itemContext.imageContainer = imageContainer; }}
-          />;
-        images.push(image);
+          let imagePath = archivePath+'fullsize/'+page.archive_filename;
+          imagePath = fixImagePath(imagePath);
+          let image = <img
+            onClick={itemContext.showBigImage.bind(itemContext,p)}
+            key={'image-'+p}
+            data-id={page.page_id}
+            src={imagePath}
+            alt=''
+            className='letter-details-big-img img-thumbnail img-responsive'
+            onLoad={itemContext.handleImageLoaded.bind(itemContext, p)}
+            ref={(imageContainer) => { itemContext.imageContainer = imageContainer; }}
+            />;
+          images.push(image);
 
-        let imagePath = archivePath+'fullsize/'+page.archive_filename;
-        imagePaths.push(imagePath);
+          imagePaths.push(imagePath);
 
-        let transcription;
-        if (page.transcription!=="") {
-          transcription = <div data-id={page.page_id} key={'transcription-'+p} className='page-transcription'>
-            <h4>Page transcription</h4>
-            <div dangerouslySetInnerHTML={{__html: page.transcription}}></div>
-          </div>
+          let transcription;
+          if (page.transcription!=="") {
+            transcription = <div data-id={page.page_id} key={'transcription-'+p} className='page-transcription'>
+              <h4>Page transcription</h4>
+              <div dangerouslySetInnerHTML={{__html: page.transcription}}></div>
+            </div>
+          }
+          transcriptions.push(transcription);
         }
-        transcriptions.push(transcription);
+        let fileLink = [];
+        if (typeof responseData.file!=="undefined" && responseData.file.link.length>0) {
+          fileLink = <a download href={responseData.file.link}>{responseData.file.original_filename} <i className="fa fa-download"></i></a>;
+        }
+        itemContext.setState({
+          loading:false,
+          title: responseData.title,
+          source: responseData.source,
+          creator: responseData.creator,
+          language: responseData.language,
+          sent_location: responseData.sent_location,
+          document_id: responseData.document_id,
+          recipient: responseData.recipient,
+          time_zone: responseData.time_zone,
+          collection: responseData.collection,
+          description: responseData.description,
+          date_created: dateSent,
+          number_pages: responseData.number_pages,
+          request_time: responseData.request_time,
+          terms_of_use: responseData.terms_of_use,
+          collection_ID: responseData.collection_ID,
+          creator_gender: responseData.creator_gender,
+          doc_collection: responseData.doc_collection,
+          creator_location: responseData.creator_location,
+          modified_timestamp: responseData.modified_timestamp,
+          recipient_location: responseData.recipient_location,
+          copyright_statement: responseData.copyright_statement,
+          year_of_death_of_author:responseData.year_of_death_of_author,
+          thumbnails: thumbnails,
+          images: images,
+          transcriptions: transcriptions,
+          imageActive: images[0],
+          imagePaths: imagePaths,
+          transcriptionActive: transcriptions[0],
+          downloadLink: fileLink
+        });
       }
-      let fileLink = [];
-      if (typeof responseData.file!=="undefined" && responseData.file.link.length>0) {
-        fileLink = <a download href={responseData.file.link}>{responseData.file.original_filename} <i className="fa fa-download"></i></a>;
+      else {
+        itemContext.setState({
+          notFound: true,
+          loading: false
+        });
       }
-      itemContext.setState({
-        loading:false,
-        title: responseData.title,
-        source: responseData.source,
-        creator: responseData.creator,
-        language: responseData.language,
-        sent_location: responseData.sent_location,
-        letter_ID: responseData.letter_ID,
-        recipient: responseData.recipient,
-        time_zone: responseData.time_zone,
-        collection: responseData.collection,
-        description: responseData.description,
-        date_created: dateSent,
-        number_pages: responseData.number_pages,
-        request_time: responseData.request_time,
-        terms_of_use: responseData.terms_of_use,
-        collection_ID: responseData.collection_ID,
-        creator_gender: responseData.creator_gender,
-        doc_collection: responseData.doc_collection,
-        creator_location: responseData.creator_location,
-        modified_timestamp: responseData.modified_timestamp,
-        recipient_location: responseData.recipient_location,
-        copyright_statement: responseData.copyright_statement,
-        year_of_death_of_author:responseData.year_of_death_of_author,
-        thumbnails: thumbnails,
-        images: images,
-        transcriptions: transcriptions,
-        imageActive: images[0],
-        imagePaths: imagePaths,
-        transcriptionActive: transcriptions[0],
-        downloadLink: fileLink
-      });
 	  })
 	  .catch(function (error) {
 	    console.log(error);
@@ -214,15 +229,10 @@ export class ItemView extends Component {
   }
 
   componentDidUpdate(prevProps, prevState) {
-    let itemId = 0;
-    let letterId = 0;
-    if (typeof prevProps.match.params.itemId!=="undefined") {
-      itemId = prevProps.match.params.itemId;
-    }
-    if (typeof this.props.match.params.letterId!=="undefined") {
-      letterId = this.props.match.params.letterId;
-    }
-    if (itemId>0 && letterId>0) {
+
+    if (prevProps.match.params.itemId!==this.props.match.params.itemId ||
+        prevProps.match.params.letterId!==this.props.match.params.letterId
+      ) {
       this.loadItem();
     }
   }
@@ -262,122 +272,136 @@ export class ItemView extends Component {
         </div>;
     }
     else {
-      const { photoIndex, isOpen, imagePaths } = this.state;
-      let letterUploadBox = "";
-      if (sessionStorage.getItem('sessionActive')==="true") {
-        letterUploadBox = <LetterUploadXML/>;
+      if (this.state.notFound) {
+        content = <div className="item-container" style={{padding: "20px 0"}}>
+          <h4 className="text-center">Entry not found</h4>
+          </div>;
       }
-      let creatorRow,
-        dateCreatedRow,
-        sentLocationRow,
-        sourceCollectionRow,
-        languageRow,
-        numpagesRow,
-        recipientRow,
-        recipientLocationRow,
-        sourceRow,
-        downloadRow;
-        if (this.state.creator!=="") {
-          creatorRow = <tr><th>From:</th><td>{this.state.creator}</td></tr>;
+      else {
+        const { photoIndex, isOpen, imagePaths } = this.state;
+        let letterUploadBox = "";
+        if (this.props.isAdmin==="true") {
+          letterUploadBox = <LetterUploadXML/>;
         }
-        if (this.state.date_created!=="") {
-          dateCreatedRow = <tr><th>Date Sent:</th><td>{this.state.date_created}</td></tr>
-        }
-        if (this.state.sent_location!=="") {
-          sentLocationRow = <tr><th>Sent from:</th><td>{this.state.sent_location}</td></tr>
-        }
-        if (this.state.doc_collection!=="") {
-          sourceCollectionRow = <tr><th>Original collection:</th><td>{this.state.doc_collection}</td></tr>
-        }
-        if (this.state.language!=="") {
-          languageRow = <tr><th>Written in:</th><td>{this.state.language}</td></tr>
-        }
-        if (this.state.number_pages!=="") {
-          numpagesRow = <tr><th>Pages:</th><td>{this.state.number_pages}</td></tr>
-        }
-        if (this.state.recipient!=="") {
-          recipientRow = <tr><th>Recipient:</th><td>{this.state.recipient}</td></tr>
-        }
-        if (this.state.recipient_location!=="") {
-          recipientLocationRow = <tr><th>Recipient Location:</th><td>{this.state.recipient_location}</td></tr>
-        }
-        if (this.state.source!=="") {
-          sourceRow = <tr><th>Source:</th><td>{this.state.source}</td></tr>
-        }
-        if (sessionStorage.getItem('sessionActive')==="true" && this.state.downloadLink.length>0) {
-          downloadRow = <tr><th>Download XML:</th><td>{this.state.downloadLink}</td></tr>
-        }
+        let creatorRow,
+          dateCreatedRow,
+          sentLocationRow,
+          sourceCollectionRow,
+          languageRow,
+          numpagesRow,
+          recipientRow,
+          recipientLocationRow,
+          sourceRow,
+          downloadRow,
+          documentIdRow
+          ;
+          if (this.state.creator!=="") {
+            creatorRow = <tr><th>From:</th><td>{this.state.creator}</td></tr>;
+          }
+          if (this.state.date_created!=="") {
+            dateCreatedRow = <tr><th>Date Sent:</th><td>{this.state.date_created}</td></tr>
+          }
+          if (this.state.sent_location!=="") {
+            sentLocationRow = <tr><th>Sent from:</th><td>{this.state.creator_location}</td></tr>
+          }
+          if (this.state.doc_collection!=="") {
+            sourceCollectionRow = <tr><th>Original collection:</th><td>{this.state.doc_collection}</td></tr>
+          }
+          if (this.state.language!=="") {
+            languageRow = <tr><th>Written in:</th><td>{this.state.language}</td></tr>
+          }
+          if (this.state.number_pages!=="") {
+            numpagesRow = <tr><th>Pages:</th><td>{this.state.number_pages}</td></tr>
+          }
+          if (this.state.recipient!=="") {
+            recipientRow = <tr><th>Recipient:</th><td>{this.state.recipient}</td></tr>
+          }
+          if (this.state.recipient_location!=="") {
+            recipientLocationRow = <tr><th>Recipient Location:</th><td>{this.state.recipient_location}</td></tr>
+          }
+          if (this.state.source!=="") {
+            sourceRow = <tr><th>Source:</th><td>{this.state.source}</td></tr>
+          }
+          if (this.props.isAdmin && this.state.downloadLink.length>0) {
+            downloadRow = <tr><th>Download XML:</th><td>{this.state.downloadLink}</td></tr>
+          }
+          if (this.props.isAdmin) {
+            documentIdRow = <tr><th>Document ID:</th><td>{this.state.document_id}</td></tr>
+          }
 
-      let letterDetailsInfo = <div>
-        <table className="letter-details-table">
-          <tbody>
-            {creatorRow}
-            {dateCreatedRow}
-            {sentLocationRow}
-            {recipientRow}
-            {recipientLocationRow}
-            {languageRow}
-            {numpagesRow}
-            {sourceRow}
-            {sourceCollectionRow}
-            {downloadRow}
-          </tbody>
-        </table>
-      </div>;
+        let letterDetailsInfo = <div>
+          <table className="letter-details-table">
+            <tbody>
+              {creatorRow}
+              {dateCreatedRow}
+              {sentLocationRow}
+              {recipientRow}
+              {recipientLocationRow}
+              {languageRow}
+              {numpagesRow}
+              {sourceRow}
+              {sourceCollectionRow}
+              {downloadRow}
+              {documentIdRow}
+            </tbody>
+          </table>
+        </div>;
 
-      content = <div className="item-container">
-        <h2>{this.state.title}</h2>
-        <div className="row">
-          <div className="col-xs-12 col-sm-8 col-md-8 col-lg-7">
-            <div className="letter-info-container" ref={(infoContainer) => { this.infoContainer = infoContainer; }}>
-              <h4>Letter information
-                <div className="btn btn-default btn-xs pull-right toggle-info-btn" ref={(infoTrigger) => { this.infoTrigger = infoTrigger; }} onClick={this.toggleLetterInfo.bind(this)}>
-                  <i className="fa fa-angle-down"></i>
-                </div>
-              </h4>
-              {letterDetailsInfo}
+        content = <div className="item-container">
+          <h2>{this.state.title}</h2>
+          <div className="row">
+            <div className="col-xs-12 col-sm-8 col-md-8 col-lg-7">
+              <div className="letter-info-container" ref={(infoContainer) => { this.infoContainer = infoContainer; }}>
+                <h4>Letter information
+                  <div className="btn btn-default btn-xs pull-right toggle-info-btn" ref={(infoTrigger) => { this.infoTrigger = infoTrigger; }} onClick={this.toggleLetterInfo.bind(this)}>
+                    <i className="fa fa-angle-down"></i>
+                  </div>
+                </h4>
+                {letterDetailsInfo}
+              </div>
+              {this.state.transcriptionActive}
+              <p className="letter-description">{this.state.description}</p>
             </div>
-            {this.state.transcriptionActive}
-            <p className="letter-description">{this.state.description}</p>
-          </div>
-          <div className="col-xs-12 col-sm-4 col-md-4 col-lg-5">
-            <div className="letter-big-img-container">
-              {activeImg}
+            <div className="col-xs-12 col-sm-4 col-md-4 col-lg-5">
+              <div className="letter-big-img-container">
+                {activeImg}
+              </div>
+              <OwlCarousel
+                className="owl-theme item-pages-thumbnails"
+                loop={false}
+                margin={10}
+                nav
+                responsive={owlResponsive}
+                navText={owlNavText}
+                navContainerClass='item-thumbnails-nav'
+                dots={false}>
+                  {owlThumbnails}
+                </OwlCarousel>
+                {letterUploadBox}
             </div>
-            <OwlCarousel
-              className="owl-theme item-pages-thumbnails"
-              loop={false}
-              margin={10}
-              nav
-              responsive={owlResponsive}
-              navText={owlNavText}
-              navContainerClass='item-thumbnails-nav'
-              dots={false}>
-                {owlThumbnails}
-              </OwlCarousel>
-              {letterUploadBox}
           </div>
-        </div>
 
-        {isOpen && (
-          <Lightbox
-            mainSrc={imagePaths[photoIndex]}
-            nextSrc={imagePaths[(photoIndex + 1) % imagePaths.length]}
-            prevSrc={imagePaths[(photoIndex + imagePaths.length - 1) % imagePaths.length]}
-            onCloseRequest={() => this.setState({ isOpen: false })}
-            onMovePrevRequest={() =>
-              this.setState({
-                photoIndex: (photoIndex + imagePaths.length - 1) % imagePaths.length,
-              })
-            }
-            onMoveNextRequest={() =>
-              this.setState({
-                photoIndex: (photoIndex + 1) % imagePaths.length,
-              })
-            }
-          />
-        )}
-      </div>;
+          {isOpen && (
+            <Lightbox
+              mainSrc={imagePaths[photoIndex]}
+              nextSrc={imagePaths[(photoIndex + 1) % imagePaths.length]}
+              prevSrc={imagePaths[(photoIndex + imagePaths.length - 1) % imagePaths.length]}
+              onCloseRequest={() => this.setState({ isOpen: false })}
+              onMovePrevRequest={() =>
+                this.setState({
+                  photoIndex: (photoIndex + imagePaths.length - 1) % imagePaths.length,
+                })
+              }
+              onMoveNextRequest={() =>
+                this.setState({
+                  photoIndex: (photoIndex + 1) % imagePaths.length,
+                })
+              }
+            />
+          )}
+        </div>;
+      }
+
     }
     return (
       <div className="container item-view">

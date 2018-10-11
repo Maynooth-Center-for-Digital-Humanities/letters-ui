@@ -3,7 +3,7 @@ import {Redirect} from 'react-router-dom';
 import BreadCrumbs from '../components/breadcrumbs';
 import axios from 'axios';
 import {loadProgressBar} from 'axios-progress-bar';
-import {APIPath} from '../common/constants.js';
+import {APIPath,WPCustomRestPath} from '../common/constants.js';
 
 export class RegisterView extends Component {
   constructor(props) {
@@ -37,27 +37,42 @@ export class RegisterView extends Component {
 
   loadRights() {
     let context = this;
-    axios.get(APIPath+'rights')
-    .then(function (response) {
-      let responseData = response.data.data;
-      let licenseAgreementText, subscribeToNewsletterText;
-      for (let i=0; i<responseData.length; i++) {
-        let item = responseData[i];
-        if (item.id===1) {
-          licenseAgreementText = item.text;
+    // load rights from wordpress
+    axios.get(WPCustomRestPath+"post", {
+        params: {
+          "slug": "terms-and-conditions-all-users"
         }
-        if (item.id===3) {
-          subscribeToNewsletterText = item.text;
+      })
+  	  .then(function (response) {
+        let pageData = response.data;
+        if (response.statusText==="OK") {
+          let newLicenseAgreementText = <div dangerouslySetInnerHTML={{__html:pageData.rendered}} />
+          context.setState({
+            licenseAgreementText: newLicenseAgreementText,
+          });
         }
-      }
-      context.setState({
-        licenseAgreementText: licenseAgreementText,
-        subscribeToNewsletterText: subscribeToNewsletterText
-      });
-    })
-    .catch(function (error) {
-      console.log(error);
-    });
+      })
+      .catch(function (error) {
+  	    console.log(error);
+  	});
+
+    axios.get(WPCustomRestPath+"post", {
+        params: {
+          "slug": "newsletter-subscription"
+        }
+      })
+  	  .then(function (response) {
+        let pageData = response.data;
+        if (response.statusText==="OK") {
+          let newSubscribeToNewsletterText = <div dangerouslySetInnerHTML={{__html:pageData.rendered}} />
+          context.setState({
+            subscribeToNewsletterText: newSubscribeToNewsletterText,
+          });
+        }
+      })
+      .catch(function (error) {
+  	    console.log(error);
+  	});
   }
 
   handleChange(e) {
@@ -253,7 +268,8 @@ export class RegisterView extends Component {
                     <label>E-mail Address</label>
                   </div>
                   <div className="col-xs-12 col-sm-5">
-                    <input className="form-control" name="email" type="email" placeholder="Enter a valid email address" value={this.state.form.email} onChange={this.handleChange.bind(this)} ref={(input) => { this.emailInput = input; }}/>
+                    <input className="form-control" name="email" type="email"
+                    autoComplete="off" placeholder="Enter a valid email address" value={this.state.form.email} onChange={this.handleChange.bind(this)} ref={(input) => { this.emailInput = input; }}/>
                   </div>
                 </div>
               </div>
@@ -265,7 +281,8 @@ export class RegisterView extends Component {
                     <label>Password</label>
                   </div>
                   <div className="col-xs-12 col-sm-5">
-                    <input className="form-control" name="password" type="password" placeholder="Enter your password" value={this.state.form.password} onChange={this.handleChange.bind(this)} ref={(input) => { this.passwordInput = input; }}/>
+                    <input className="form-control" name="password" type="password"
+                    autoComplete="off" placeholder="Enter your password" value={this.state.form.password} onChange={this.handleChange.bind(this)} ref={(input) => { this.passwordInput = input; }}/>
                   </div>
                   <div className="col-xs-12 col-sm-3">
                     <div className={"password-strength"+this.state.strengthClass}>
@@ -281,7 +298,8 @@ export class RegisterView extends Component {
                     <label>Confirm Password</label>
                   </div>
                   <div className="col-xs-12 col-sm-5">
-                    <input className="form-control" name="password_confirm" type="password" placeholder="Confirm your password" value={this.state.form.password_confirm} onChange={this.handleChange.bind(this)} />
+                    <input className="form-control" name="password_confirm" type="password" placeholder="Confirm your password"
+                    autoComplete="off" value={this.state.form.password_confirm} onChange={this.handleChange.bind(this)} />
                   </div>
                 </div>
               </div>
@@ -294,7 +312,7 @@ export class RegisterView extends Component {
                   <input name="license_agreement" type="checkbox" onChange={this.handleChange.bind(this)} ref={(input) => { this.licenceAgreementInput = input; }} /> Accept license agreement</label>
               </div>
               <div className="form-group">
-                <p>{this.state.subscribeToNewsletterText}</p>
+                <div>{this.state.subscribeToNewsletterText}</div>
                 <label>
                   <input name="subscribe_to_newsletter" type="checkbox" onChange={this.handleChange.bind(this)} /> Subscribe to newsletter</label>
               </div>

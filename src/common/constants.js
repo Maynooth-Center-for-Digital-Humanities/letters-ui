@@ -1,4 +1,4 @@
-export const domain = "http://xl1916apps.mucampus.ie";
+export const domain = "http://letters1916.maynoothuniversity.ie";
 export const APIPath = domain+"/api/";
 export const WPRestPath = domain+"/learn/wp-json/wp/v2/";
 export const WPCustomRestPath = domain+"/learn/wp-json/letters1623/";

@@ -20,7 +20,7 @@ export default class AuthorsBlock extends React.Component {
     }
     else {
       let context = this;
-      axios.get(APIPath+"authors")
+      axios.get(APIPath+"authors?status=1&transcription_status=2")
     	  .then(function (response) {
           let data = response.data.data;
           context.setItems(data);

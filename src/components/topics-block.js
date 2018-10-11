@@ -10,9 +10,13 @@ export default class TopicsBlock extends React.Component {
     this.state = {
       loading: true,
       topics: [],
+      autocomplete_visible: false,
+      autocomplete_value: ""
     }
 
     this.toggleElementChildren = this.toggleElementChildren.bind(this);
+    this.toggleAutocomplete = this.toggleAutocomplete.bind(this);
+    this.autocomplete = this.autocomplete.bind(this);
   }
 
   toggleElementChildren(e) {
@@ -48,7 +52,7 @@ export default class TopicsBlock extends React.Component {
     }
     else {
       let context = this;
-      axios.get(APIPath+"topics")
+      axios.get(APIPath+"topics?status=1&transcription_status=2")
     	  .then(function (response) {
           let data = response.data.data;
           console.log(typeof data);
@@ -116,6 +120,23 @@ export default class TopicsBlock extends React.Component {
     return childrenObject;
   }
 
+  toggleAutocomplete() {
+    return false;
+    /*let newStatus = true;
+    if (this.state.autocomplete_visible) {
+      newStatus = false;
+    }
+    this.setState({
+      autocomplete_visible: newStatus
+    })*/
+  }
+
+  autocomplete(e) {
+    this.setState({
+      autocomplete_value: e.target.value
+    })
+  }
+
   componentDidMount() {
     this.loadTopics();
   }
@@ -128,11 +149,26 @@ export default class TopicsBlock extends React.Component {
           </div>;
     }
     else {
-      content = <ul className="topics-list">{this.state.topics}</ul>;
+      /*let autocompleteClass=" closed";
+      if (this.state.autocomplete_visible) {
+        autocompleteClass = "";
+      }*/
+
+      content = <div>
+        <h5 onClick={this.toggleAutocomplete}>Keywords
+        {/*  <span style={{paddingLeft: "5px", fontSize: "14px"}} >
+            <i className="fa fa-caret-down"></i>
+          </span> */}
+        </h5>
+        {/*<div className={"form-group filter-autocomplete"+autocompleteClass}>
+          <input className="form-control" type="text" placeholder="filter keywords" onChange={this.autocomplete.bind(this)} value={this.state.autocomplete_value}/>
+          <i className="fa fa-times-circle-o"></i>
+        </div>*/}
+        <ul className="topics-list">{this.state.topics}</ul>
+      </div>;
     }
     return (
       <div className="topics-container">
-        <h5>Keywords</h5>
         {content}
       </div>
     );

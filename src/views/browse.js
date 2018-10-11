@@ -13,7 +13,7 @@ import GendersBlock from '../components/genders-block.js';
 import LanguagesBlock from '../components/languages-block.js';
 import DatecreatedBlock from '../components/date_created-block.js';
 import Pagination from '../helpers/pagination.js';
-import {PreloaderCards,ToggleClass,ReplaceClass,Emptyitemscard,CompareFilterTopics,CompareFilterGeneral} from '../helpers/helpers.js';
+import {PreloaderCards,ToggleClass,ReplaceClass,Emptyitemscard,CompareFilterTopics,CompareFilterGeneral,SelectedTopicsChecked,SelectedFiltersChecked,fixImagePath} from '../helpers/helpers.js';
 import {loadProgressBar} from 'axios-progress-bar';
 
 export class BrowseView extends Component {
@@ -61,6 +61,9 @@ export class BrowseView extends Component {
     this.gendersFilter = this.gendersFilter.bind(this);
     this.languagesFilter = this.languagesFilter.bind(this);
     this.datecreatedFilter = this.datecreatedFilter.bind(this);
+    this.setSessionStorage = this.setSessionStorage.bind(this);
+    this.checkSessionStorage = this.checkSessionStorage.bind(this);
+    this.clearFilters = this.clearFilters.bind(this);
 
   }
 
@@ -140,6 +143,7 @@ export class BrowseView extends Component {
     });
     ToggleClass(element, "fa-circle-o", "fa-check-circle-o");
     ToggleClass(label, "", "active");
+
   }
 
   sourcesFilter(e) {
@@ -281,6 +285,31 @@ export class BrowseView extends Component {
     });
   }
 
+  clearFilters() {
+    if (
+      this.state.selectedTopics!==[] ||
+      this.state.keywords_ids!==[] ||
+      this.state.sources!==[] ||
+      this.state.authors!==[] ||
+      this.state.genders!==[] ||
+      this.state.languages!==[] ||
+      this.state.date_start!==[] ||
+      this.state.date_end!==[]
+    ) {
+      this.setState({
+        loading: true,
+        selectedTopics: [],
+        keywords_ids: [],
+        sources: [],
+        authors: [],
+        genders: [],
+        languages: [],
+        date_start: [],
+        date_end: [],
+      });
+    }
+  }
+
   selectedTopicsToggleChildren(parent, className) {
     let selectedTopics = this.state.selectedTopics;
     let children = ReactDOM.findDOMNode(parent).children;
@@ -352,15 +381,29 @@ export class BrowseView extends Component {
       let currentPage = responseData.current_page;
       if (responseData.last_page<responseData.current_page) {
         currentPage = responseData.last_page;
+        browseContext.setState({
+          loading:false,
+          browseItems: browseItems,
+          current_page: currentPage,
+          last_page: responseData.last_page,
+          total: responseData.total,
+          firstLoad:0
+        });
       }
-      browseContext.setState({
-        loading:false,
-        browseItems: browseItems,
-        current_page: currentPage,
-        last_page: responseData.last_page,
-        total: responseData.total,
-        firstLoad:0
-      });
+      else {
+        browseContext.setState({
+          loading:false,
+          browseItems: browseItems,
+          last_page: responseData.last_page,
+          total: responseData.total,
+          firstLoad:0
+        });
+      }
+      SelectedTopicsChecked(browseContext.state.keywords_ids);
+      SelectedFiltersChecked("sources-list", browseContext.state.sources);
+      SelectedFiltersChecked("authors-list", browseContext.state.authors);
+      SelectedFiltersChecked("genders-list", browseContext.state.genders);
+      SelectedFiltersChecked("languages-list", browseContext.state.languages);
     })
     .catch(function (error) {
       console.log(error);
@@ -459,7 +502,7 @@ export class BrowseView extends Component {
       let element = JSON.parse(item.element);
       let defaultThumbnail;
       if (element.pages.length>0) {
-        defaultThumbnail = <img className="list-thumbnail img-responsive" src={domain+"/diyhistory/archive/square_thumbnails/"+element.pages[0].archive_filename} alt={element.title} />
+        defaultThumbnail = <img className="list-thumbnail img-responsive" src={fixImagePath(domain+"/diyhistory/archive/square_thumbnails/"+element.pages[0].archive_filename)} alt={element.title} />
       }
 
       var keywords = [];
@@ -491,9 +534,53 @@ export class BrowseView extends Component {
     return browseItems;
   }
 
+  checkSessionStorage() {
+    if (sessionStorage.getItem('browse')!==null) {
+      let storedState = JSON.parse(sessionStorage.getItem('browse'));
+      this.setState({
+        sort:storedState.sort,
+        current_page:storedState.current_page,
+        paginate:storedState.paginate,
+        keywords_ids:storedState.keywords_ids,
+        sources:storedState.sources,
+        authors:storedState.authors,
+        genders:storedState.genders,
+        languages:storedState.languages,
+        date_start:storedState.date_start,
+        date_end:storedState.date_end,
+        queryStatus:storedState.queryStatus,
+        queryTranscriptionStatus:storedState.queryTranscriptionStatus,
+      });
+    }
+  }
+
+  setSessionStorage() {
+    let newState = {
+      sort: this.state.sort,
+      current_page: this.state.current_page,
+      paginate: this.state.paginate,
+      selectedTopics: this.state.selectedTopics,
+      keywords_ids: this.state.keywords_ids,
+      sources: this.state.sources,
+      authors: this.state.authors,
+      genders: this.state.genders,
+      languages: this.state.languages,
+      date_start: this.state.date_start,
+      date_end: this.state.date_end,
+      queryStatus: this.state.queryStatus,
+      queryTranscriptionStatus: this.state.queryTranscriptionStatus,
+    }
+    sessionStorage.setItem('browse', JSON.stringify(newState));
+  }
+
   componentDidMount() {
-    this.filterContent();
     loadProgressBar();
+    this.checkSessionStorage();
+    let context = this;
+    setTimeout(function() {
+      context.filterContent();
+      context.updateFilters();
+    },500);
   }
 
   componentDidUpdate(prevProps, prevState) {
@@ -513,8 +600,12 @@ export class BrowseView extends Component {
       )
     )
     {
-      this.filterContent();
-      this.updateFilters();
+      this.setSessionStorage();
+      let context = this;
+      setTimeout(function() {
+        context.filterContent();
+        context.updateFilters();
+      },500);
     }
   }
 
@@ -555,8 +646,8 @@ export class BrowseView extends Component {
         title="Sort"
         id="sort-filter"
         >
-        <MenuItem key="1" onClick={this.updateSort.bind(this,"desc")} className={activeDesc}><i className="fa fa-sort-amount-desc"></i> Desc</MenuItem>
-        <MenuItem key="2" onClick={this.updateSort.bind(this,"asc")} className={activeAsc}><i className="fa fa-sort-amount-asc"></i> Asc</MenuItem>
+        <MenuItem key="1" onClick={this.updateSort.bind(this,"desc")} className={activeDesc}><i className="fa fa-sort-amount-desc"></i> Created date Desc</MenuItem>
+        <MenuItem key="2" onClick={this.updateSort.bind(this,"asc")} className={activeAsc}><i className="fa fa-sort-amount-asc"></i> Created date Asc</MenuItem>
       </DropdownButton>
 
       <DropdownButton
@@ -595,7 +686,11 @@ export class BrowseView extends Component {
         </div>
         <div className="row">
           <div className="col-xs-12 col-sm-3">
-            <h3 className="column-title">Filters</h3>
+            <h3 className="column-title">Filters
+              <small className="pull-right" style={{cursor:"pointer"}} onClick={this.clearFilters} title="Clear all filters">
+                clear all <i className="fa fa-times-circle-o"></i>
+              </small>
+            </h3>
           </div>
           <div className="col-xs-12 col-sm-9">
             <h2>Browse</h2>
@@ -603,7 +698,7 @@ export class BrowseView extends Component {
         </div>
         <div className="row">
           <div className="col-xs-12 col-sm-3">
-            <TopicsBlock returnfunction={this.topicFilter} />
+            <TopicsBlock returnfunction={this.topicFilter} selected={this.state.selectedTopics}/>
             <SourcesBlock returnfunction={this.sourcesFilter} />
             <AuthorsBlock returnfunction={this.authorsFilter} />
             <GendersBlock returnfunction={this.gendersFilter} />

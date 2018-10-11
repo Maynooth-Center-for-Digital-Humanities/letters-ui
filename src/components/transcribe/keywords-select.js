@@ -17,8 +17,8 @@ export default class KeywordsSelect extends React.Component {
   }
 
   loadKeywords() {
-    if (sessionStorage.getItem("topics_list")!==null && sessionStorage.getItem("topics_list").length>0) {
-      let data = JSON.parse(sessionStorage.getItem("topics_list"));
+    if (sessionStorage.getItem("uploaded_topics_list")!==null && sessionStorage.getItem("uploaded_topics_list").length>0) {
+      let data = JSON.parse(sessionStorage.getItem("uploaded_topics_list"));
       let keywords = [];
       for (let i=0; i<data.length; i++) {
         let item = data[i];
@@ -34,7 +34,8 @@ export default class KeywordsSelect extends React.Component {
       let context = this;
       axios.get(APIPath+"topics")
     	  .then(function (response) {
-          let data = response.data.data;
+          let data = response.data.data;          
+          sessionStorage.setItem('uploaded_topics_list', JSON.stringify(data));
           let keywords = [];
           for (let i=0; i<data.length; i++) {
             let item = data[i];
@@ -55,7 +56,7 @@ export default class KeywordsSelect extends React.Component {
   keywordItem(item, isChild) {
     let children = item.children;
     let keywordChildren = [];
-    let keyword = [{ label: item.name, value: item.id, child: isChild }];
+    let keyword = [{ label: item.name, value: item.id, topic_id: item.id, child: isChild }];
     if (children.length>0) {
       keywordChildren = this.keywordChildren(children, 1);
       keyword.push(keywordChildren);
@@ -82,12 +83,13 @@ export default class KeywordsSelect extends React.Component {
 
   render() {
     const keywordsOptions = this.state.keywordsOptions;
+    let flattenedOptions = flattenDeep(keywordsOptions);
     return (
       <Select
         name={this.props.elementName}
         value={this.props.selected}
         onChange={this.props.onChangeFunction}
-        options={flattenDeep(keywordsOptions)}
+        options={flattenedOptions}
         multi={this.props.multi}
         removeSelected={this.props.removeSelected}
         optionComponent={ListItemOption}
@@ -129,7 +131,8 @@ const ListItemOption = createClass({
 				onMouseDown={this.handleMouseDown}
 				onMouseEnter={this.handleMouseEnter}
 				onMouseMove={this.handleMouseMove}
-				title={this.props.option.title}>
+				title={this.props.option.title}
+        key={"select-"+this.props.option.label}>
 				{this.props.children}
 			</div>
 		);

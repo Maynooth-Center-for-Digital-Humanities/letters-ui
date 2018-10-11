@@ -4,12 +4,13 @@ import BreadCrumbs from '../components/breadcrumbs';
 import axios from 'axios';
 import ReactLoading from 'react-loading';
 import {APIPath,domain} from '../common/constants.js';
-import {calculateDaysInMonth} from '../helpers/helpers';
+import {calculateDaysInMonth,fixImagePath} from '../helpers/helpers';
 import 'react-select/dist/react-select.css';
 import KeywordsSelect from '../components/transcribe/keywords-select';
 import AuthorsSelect from '../components/transcribe/authors-select';
 import SourcesSelect from '../components/transcribe/sources-select';
 import ConfirmModal from '../components/confirm-modal';
+import ProtectedPage from '../components/protected-page';
 import {loadProgressBar} from 'axios-progress-bar';
 import { DragDropContext, Droppable, Draggable } from 'react-beautiful-dnd';
 import Lightbox from 'react-image-lightbox';
@@ -28,7 +29,7 @@ export class UserLetterView extends Component {
         month: "",
         day: "",
         letter_from: "",
-        gender: "",
+        creator_gender: "",
         letter_to: "",
         language: "",
         source: "",
@@ -98,6 +99,7 @@ export class UserLetterView extends Component {
     this.hideDeleteLetterConfirm = this.hideDeleteLetterConfirm.bind(this);
     this.showBigImage = this.showBigImage.bind(this);
     this.enableTranscription = this.enableTranscription.bind(this);
+    this.resetState = this.resetState.bind(this);
   }
 
   handleFormChange(key,e) {
@@ -331,9 +333,14 @@ export class UserLetterView extends Component {
           }
         }
         else if (response.data.status===false) {
+          let errorsOutput = [];
+          for (let error in response.data.errors) {
+            errorsOutput.push(<div>{response.data.errors[error]}</div>);
+          }
           context.setState({
             updateBtnText: <span>Error saving... <i className="fa fa-times"></i></span>,
             submitStatus: 0,
+            generic_error: errorsOutput
           });
           setTimeout(function() {
             context.setState({
@@ -510,6 +517,7 @@ export class UserLetterView extends Component {
         imagesPreview: context.loadItemImages(pagesData),
         showDeleteConfirm: false
       });
+      context.loadItem();
     })
     .catch(function (error) {
       console.log(error);
@@ -563,6 +571,7 @@ export class UserLetterView extends Component {
     if (itemData.copyright_statement==="you have the rights to upload the Material in question for use or you have the permission of the relevant rightholder(s) to do so as outlined in the Letters of 1916 Terms for User Contributions") {
       copyright_statementChecked2 = true;
     }
+
     context.setState({
       imagesPreview: imagesPreview,
       terms_of_useChecked: itemData.terms_of_use,
@@ -577,7 +586,7 @@ export class UserLetterView extends Component {
         month: month,
         day: day,
         letter_from: itemData.creator,
-        gender: itemData.gender,
+        creator_gender: itemData.creator_gender,
         letter_to: itemData.recipient,
         language: itemData.language,
         source: itemData.source,
@@ -592,7 +601,7 @@ export class UserLetterView extends Component {
         copyright_statement: itemData.copyright_statement,
         pages: pagesData
       },
-    })
+    });
   }
 
   loadItemImages(pagesData) {
@@ -611,6 +620,7 @@ export class UserLetterView extends Component {
 
       for (let j=0; j<pagesData.length; j++) {
         let pageData = pagesData[j];
+        let imgFileName = fixImagePath(pageData.archive_filename);
         let newImage = <Draggable key={j} draggableId={"draggable-"+j} index={j}>
           {(provided, snapshot) => (
             <div
@@ -622,17 +632,17 @@ export class UserLetterView extends Component {
                 provided.draggableProps.style
               )}
             >
-              <div className="btn btn-danger btn-xs remove-form-img" onClick={this.showDeleteConfirm.bind(this, pageData.archive_filename)}><i className="fa fa-trash"></i></div>
+              <div className="btn btn-danger btn-xs remove-form-img" onClick={this.showDeleteConfirm.bind(this, imgFileName)}><i className="fa fa-trash"></i></div>
               <img
                 key={j}
                 onClick={this.showBigImage.bind(this,j)}
-                className="img-thumbnail img-responsive form-page-thumbnail" src={domain+"/diyhistory/archive/square_thumbnails/"+pageData.archive_filename}
+                className="img-thumbnail img-responsive form-page-thumbnail" src={domain+"/diyhistory/archive/square_thumbnails/"+imgFileName}
                 alt="thumbnail" />
             </div>
           )}
         </Draggable>;
         imagesPreviewItems.push(newImage);
-        imagePaths.push(domain+"/diyhistory/archive/fullsize/"+pageData.archive_filename);
+        imagePaths.push(domain+"/diyhistory/archive/fullsize/"+imgFileName);
       }
 
       let getListStyle = isDraggingOver => ({
@@ -668,35 +678,6 @@ export class UserLetterView extends Component {
       return imagesPreview;
     }
     else return [];
-  }
-
-  componentDidMount() {
-    let letterId = this.props.match.params.letterId;
-    if (parseInt(letterId,10)>0) {
-      this.loadItem();
-    }
-    else if (parseInt(letterId,10)===0) {
-      this.setState({
-        loading: false,
-      })
-    }
-    this.yearOfDeathList();
-    loadProgressBar();
-    if (typeof this.props.history.location.prevlocation!=="undefined") {
-      this.setState({
-        prevlocation: this.props.history.location.prevlocation,
-        prevlocationpath: this.props.history.location.prevlocationpath,
-      })
-    }
-
-
-    let enableTranscription = false;
-    if (this.props.isAdmin) {
-      enableTranscription = true;
-    }
-    this.setState({
-      enableTranscription: enableTranscription
-    });
   }
 
   removeImageBlock() {
@@ -773,11 +754,108 @@ export class UserLetterView extends Component {
     });
   }
 
+  resetState() {
+    this.setState({
+      form: {
+        title: "",
+        additional_information: "",
+        keywords: [],
+        year: "1915",
+        month: "",
+        day: "",
+        letter_from: "",
+        creator_gender: "",
+        letter_to: "",
+        language: "",
+        source: "",
+        doc_collection: "",
+        recipient_location: "",
+        creator_location: "",
+        year_of_death_of_author: "",
+        notes: "",
+        images: [],
+        additional_img_info: ["Letter"],
+        terms_of_use: "",
+        copyright_statement: "",
+        pages:[],
+      },
+      errors: {
+        title: false,
+        language: false,
+        source: false,
+        terms: false,
+        license: false,
+      },
+      filesErrorText: '',
+      filesError: false,
+      imageBlocks: [],
+      daysOptions: [],
+      upload_loader: false,
+      progress_bar_text: "",
+      progress_bar_width:0,
+      redirect: false,
+      imagesPreview: [],
+      updateBtnText: "Submit",
+      terms_of_useChecked: false,
+      copyright_statementChecked1: false,
+      copyright_statementChecked2: false,
+      submitStatus: 0,
+      loading: false,
+      showDeleteConfirm: false,
+      deleteConfirmSubmit:'',
+      showDeleteLetterConfirm:false,
+      deleteLetterConfirmSubmit: '',
+      prevlocation: '',
+      prevlocationpath: '',
+      imagePaths: [],
+      photoIndex: 0,
+      isOpen: false,
+      enableTranscription: false,
+    });
+  }
+
+  componentDidMount() {
+    let letterId = this.props.match.params.letterId;
+    if (parseInt(letterId,10)>0) {
+      this.loadItem();
+    }
+    else if (parseInt(letterId,10)===0) {
+      this.setState({
+        loading: false,
+      })
+    }
+    this.yearOfDeathList();
+    loadProgressBar();
+    if (typeof this.props.history.location.prevlocation!=="undefined") {
+      this.setState({
+        prevlocation: this.props.history.location.prevlocation,
+        prevlocationpath: this.props.history.location.prevlocationpath,
+      })
+    }
+
+    let enableTranscription = false;
+    if (this.props.isAdmin) {
+      enableTranscription = true;
+    }
+    this.setState({
+      enableTranscription: enableTranscription
+    });
+  }
+
+  componentDidUpdate(prevProps, prevState) {
+    if (prevProps.match.params.letterId!==this.props.match.params.letterId && (this.props.match.params.letterId===0 || this.props.match.params.letterId==="0")) {
+      console.log(1);
+      this.resetState();
+    }
+  }
+
   render() {
     let contentHTML,contentTitle,breadCrumbsArr = [],pageContent;
     let sessionActive = sessionStorage.getItem('sessionActive');
 		if (sessionActive!=='true') {
-      contentHTML = <p className="text-center">This is a protected page. <br/>To view this page you must first login or register.</p>
+      contentHTML = <ProtectedPage
+        loginModalOpen={this.props.loginModalOpen}
+        />
       pageContent = <div className="container">
         <div className="row">
           <div className="col-xs-12">
@@ -805,22 +883,12 @@ export class UserLetterView extends Component {
         }
         let redirectElement;
         if (this.state.redirect===true) {
-          if (this.props.isAdmin) {
-            redirectElement = <Redirect to={{
-              pathname: '/admin/list-transcriptions',
-              state: {from: 'user-letters/'+letterId},
-            }}
-            />;
-          }
-          else {
-            redirectElement = <Redirect to={{
-              pathname: '/user-letters',
-              state: {from: 'user-letters/'+letterId},
-            }}
-            />;
-          }
-
-        }
+          redirectElement = <Redirect to={{
+            pathname: '/user-letters',
+            state: {from: 'user-letters/'+letterId},
+          }}
+          />;
+      }
 
         let titleError = "";
         if (this.state.errors.title) {
@@ -869,6 +937,11 @@ export class UserLetterView extends Component {
         let enableTranscriptionBtn = [];
         if (this.state.enableTranscription && parseInt(this.props.match.params.letterId,10)>0) {
           enableTranscriptionBtn = <button type="button" className="btn btn-warning" onClick={this.enableTranscription}><i className="fa fa-check"></i> Enable transcription</button>;
+        }
+
+        let genericErrorClass = "error-container";
+        if (this.state.generic_error) {
+          genericErrorClass = "error-container-visible";
         }
 
         contentHTML =
@@ -921,18 +994,18 @@ export class UserLetterView extends Component {
                 <div className="col-xs-12 col-sm-4">
                   <select className="form-control" name="month" onChange={this.handleFormChange.bind(this, 0)} value={this.state.form.month}>
                     <option value="">--</option>
-                    <option value="01">Jan</option>
-                    <option value="02">Feb</option>
-                    <option value="03">Mar</option>
-                    <option value="04">Apr</option>
+                    <option value="01">January</option>
+                    <option value="02">February</option>
+                    <option value="03">March</option>
+                    <option value="04">April</option>
                     <option value="05">May</option>
-                    <option value="06">Jun</option>
-                    <option value="07">Jul</option>
-                    <option value="08">Aug</option>
-                    <option value="09">Sep</option>
-                    <option value="10">Oct</option>
-                    <option value="11">Nov</option>
-                    <option value="12">Dec</option>
+                    <option value="06">June</option>
+                    <option value="07">July</option>
+                    <option value="08">August</option>
+                    <option value="09">September</option>
+                    <option value="10">October</option>
+                    <option value="11">November</option>
+                    <option value="12">December</option>
                   </select>
                 </div>
                 <div className="col-xs-12 col-sm-4">
@@ -958,7 +1031,7 @@ export class UserLetterView extends Component {
               <label>{"Author's gender"}</label>
               <div className="row">
                 <div className="col-xs-12 col-sm-4">
-                  <select className="form-control" name="gender" onChange={this.handleFormChange.bind(this, 0)} value={this.state.form.gender}>
+                  <select className="form-control" name="creator_gender" onChange={this.handleFormChange.bind(this, 0)} value={this.state.form.creator_gender}>
                     <option value="">--</option>
                     <option value="Female">Female</option>
                     <option value="Male">Male</option>
@@ -1120,6 +1193,11 @@ export class UserLetterView extends Component {
             <div className="row">
               <div className="col-xs-12">
                 {progressBar}
+              </div>
+            </div>
+            <div className="row">
+              <div className="col-xs-12">
+                <div className={genericErrorClass}>{this.state.generic_error}</div>
               </div>
             </div>
             {redirectElement}

@@ -5,6 +5,7 @@ import {Link} from 'react-router-dom';
 import {DropdownButton, MenuItem} from 'react-bootstrap';
 import {APIPath, domain} from '../common/constants';
 import Pagination from '../helpers/pagination';
+import {fixImagePath} from '../helpers/helpers';
 
 export default class SearchLetters extends Component {
   constructor(props, context) {
@@ -17,7 +18,7 @@ export default class SearchLetters extends Component {
       current_page: 1,
       from: 1,
       last_page: 1,
-      path: APIPath+"fullsearch/",
+      path: APIPath+"search/",
       total: 1,
       paginate: 10,
       gotopage_value: 1,
@@ -83,19 +84,17 @@ export default class SearchLetters extends Component {
     	  .then(function (response) {
           let responseData = response.data.data;
           let itemsData = responseData.data;
-
           // list of items to display
           let browseItems = [];
           for (let i=0; i<itemsData.length; i++) {
             let item = itemsData[i];
-            let element = JSON.parse(item.entry.element);
-            let defaultThumbnail;
-            if (element.pages.length>0) {
-              defaultThumbnail = <img className="list-thumbnail img-responsive" src={domain+"/diyhistory/archive/square_thumbnails/"+element.pages[0].archive_filename} alt={element.title} />
-            }
+            let pageNumber = 0;
+            let element = JSON.parse(item.element);
+            let defaultThumbnail = <img className="list-thumbnail img-responsive" src={fixImagePath(domain+"/diyhistory/archive/square_thumbnails/"+element.pages[pageNumber].archive_filename)} alt={element.title} />;
+
             let transcription = "";
-            if (element.pages[0].transcription!=="") {
-              let transcriptionText = element.pages[0].transcription.replace(/<[^>]+>/ig," ");
+            if (element.pages[pageNumber].transcription!=="") {
+              let transcriptionText = element.pages[pageNumber].transcription.replace(/<[^>]+>/ig," ");
               transcriptionText = transcriptionText.replace("&amp;", "&");
               if (transcriptionText.length>400) {
                 transcriptionText = transcriptionText.substring(0,400);
@@ -103,9 +102,11 @@ export default class SearchLetters extends Component {
 
               transcription = transcriptionText+"...";
             }
-            var browseItem = <li data-id={item.entry_id} key={i} className="img-clearfix">
-                <Link to={ 'item/'+item.entry_id}>{defaultThumbnail}</Link>
-                <h4><Link to={ '/item/'+item.entry_id}>{item.title}</Link></h4>
+            var browseItem = <li data-id={item.id} key={i} className="img-clearfix">
+                <Link to={ 'item/'+item.id}>{defaultThumbnail}</Link>
+                <h4>
+                  <Link to={ '/item/'+item.id}>{element.title}</Link><br/>
+                </h4>
                 <p>{transcription}</p>
               </li>;
             browseItems.push(browseItem);
@@ -166,10 +167,10 @@ export default class SearchLetters extends Component {
 
     let content;
     let resultsFound = "";
-    let resultsText = "letters";
+    let resultsText = "results";
     if (this.state.total>0) {
       if (this.state.total===1) {
-        resultsText = "letter";
+        resultsText = "result";
       }
       resultsFound = <div className="results-found"><i>Found {this.state.total} {resultsText}</i></div>;
     }

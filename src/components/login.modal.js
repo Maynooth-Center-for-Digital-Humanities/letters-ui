@@ -4,14 +4,11 @@ import {Link} from 'react-router-dom';
 import {Modal, DropdownButton, MenuItem} from 'react-bootstrap';
 import {APIPath} from '../common/constants.js';
 import {sessionCookie} from '../helpers/helpers';
+import {Redirect} from 'react-router-dom'
 
 class LoginModal extends React.Component {
 	constructor(props) {
 		super(props);
-
-		// modal binds
-		this.handleShow = this.handleShow.bind(this);
-		this.handleClose = this.handleClose.bind(this);
 
 		// login form binds
 		this.handleFormChange = this.handleFormChange.bind(this);
@@ -23,18 +20,15 @@ class LoginModal extends React.Component {
 			remember_me: false,
 			login_error: '',
 			login_error_class: 'error-container',
-			showModal: false,
+			redirect: false
 		};
 	}
 
-	handleClose() {
-		this.setState({ showModal: false });
-	}
-
-	handleShow() {
-		this.setState({ showModal: true });
-	}
-
+/*
+loginModalVisile={this.state.loginModalVisile}
+loginModalHide={this.loginModalHide}
+loginModalOpen={this.loginModalOpen}
+*/
 	// login form
 	handleFormChange(event) {
     const target = event.target;
@@ -49,6 +43,7 @@ class LoginModal extends React.Component {
 
 	handleFormSubmit(event) {
 		event.preventDefault();
+		let rememberMe = this.state.remember_me;
 		var loginModalContext = this;
 		axios.post(APIPath+'login', {
 			email: this.state.email,
@@ -60,8 +55,14 @@ class LoginModal extends React.Component {
 	      sessionStorage.setItem('userName', response.data.data.userName);
 	      sessionStorage.setItem('sessionActive', true);
 	      sessionStorage.setItem('accessToken', response.data.data.accessToken);
-				sessionCookie(response.data.data.userName, true, response.data.data.accessToken, false);
-	      window.location.reload();
+				sessionCookie(response.data.data.userName, true, response.data.data.accessToken, false, rememberMe);
+				let windowLocationPathname = window.location.pathname;
+				if (windowLocationPathname.includes("verify-account")) {
+					document.location.href="/";
+				}
+	      else {
+					window.location.reload();
+				}
 	    }
 	    else {
 	      let error = response.data.errors;
@@ -81,22 +82,46 @@ class LoginModal extends React.Component {
   }
 
 	handleLogout() {
-
+    let accessToken = sessionStorage.getItem('accessToken');
 		sessionStorage.setItem('sessionActive', false);
 		sessionStorage.setItem('accessToken', '');
 		sessionStorage.setItem('userName', '');
 		sessionCookie('', false, '', true);
-		setTimeout(function() {
-			window.location.reload();
-		},1000);		
+		if (accessToken==="") {
+			setTimeout(function() {
+				window.location.reload();
+			},1000);
+		}
+		else {
+			axios.defaults.headers.common['Authorization'] = 'Bearer '+accessToken;
+	    axios.get(APIPath+'logout')
+	    .then(function (response) {
+				setTimeout(function() {
+					window.location.reload();
+				},1000);
+	    })
+	    .catch(function (error) {
+				setTimeout(function() {
+					window.location.reload();
+				},1000);
+	      console.log(error);
+	    });
+		}
 	}
 
+	componentDidUpdate() {
+		if (this.state.redirect) {
+			this.setState({
+				redirect: false
+			})
+		}
+	}
 	render() {
 		var link = "";
 		let sessionActive = sessionStorage.getItem('sessionActive');
 		if (sessionActive!=='true') {
 	    link = (
-	      <a onClick={this.handleShow}><i className="fa fa-user-circle"></i> Login/Register</a>
+	      <a onClick={this.props.loginModalOpen}><i className="fa fa-user-circle"></i> Login/Register</a>
 	    );
 		}
 		else {
@@ -123,8 +148,8 @@ class LoginModal extends React.Component {
 		}
     const modal = (
       <Modal
-        show={this.state.showModal}
-        onHide={this.handleClose}
+        show={this.props.loginModalVisile}
+        onHide={this.props.loginModalHide}
 				bsSize="small">
         <Modal.Header closeButton>
           <Modal.Title><i className="fa fa-user-circle"></i> Login</Modal.Title>
@@ -152,8 +177,8 @@ class LoginModal extends React.Component {
 			         	<button type="submit" className="btn btn-primary btn-block btn-flat">Sign In</button>
 			        </div>
 							<div className="col-xs-12">
-								<Link to="/password-restore" onClick={this.handleClose}>I forgot my password</Link><br/>
-								<Link to="/register" onClick={this.handleClose}>Register for a new account</Link>
+								<Link to="/password-restore" onClick={this.props.loginModalHide}>I forgot my password</Link><br/>
+								<Link to="/register" onClick={this.props.loginModalHide}>Register for a new account</Link>
 							</div>
 			      </div>
 					</form>
@@ -161,8 +186,14 @@ class LoginModal extends React.Component {
       </Modal>
     );
 
+		let redirectElement;
+    if (this.state.redirect===true) {
+      redirectElement = <Redirect to='/'/>
+    }
+
 		return (
-        <li>
+        <li className="admin-menu">
+					{redirectElement}
           {link}
           {modal}
         </li>

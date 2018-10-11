@@ -1,5 +1,6 @@
 import React, {Component} from 'react';
 import VizualizationMap from '../components/vizualizations-map.js';
+import VizualizationGraph from '../components/vizualizations-graph.js';
 import ReactLoading from 'react-loading';
 
 export class VizualizationsView extends Component {
@@ -16,12 +17,22 @@ export class VizualizationsView extends Component {
     if (viewType==="map") {
       this.embedMap();
     }
+    if (viewType==="graph") {
+      this.embedGraph();
+    }
   }
 
   embedMap() {
     this.setState({
       loading: false,
       content: <VizualizationMap/>
+    });
+  }
+
+  embedGraph() {
+    this.setState({
+      loading: false,
+      content: <VizualizationGraph/>
     });
   }
 

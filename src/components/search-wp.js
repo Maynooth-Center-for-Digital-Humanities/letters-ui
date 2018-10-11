@@ -6,6 +6,7 @@ import {DropdownButton, MenuItem} from 'react-bootstrap';
 import {WPCustomRestPath} from '../common/constants.js';
 import {stripHTML} from '../helpers/helpers.js';
 import Pagination from '../helpers/pagination.js';
+import {domain} from '../common/constants.js';
 
 export default class SearchWP extends Component {
   constructor(props, context) {
@@ -105,9 +106,13 @@ export default class SearchWP extends Component {
 
               description = descriptionText+"...";
             }
+            let newPermalink = '';
+            if (item.permalink!=='') {
+              newPermalink = item.permalink.replace(domain+"/", "");
+            }
             var browseItem = <li data-id={item.ID} key={i} className="img-clearfix">
-                <Link to={ 'wp-post/'+item.post_name}>{defaultThumbnail}</Link>
-                <h4><Link to={ '/wp-post/'+item.post_name}>{item.post_title}</Link></h4>
+                <Link to={ 'wp-post/'+newPermalink}>{defaultThumbnail}</Link>
+                <h4><Link to={ '/wp-post/'+newPermalink}>{item.post_title}</Link></h4>
                 <p>{description}</p>
               </li>;
             browseItems.push(browseItem);

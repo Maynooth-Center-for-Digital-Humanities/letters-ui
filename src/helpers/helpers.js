@@ -120,6 +120,82 @@ export function CompareFilterGeneral(selector, filterArray) {
   }
 }
 
+export function SelectedTopicsChecked(topicsArray) {
+  let group = document.getElementsByClassName("topics-list")[0];
+  let groupChildren = group.childNodes;
+  for (let i=0; i<groupChildren.length; i++) {
+    let groupChild = groupChildren[i];
+    let groupChildTopicNode = groupChild.childNodes[0].childNodes[1].childNodes[0];
+    let groupChildValue = groupChildTopicNode.getAttribute("data-id");
+    let currentClassName = groupChildTopicNode.className;
+    let element = groupChild.querySelectorAll(".select-topic")[0].querySelectorAll("i")[0];
+    let label = groupChild.querySelectorAll(".topic-label")[0];
+    let classes = currentClassName.split(" ");
+    if (topicsArray.indexOf(groupChildValue)>-1) {
+      if (classes.indexOf("fa-check-circle-o")===-1) {
+        ToggleClass(element, "fa-circle-o", "fa-check-circle-o");
+        ToggleClass(label, "", "active");
+      }
+    }
+    else {
+      if (classes.indexOf("fa-circle-o")===-1) {
+        ToggleClass(element, "fa-check-circle-o", "fa-circle-o");
+        ToggleClass(label, "active", "");
+      }
+    }
+
+  }
+}
+
+export function SelectedFiltersChecked(selector, filterArray) {
+  let group = document.getElementsByClassName(selector)[0];
+  let groupChildren = group.childNodes;
+  for (let i=0; i<groupChildren.length; i++) {
+    let groupChild = groupChildren[i];
+    let groupChildValue = groupChild.childNodes[2].innerText;
+    let currentClassName = groupChild.childNodes[1].childNodes[0].className;
+
+    // remove count parenthesis
+    let groupChildValueArr = groupChildValue.split(" (");
+    let countLength = groupChildValueArr.length-1;
+    let countText = " ("+groupChildValueArr[countLength];
+    groupChildValue = groupChildValue.replace(countText, "");
+    groupChildValue = groupChildValue.trim();
+
+    if (filterArray.indexOf(groupChildValue)>-1) {
+      let element = groupChild.querySelectorAll(".select-source")[0].querySelectorAll("i")[0];
+      let label = groupChild.querySelectorAll(".source-label")[0];
+
+      let classes = currentClassName.split(" ");
+      if (classes.indexOf("fa-check-circle-o")===-1) {
+        ToggleClass(element, "fa-circle-o", "fa-check-circle-o");
+        ToggleClass(label, "", "active");
+      }
+    }
+  }
+}
+
+export function AutocompleteFilters(selector, value) {
+  /*let group = document.getElementsByClassName(selector)[0];
+  let groupChildren = group.childNodes;
+  for (let i=0; i<groupChildren.length; i++) {
+    let groupChild = groupChildren[i];
+    let groupChildValue = groupChild.childNodes[2].innerText;
+    let currentClassName = groupChild.childNodes[1].childNodes[0].className;
+
+
+    if (filterArray.indexOf(groupChildValue)>-1) {
+      let element = groupChild.querySelectorAll(".select-source")[0].querySelectorAll("i")[0];
+      let label = groupChild.querySelectorAll(".source-label")[0];
+
+      let classes = currentClassName.split(" ");
+      if (classes.indexOf("fa-check-circle-o")===-1) {
+        ToggleClass(element, "fa-circle-o", "fa-check-circle-o");
+        ToggleClass(label, "", "active");
+      }
+    }
+  }*/
+}
 // replace without /index.php/
 
 export function NormalizeWPURL(href) {
@@ -129,6 +205,11 @@ export function NormalizeWPURL(href) {
     newHref = href.replace("http://letters1916.maynoothuniversity.ie/learn/", domain+"/wp-post/");
     newHref = newHref.replace(domain+"/learn/index.php/", domain+"/wp-post/");
     newHref = newHref.replace(domain+"/learn/", domain+"/wp-post/");
+
+    // update for devel and live server
+    newHref = newHref.replace("http://letters1623.mucampus.ie/", domain);
+    newHref = newHref.replace("http://xl1916apps.mucampus.ie/", domain);
+    
     if (newHref.includes("wp-content")) {
       newHref = newHref.replace("wp-post/", "");
     }
@@ -187,8 +268,8 @@ export function stripHTML(html) {
 }
 
 export function calculateDaysInMonth(year, month) {
-  let monthStart = new Date(year, month, 1);
-  let monthEnd = new Date(year, month + 1, 1);
+  let monthStart = new Date(year, parseInt(month,10), 1);
+  let monthEnd = new Date(year, parseInt(month,10) + 1, 1);
   let monthLength = (monthEnd - monthStart) / (1000 * 60 * 60 * 24);
   return monthLength;
 }
@@ -197,7 +278,7 @@ export function flattenDeep(arr) {
   return arr.reduce((acc, e) => Array.isArray(e) ? acc.concat(flattenDeep(e)) : acc.concat(e), []);
 }
 
-export function sessionCookie(userName, sessionActive, accessToken, expired) {
+export function sessionCookie(userName, sessionActive, accessToken, expired, rememberMe=false) {
   let currentDate = new Date();
   let tomorrow = new Date();
   tomorrow.setDate(currentDate.getDate() + 1);
@@ -207,15 +288,21 @@ export function sessionCookie(userName, sessionActive, accessToken, expired) {
   if (expired) {
     expires = expiredDate;
   }
-  setCookie('lettersUsername',userName,expires);
-  setCookie('lettersSessionactive',sessionActive,expires);
-  setCookie('lettersAccesstoken',accessToken,expires);
+  if (rememberMe) {
+    let nextYear = currentDate.getFullYear()+1;
+    let oneYearFromNow = new Date();
+    oneYearFromNow.setFullYear(nextYear);
+    expires = oneYearFromNow;
+  }
+  setCookie('lettersusername',userName,expires);
+  setCookie('letterssessionactive',sessionActive,expires);
+  setCookie('lettersaccesstoken',accessToken,expires);
 }
 
 export function checkSessionCookies() {
-  if (getCookie('lettersSessionactive')) {
-    let userName = getCookie('lettersUsername');
-    let accessToken = getCookie('lettersAccesstoken');
+  if (getCookie('letterssessionactive')==="true") {
+    let userName = getCookie('lettersusername');
+    let accessToken = getCookie('lettersaccesstoken');
     sessionStorage.setItem('userName', userName);
     sessionStorage.setItem('sessionActive', true);
     sessionStorage.setItem('accessToken', accessToken);
@@ -244,5 +331,15 @@ export function getCookie(cname) {
 }
 
 export function setCookie(name,value,expires){
-   document.cookie = name + "=" + value + ((expires==null) ? "" : ";expires=" + expires.toGMTString())
+   document.cookie = name + "=" + value + ((expires==null) ? "" : ";expires=" + expires.toUTCString())+";domain="+window.location.hostname+";path=/";
+}
+
+export function fixImagePath(path) {
+  if (path==="") {
+    return path;
+  }
+  else {
+    let newArchiveFileName = path.replace(".JPG", ".jpg").replace(".PNG",".png").replace(".GIF", ".gif");
+    return newArchiveFileName;
+  }
 }
