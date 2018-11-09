@@ -1116,7 +1116,7 @@ export class UserLetterView extends Component {
             <div className="form-group">
               <label>Additional Notes</label>
               <textarea className="form-control" name="notes" onChange={this.handleFormChange.bind(this, 0)} value={this.state.form.notes}></textarea>
-              <p className="letter-form-description">Please enter additional notes for the Letters 1916-1923 administrators, e.g. information about missing pages.</p>
+              <p className="letter-form-description">Please enter additional notes for the Letters 1916-1923 administrators, e.g. information about missing pages. If you are not part of the Letters 1916-1923 project and are uploading a letter(s) to the database and would allow us to get in touch with you at a later date, please add your name and email address here.</p>
             </div>
 
             <hr/>

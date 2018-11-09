@@ -136,7 +136,7 @@ export class ItemView extends Component {
           let thumbPath = archivePath+'square_thumbnails/'+page.archive_filename;
           thumbPath = fixImagePath(thumbPath);
           let thumbnail = <div className="item" key={p}>
-            <a className='img-thumbnail'
+            <div className='img-thumbnail item-thumb' 
               onClick={itemContext.showPage.bind(itemContext,p)}>
               <img
                 data-id={page.page_id}
@@ -145,7 +145,7 @@ export class ItemView extends Component {
                 className='img-responsive page-thumbnail'
                 />
                 <label className="item-count">{pageCount}</label>
-            </a>
+            </div>
 
           </div>;
           thumbnails.push(thumbnail);

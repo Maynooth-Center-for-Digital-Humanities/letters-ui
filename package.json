@@ -3,31 +3,33 @@
   "version": "0.1.0",
   "private": true,
   "dependencies": {
-    "ajv": "^6.5.2",
+    "acorn-jsx": "^5.0.0",
+    "ajv": "^6.5.5",
     "axios": "^0.18.0",
     "axios-progress-bar": "^1.1.8",
     "cheerio": "^1.0.0-rc.2",
-    "html-react-parser": "^0.4.6",
+    "html-react-parser": "^0.4.7",
     "immutable": "^3.8.2",
     "jquery": "^3.3.1",
     "moment": "^2.22.2",
-    "re-resizable": "^4.7.1",
-    "react": "^16.4.1",
+    "re-resizable": "^4.9.3",
+    "react": "^16.6.1",
     "react-beautiful-dnd": "^7.1.3",
-    "react-bootstrap": "^0.32.1",
-    "react-datepicker": "^1.5.0",
-    "react-dom": "^16.4.1",
+    "react-bootstrap": "^0.32.4",
+    "react-datepicker": "^1.8.0",
+    "react-dom": "^16.6.1",
     "react-draggable": "^3.0.5",
-    "react-dropzone": "^4.2.13",
-    "react-grid-gallery": "^0.5.1",
+    "react-dropzone": "^4.3.0",
+    "react-grid-gallery": "^0.5.3",
     "react-helmet": "^5.2.0",
     "react-image-lightbox": "^4.6.0",
     "react-loading": "^1.0.5",
     "react-owl-carousel": "^2.3.1",
+    "react-recaptcha-google": "^1.1.1",
     "react-router-dom": "^4.3.1",
-    "react-scripts": "^1.1.4",
+    "react-scripts": "^2.1.1",
     "react-scroll-up": "^1.3.3",
-    "react-select": "^1.2.1"
+    "react-select": "^1.3.0"
   },
   "scripts": {
     "start": "react-scripts start",
@@ -36,5 +38,11 @@
     "eject": "react-scripts eject"
   },
   "devDependencies": {},
-  "homepage": "http://letters1916.maynoothuniversity.ie"
+  "homepage": "http://letters1916.maynoothuniversity.ie",
+  "browserslist": [
+    ">0.2%",
+    "not dead",
+    "not ie <= 11",
+    "not op_mini all"
+  ]
 }

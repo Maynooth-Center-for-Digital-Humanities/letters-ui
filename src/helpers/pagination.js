@@ -23,8 +23,8 @@ export default class Pagination extends Component {
         prevPage = currentPage-1;
       }
       let paginationItems = [];
-      let paginationFirstItem = <li key="first"><a onClick={this.props.pagination_function.bind(this,1)}><i className="fa-step-backward fa"></i></a></li>;
-      let paginationPrevItem = <li key="prev"><a onClick={this.props.pagination_function.bind(this,prevPage)}><i className="fa-backward fa"></i></a></li>;
+      let paginationFirstItem = <li key="first"><span className='href-btn' onClick={this.props.pagination_function.bind(this,1)}><i className="fa-step-backward fa"></i></span></li>;
+      let paginationPrevItem = <li key="prev"><span className='href-btn' onClick={this.props.pagination_function.bind(this,prevPage)}><i className="fa-backward fa"></i></span></li>;
       paginationItems.push(paginationFirstItem);
       paginationItems.push(paginationPrevItem);
 
@@ -36,7 +36,7 @@ export default class Pagination extends Component {
           pageActive = "active";
         }
 
-        let paginationItem =  <li key={pageNum} className={pageActive}><a onClick={this.props.pagination_function.bind(this,pageNum)}>{pageNum}</a></li>;
+        let paginationItem =  <li key={pageNum} className={pageActive}><span className='href-btn' onClick={this.props.pagination_function.bind(this,pageNum)}>{pageNum}</span></li>;
         if (pageActive === "active") {
           paginationItem = <li key={pageNum} className={pageActive}><span>{pageNum}</span></li>;
         }
@@ -48,8 +48,8 @@ export default class Pagination extends Component {
           paginationItems.push(paginationItem);
         }
       }
-      let paginationNextItem = <li key="next"><a onClick={this.props.pagination_function.bind(this,nextPage)}><i className="fa-forward fa"></i></a></li>;
-      let paginationLastItem = <li key="last"><a onClick={this.props.pagination_function.bind(this,lastPage)}><i className="fa-step-forward fa"></i></a></li>;
+      let paginationNextItem = <li key="next"><span className='href-btn' onClick={this.props.pagination_function.bind(this,nextPage)}><i className="fa-forward fa"></i></span></li>;
+      let paginationLastItem = <li key="last"><span className='href-btn' onClick={this.props.pagination_function.bind(this,lastPage)}><i className="fa-step-forward fa"></i></span></li>;
       paginationItems.push(paginationNextItem);
       paginationItems.push(paginationLastItem);
       this.setState({

@@ -50,13 +50,21 @@ export default class TranscriptionEditor extends React.Component {
       this.setState({
         textarea_disabled: false
       });
-      this.updateTranscription(newProps.page.transcription);
+      let newTranscription = newProps.page.transcription;
+      if (newTranscription===null) {
+        newTranscription = "";
+      }
+      this.updateTranscription(newTranscription);
     }
     else {
       this.setState({
         textarea_disabled: false
       });
-      this.updateTranscription(newProps.page.transcription);
+      let newTranscription = newProps.page.transcription;
+      if (newTranscription===null) {
+        newTranscription = "";
+      }
+      this.updateTranscription(newTranscription);
     }
   }
 
@@ -95,6 +103,7 @@ export default class TranscriptionEditor extends React.Component {
             if (context.props.page.transcription!==null) {
               newTranscription = context.props.page.transcription;
             }
+            else newTranscription = "";
             context.updateTranscription(newTranscription);
 
             // add change event listener

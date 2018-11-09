@@ -135,8 +135,8 @@ export class WPContentView extends Component {
                               thumbnail:img.attribs.src,
                               thumbnailWidth: imgWidth,
                               thumbnailHeight: imgHeight,
-                              caption: <a className="btn btn-letters btn-block btn-flat" href={url} target="_blank">More...</a>,
-                              thumbnailCaption: <a className="btn btn-letters btn-block btn-flat" href={url} target="_blank">More...</a>,
+                              caption: <a className="btn btn-letters btn-block btn-flat" href={url} target="_blank"rel="noopener noreferrer">More...</a>,
+                              thumbnailCaption: <a className="btn btn-letters btn-block btn-flat" href={url} target="_blank" rel="noopener noreferrer">More...</a>,
                               isSelected: false
                             }
                             galleryItems.push(newImage);

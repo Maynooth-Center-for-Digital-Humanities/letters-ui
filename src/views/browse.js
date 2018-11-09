@@ -514,20 +514,23 @@ export class BrowseView extends Component {
         keywords.push(keyword);
       }
       let transcription = "";
-      if (element.pages[0].transcription!=="") {
-        let transcriptionText = element.pages[0].transcription.replace(/<[^>]+>/ig," ");
-        transcriptionText = transcriptionText.replace("&amp;", "&");
-        if (transcriptionText.length>400) {
-          transcriptionText = transcriptionText.substring(0,400);
-        }
+      if (element.pages[0].transcription!==null) {
+        if (element.pages[0].transcription!=="") {
+          let transcriptionText = element.pages[0].transcription.replace(/<[^>]+>/ig," ");
+          transcriptionText = transcriptionText.replace("&amp;", "&");
+          if (transcriptionText.length>400) {
+            transcriptionText = transcriptionText.substring(0,400);
+          }
 
-        transcription = transcriptionText+"...";
+          transcription = transcriptionText+"...";
+        }
       }
+
       var browseItem = <li data-id={item.id} key={i} className="img-clearfix">
           <Link to={ 'item/'+item.id}>{defaultThumbnail}</Link>
           <h4><Link to={ 'item/'+item.id}>{element.title}</Link></h4>
           <span className='browse-item-keywords'>Keywords: {keywords}</span>
-          <p>{transcription}</p>
+          <p dangerouslySetInnerHTML={{__html: transcription}}></p>
         </li>;
       browseItems.push(browseItem);
     }

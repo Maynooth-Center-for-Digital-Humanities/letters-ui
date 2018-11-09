@@ -416,9 +416,9 @@ export class UserProfileView extends Component {
           <div className="col-xs-12 col-sm-8">
             <h4>Welcome {this.state.userName}</h4>
             <p>
-              <a onClick={this.handleUpdateModalShow}>Update user information</a><br/>
-              <a onClick={this.handlePasswordModalShow}>Update password</a><br/>
-              <a onClick={this.showForgetMeConfirm}>Forget me</a><br/>
+              <span className="href-btn" onClick={this.handleUpdateModalShow}>Update user information</span><br/>
+              <span className="href-btn" onClick={this.handlePasswordModalShow}>Update password</span><br/>
+              <span className="href-btn" onClick={this.showForgetMeConfirm}>Forget me</span><br/>
             </p>
           </div>
           <div className="col-xs-12 col-sm-4">

@@ -4,6 +4,7 @@ import IRCLogo from '../assets/images/IRC_LOGO_White.png';
 import SFILogo from '../assets/images/SFI_logo_2017_greyscaled.png';
 import NewsletterSubscribe from '../helpers/subscribe-to-newsletter';
 import FooterMenu from '../components/footer-menu';
+import {Link} from 'react-router-dom';
 
 let date = new Date();
 let year = date.getFullYear();
@@ -24,7 +25,7 @@ const pageFooter = () => (
               <img src={SFILogo} alt="Science Foundation Ireland" className="img-responsive footer-logo" />
             </a>
           </div>
-          
+
           <div className="col-xs-12 col-sm-3 col-md-3 col-lg-3">
             <FooterMenu />
           </div>
@@ -32,10 +33,11 @@ const pageFooter = () => (
           <div className="col-xs-12 col-sm-5 col-md-6 col-lg-6">
 
             <ul className="footer-social-links">
-              <li><a><i className="fa fa-facebook"></i></a></li>
-              <li><a><i className="fa fa-twitter"></i></a></li>
-              <li><a><i className="fa fa-tumblr"></i></a></li>
-              <li><a><i className="fa fa-soundcloud"></i></a></li>
+              <li><a href='https://www.facebook.com/lettersof1916' target='_blank' rel="noopener noreferrer"><i className="fa fa-facebook"></i></a></li>
+              <li><a href='https://twitter.com/Letters1916' target='_blank' rel="noopener noreferrer"><i className="fa fa-twitter"></i></a></li>
+              <li><a href='http://letters1916.tumblr.com/' target='_blank' rel="noopener noreferrer"><i className="fa fa-tumblr"></i></a></li>
+              <li><a href='https://soundcloud.com/letters-1916' target='_blank' rel="noopener noreferrer"><i className="fa fa-soundcloud"></i></a></li>
+              <li><Link to='/contact-form' href='/contact-form'><i className="fa fa-envelope"></i></Link></li>
             </ul>
             <NewsletterSubscribe />
           </div>

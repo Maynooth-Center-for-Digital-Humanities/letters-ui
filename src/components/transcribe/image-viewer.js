@@ -189,13 +189,13 @@ export default class TranscriptionImageViewer extends React.Component {
     >
       <div className="transcription-img-controllers">
         <ul>
-          <li key={0}><a onClick={this.updateViewer.bind(this,"zoomin")}><i className="fa fa-plus"></i></a></li>
-          <li key={1}><a onClick={this.updateViewer.bind(this,"zoomout")}><i className="fa fa-minus"></i></a></li>
-          <li key={2}><a onClick={this.updateViewer.bind(this,"scrollup")}><i className="fa fa-caret-up"></i></a></li>
-          <li key={3}><a onClick={this.updateViewer.bind(this,"scrolldown")}><i className="fa fa-caret-down"></i></a></li>
-          <li key={4}><a onClick={this.updateViewer.bind(this,"scrollleft")}><i className="fa fa-caret-left"></i></a></li>
-          <li key={5}><a onClick={this.updateViewer.bind(this,"scrollright")}><i className="fa fa-caret-right"></i></a></li>
-          <li key={6}><a onClick={this.updateViewer.bind(this,"expand")}><i className={"fa "+this.state.fullScreenBtnClass}></i></a></li>
+          <li key={0}><span class='href-btn' onClick={this.updateViewer.bind(this,"zoomin")}><i className="fa fa-plus"></i></span></li>
+          <li key={1}><span class='href-btn' onClick={this.updateViewer.bind(this,"zoomout")}><i className="fa fa-minus"></i></span></li>
+          <li key={2}><span class='href-btn' onClick={this.updateViewer.bind(this,"scrollup")}><i className="fa fa-caret-up"></i></span></li>
+          <li key={3}><span class='href-btn' onClick={this.updateViewer.bind(this,"scrolldown")}><i className="fa fa-caret-down"></i></span></li>
+          <li key={4}><span class='href-btn' onClick={this.updateViewer.bind(this,"scrollleft")}><i className="fa fa-caret-left"></i></span></li>
+          <li key={5}><span class='href-btn' onClick={this.updateViewer.bind(this,"scrollright")}><i className="fa fa-caret-right"></i></span></li>
+          <li key={6}><span class='href-btn' onClick={this.updateViewer.bind(this,"expand")}><i className={"fa "+this.state.fullScreenBtnClass}></i></span></li>
         </ul>
       </div>
       <div className="transcription-img-container-inner">

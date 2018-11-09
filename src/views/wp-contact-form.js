@@ -3,6 +3,8 @@ import BreadCrumbs from '../components/breadcrumbs';
 import axios from 'axios';
 import ReactLoading from 'react-loading';
 import {WPCustomRestPath} from '../common/constants.js';
+import {loadReCaptcha} from 'react-recaptcha-google'
+import {ReCaptcha} from 'react-recaptcha-google'
 
 export class ContactFormView extends Component {
   constructor() {
@@ -16,10 +18,15 @@ export class ContactFormView extends Component {
 			form_error_class: 'error-container',
       response_text: '',
       form_status: true,
-      submitBtn: <button type="submit" className="btn btn-primary">Send <i className="fa fa-send-o"></i></button>
+      disabled: 'disabledg',
+      response: [],
+      buttonTxt: <span>Send <i className="fa fa-send-o"></i></span>,
+      recaptchaLoaded: false
     }
     this.handleFormSubmit = this.handleFormSubmit.bind(this);
     this.handleFormChange = this.handleFormChange.bind(this);
+    this.onLoadRecaptcha = this.onLoadRecaptcha.bind(this);
+    this.verifyCallback = this.verifyCallback.bind(this);
   }
 
   handleFormChange(event) {
@@ -42,9 +49,10 @@ export class ContactFormView extends Component {
       "email": this.state.email,
       "subject": this.state.subject,
       "message": this.state.message,
+      "recaptchaResponse": this.state.recaptchaResponse
     }
     this.setState({
-      submitBtn: <button type="submit" className="btn btn-primary">Sending... <i className="fa fa-send-o"></i> <i className="fa fa-spin fa-circle-o-notch"></i></button>
+      buttonTxt: <span>Sending... <i className="fa fa-send-o"></i> <i className="fa fa-spin fa-circle-o-notch"></i></span>
     });
 		let context = this;
 		axios.post(WPCustomRestPath+"contact-form", arrayPost)
@@ -54,19 +62,19 @@ export class ContactFormView extends Component {
         context.setState({
           form_status: false,
           response_text: <div style={{padding: "50px 15px"}}><p>Thank you for contacting us. A member fo the staff will respond shortly.</p></div>,
-          submitBtn: <button type="submit" className="btn btn-primary">Send success <i className="fa fa-check"></i></button>
+          buttonTxt: <span>Send success <i className="fa fa-check"></i></span>
         });
       }
       else {
         context.setState({
           form_error: <p>There was an error. Your contact form was not sent. Please try again or send us an email directly at <a href="mailto:letters1916.23@gmail.com">letters1916.23@gmail.com</a></p>,
           form_error_class: 'error-container-visible',
-          submitBtn: <button type="submit" className="btn btn-primary">Send error <i className="fa fa-times"></i></button>
+          buttonTxt: <span>Send error <i className="fa fa-times"></i></span>
         });
       }
       setTimeout(function() {
         context.setState({
-            submitBtn: <button type="submit" className="btn btn-primary">Send <i className="fa fa-send-o"></i></button>
+          buttonTxt: <span>Send <i className="fa fa-send-o"></i></span>
         })
       }, 2000);
 	  })
@@ -116,10 +124,42 @@ export class ContactFormView extends Component {
     return error;
   }
 
+  onLoadRecaptcha() {
+    if (this.recaptcha) {
+        this.recaptcha.reset();
+    }
+  }
+
+
+  verifyCallback(response) {
+    this.setState({
+      recaptchaResponse: response,
+      disabled: ''
+    })
+  }
+
+  componentDidMount() {
+    loadReCaptcha();
+    if (this.recaptcha) {
+        this.recaptcha.reset();
+    }
+  }
+
   render() {
     let contentHTML,contentTitle;
     let breadCrumbsArr = [];
     let pageContent;
+    let reCaptcha = <div>
+      <ReCaptcha
+            ref={(el) => {this.recaptcha = el;}}
+            render="explicit"
+            size="normal"
+            sitekey="6Lfcv3kUAAAAAM--VtGXkN4kgGwyCdEojRyUfh5M"
+            onloadCallback={this.onLoadRecaptcha}
+            verifyCallback={this.verifyCallback}
+        />
+        <br/>
+      </div>
     if (this.state.loading) {
       pageContent = <div className="loader-container">
           <ReactLoading type='spinningBubbles' color='#738759' height={60} width={60} delay={0} />
@@ -148,7 +188,10 @@ export class ContactFormView extends Component {
                   <label>Your Message</label>
     							<textarea name="message" className="form-control" rows="10" placeholder="Please enter your message" onChange={this.handleFormChange} value={this.state.message}></textarea>
     						</div>
-                {this.state.submitBtn}
+
+                {reCaptcha}
+
+                <button disabled={this.state.disabled} type="submit" className="btn btn-primary">{this.state.buttonTxt}</button>
                 <br/>
                 <div className="text-right">
                   <small><i>Fields marked with an asterisk (*) are mandatory</i></small>

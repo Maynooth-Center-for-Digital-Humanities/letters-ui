@@ -90,7 +90,7 @@ export default class TopicsBlock extends React.Component {
       hasChildrenClass = " has-children";
     }
     let topic = <li key={i} data-key={i}>
-      <a onClick={this.props.returnfunction.bind(this)}>
+      <span className="href-btn" onClick={this.props.returnfunction.bind(this)}>
         <span className="hidden">{item.name}</span>
         <span className="select-topic">
           <i className="fa fa-circle-o" data-id={item.id}></i>
@@ -99,7 +99,7 @@ export default class TopicsBlock extends React.Component {
         className={"topic-label"+hasChildrenClass}
         data-toggle="closed"
           >{item.name} (<span className="count" data-default={item.count}>{item.count}</span>)</span>
-      </a>
+      </span>
       {toggleChildren}
       {childrenHTML}
     </li>;

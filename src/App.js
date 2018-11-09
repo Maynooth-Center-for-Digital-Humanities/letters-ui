@@ -161,7 +161,12 @@ class App extends Component {
                  loginModalHide={this.loginModalHide}
                  loginModalOpen={this.loginModalOpen}
                  {...props} />} />
-              <Route path="/upload-xml" component={UploadXML}/>
+              <Route path="/upload-xml" component={props=><UploadXML
+                  isAdmin={this.state.isAdmin}
+                  loginModalVisile={this.state.loginModalVisile}
+                  loginModalHide={this.loginModalHide}
+                  loginModalOpen={this.loginModalOpen}
+                  {...props} />}/>
               <Route path="/user-letter/:letterId" component={props=><UserLetterView
                   isAdmin={this.state.isAdmin}
                   loginModalVisile={this.state.loginModalVisile}

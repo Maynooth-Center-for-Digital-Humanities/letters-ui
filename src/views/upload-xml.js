@@ -3,6 +3,7 @@ import BreadCrumbs from '../components/breadcrumbs';
 import Dropzone from 'react-dropzone';
 import {APIPath} from '../common/constants.js';
 import axios from 'axios';
+import ProtectedPage from '../components/protected-page';
 
 export class UploadXML extends Component {
   constructor() {
@@ -88,12 +89,13 @@ export class UploadXML extends Component {
       }
     })
     .then(function (response) {
-        if (response.statusText==="OK") {
+        let responseData = response.data;
+        if (responseData.status===200) {
           context.setState({
             files: [],
             dissaproved_files: [],
             post_status:false,
-            progress_bar_text: response.data
+            progress_bar_text: responseData.message
           });
           setTimeout(function() {
             context.setState({
@@ -145,28 +147,34 @@ export class UploadXML extends Component {
           <div className="upload-status-bar-text">{stateText}</div>
         </div>;
     }
+    let contentHTML = <div>
+      <div className="dropzone">
+        <Dropzone onDrop={this.onDrop.bind(this)}>
+          <p>To upload one or more XML files drag and drop them into the box<br/> - or - <br/>click in the box to browse your computer for the files.</p>
+
+        </Dropzone>
+      </div>
+      {progressBar}
+      {filesList}
+      {dissaprovedFilesList}
+      <br/>
+      <button className="btn btn-success" onClick={this.uploadFiles}><i className="fa fa-upload"></i> Upload</button>
+    </div>;
+    let sessionActive = sessionStorage.getItem('sessionActive');
+		if (sessionActive!=='true') {
+      contentHTML = <ProtectedPage
+        loginModalOpen={this.props.loginModalOpen}
+        />
+    }
     return (
       <div>
         <div className="container">
           <div className="row">
             <div className="col-xs-12">
               <BreadCrumbs items={breadCrumbsArr}></BreadCrumbs>
-
+              <h1><span>Upload new XML files</span></h1>
               <div className="item-container">
-                <h2>Upload new XML files</h2>
-                <div>
-                  <div className="dropzone">
-                    <Dropzone onDrop={this.onDrop.bind(this)}>
-                      <p>To upload one or more XML files drag and drop them into the box<br/> - or - <br/>click in the box to browse your computer for the files.</p>
-
-                    </Dropzone>
-                  </div>
-                  {progressBar}
-                  {filesList}
-                  {dissaprovedFilesList}
-                  <br/>
-                  <button className="btn btn-success" onClick={this.uploadFiles}><i className="fa fa-upload"></i> Upload</button>
-                </div>
+                {contentHTML}
               </div>
             </div>
           </div>

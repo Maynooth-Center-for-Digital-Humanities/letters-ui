@@ -95,7 +95,7 @@ a:link, a:visited {
   display: inline-block;
   margin: 0;
 }
-.top-bar ul > li > a {
+.top-bar ul > li > a, .top-bar ul > li > span {
   color: #fff;
   line-height: 30px;
   height: 30px;
@@ -774,7 +774,7 @@ a {
 .pagination {
   margin: 0;
 }
-.pagination>li>a,.pagination>li> a:visited {
+.pagination>li>a,.pagination>li> a:visited,.pagination>li>span {
   color: #564e3c;
 }
 .pagination>li.active>a, .pagination>li.active>span {
@@ -1584,9 +1584,9 @@ add {
 }
 .react-datepicker__navigation {
   border-top-width: 0.8rem !important;
-  border-right-width: 0.8rem !important;
+  border-right-width: 0.7rem !important;
   border-bottom-width: 0.8rem !important;
-  border-left-width: 0.8rem !important;
+  border-left-width: 0.7rem !important;
 }
 .react-datepicker__navigation--previous {
   right: 26px !important;
@@ -1855,4 +1855,10 @@ figcaption a {
 }
 .home-block p {
   text-align: justify
+}
+.href-btn {
+  cursor: pointer;
+}
+.item-thumb {
+  cursor: pointer;
 }

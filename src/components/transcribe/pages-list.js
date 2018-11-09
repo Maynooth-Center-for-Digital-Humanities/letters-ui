@@ -61,7 +61,7 @@ export default class TranscriptionPagesList extends React.Component {
         }
         let thumbPath = fixImagePath(archivePath+'square_thumbnails/'+page.archive_filename);
         let thumbnail =<div className={"item"+selectedClass} key={i}>
-          <a className='img-thumbnail'
+          <span className="href-btn img-thumbnail"
             onClick={this.props.function.bind(this,i)}
             >
             <div className="transcription-page-select-status">{pageStatus}</div>
@@ -71,7 +71,7 @@ export default class TranscriptionPagesList extends React.Component {
               alt=''
               className='img-responsive page-thumbnail' />
               <label className="item-count">{pageCount}</label>
-          </a>
+          </span>
         </div>;
         newThumbnails.push(thumbnail);
       }

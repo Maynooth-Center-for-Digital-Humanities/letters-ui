@@ -121,7 +121,7 @@ loginModalOpen={this.loginModalOpen}
 		let sessionActive = sessionStorage.getItem('sessionActive');
 		if (sessionActive!=='true') {
 	    link = (
-	      <a onClick={this.props.loginModalOpen}><i className="fa fa-user-circle"></i> Login/Register</a>
+	      <span className="href-btn" onClick={this.props.loginModalOpen}><i className="fa fa-user-circle"></i> Login/Register</span>
 	    );
 		}
 		else {
