@@ -13,7 +13,7 @@ import GendersBlock from '../components/transcriptions-genders-block.js';
 import LanguagesBlock from '../components/transcriptions-languages-block.js';
 import DatecreatedBlock from '../components/transcriptions-date_created-block.js';
 import Pagination from '../helpers/pagination.js';
-import {PreloaderCards,ToggleClass,ReplaceClass,Emptyitemscard,CompareFilterTopics,CompareFilterGeneral,SelectedTopicsChecked,SelectedFiltersChecked,fixImagePath} from '../helpers/helpers.js';
+import {PreloaderCards,ToggleClass,ReplaceClass,Emptyitemscard,CompareFilterTopics,CompareFilterGeneral,SelectedTopicsChecked,SelectedFiltersChecked,fixImagePath,replaceAll} from '../helpers/helpers.js';
 import {loadProgressBar} from 'axios-progress-bar';
 import ProtectedPage from '../components/protected-page';
 
@@ -521,8 +521,8 @@ export class TranscriptionsDeskView extends Component {
         element.pages[0].transcription!==null
       ) {
           let transcriptionText = element.pages[0].transcription.replace(/<[^>]+>/ig," ");
-          transcriptionText = transcriptionText.replace("&amp;", "&");
-          transcriptionText = transcriptionText.replace("&#39;", "'");
+          transcriptionText = replaceAll(transcriptionText, "&amp;", "&");
+          transcriptionText = replaceAll(transcriptionText, "&#39;", "'");
           if (transcriptionText.length>300) {
             transcriptionText = transcriptionText.substring(0,300);
           }

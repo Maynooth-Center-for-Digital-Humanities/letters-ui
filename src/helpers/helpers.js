@@ -209,7 +209,7 @@ export function NormalizeWPURL(href) {
     // update for devel and live server
     newHref = newHref.replace("http://letters1623.mucampus.ie/", domain);
     newHref = newHref.replace("http://xl1916apps.mucampus.ie/", domain);
-    
+
     if (newHref.includes("wp-content")) {
       newHref = newHref.replace("wp-post/", "");
     }
@@ -342,4 +342,12 @@ export function fixImagePath(path) {
     let newArchiveFileName = path.replace(".JPG", ".jpg").replace(".PNG",".png").replace(".GIF", ".gif");
     return newArchiveFileName;
   }
+}
+
+export function replaceAll(str, find, replace) {
+  return str.replace(new RegExp(escapeRegExp(find), 'g'), replace);
+}
+
+export function escapeRegExp(str) {
+    return str.replace(/([.*+?^=!:${}()|[\]/\\])/g, "\\$1");
 }

@@ -1304,7 +1304,7 @@ add {
 .transcription-img-controllers ul li {
   padding: 5px;
 }
-.transcription-img-controllers ul li a {
+.transcription-img-controllers ul li span {
   color: #666;
   width: 20px;
   height: 20px;
@@ -1315,6 +1315,12 @@ add {
   border: 1px solid #ddd;
   background-color: #fff;
   padding-left: 1px;
+}
+.transcription-img-controllers ul li span:hover {
+  background-color: #f0f0f0;
+}
+.transcription-img-controllers ul li span:active {
+  background-color: #e0e0e0;
 }
 .transcription-editor-container {
   margin: 15px 0;

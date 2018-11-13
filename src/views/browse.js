@@ -13,7 +13,7 @@ import GendersBlock from '../components/genders-block.js';
 import LanguagesBlock from '../components/languages-block.js';
 import DatecreatedBlock from '../components/date_created-block.js';
 import Pagination from '../helpers/pagination.js';
-import {PreloaderCards,ToggleClass,ReplaceClass,Emptyitemscard,CompareFilterTopics,CompareFilterGeneral,SelectedTopicsChecked,SelectedFiltersChecked,fixImagePath} from '../helpers/helpers.js';
+import {PreloaderCards,ToggleClass,ReplaceClass,Emptyitemscard,CompareFilterTopics,CompareFilterGeneral,SelectedTopicsChecked,SelectedFiltersChecked,fixImagePath,replaceAll} from '../helpers/helpers.js';
 import {loadProgressBar} from 'axios-progress-bar';
 
 export class BrowseView extends Component {
@@ -517,7 +517,8 @@ export class BrowseView extends Component {
       if (element.pages[0].transcription!==null) {
         if (element.pages[0].transcription!=="") {
           let transcriptionText = element.pages[0].transcription.replace(/<[^>]+>/ig," ");
-          transcriptionText = transcriptionText.replace("&amp;", "&");
+          transcriptionText = replaceAll(transcriptionText, "&amp;", "&");
+          transcriptionText = replaceAll(transcriptionText, "&#39;", "'");
           if (transcriptionText.length>400) {
             transcriptionText = transcriptionText.substring(0,400);
           }
