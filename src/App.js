@@ -36,7 +36,6 @@ import {WPCategoryView} from './views/wp-category.js';
 import {WPPagesView} from './views/wp-pages.js';
 import {BlankView} from './views/blank.js';
 import {VizualizationsView} from './views/vizualizations.js';
-import {ContactFormView} from './views/wp-contact-form.js';
 import {TranscriptionLetterView} from './views/transcription-letter.js';
 import {UserProfileView} from './views/user-profile.js';
 import {UserLetterView} from './views/user-letter.js';
@@ -136,7 +135,6 @@ class App extends Component {
               <Route exact path="/" component={HomeView}/>
               <Route path="/blank" component={BlankView}/>
               <Route path="/browse" component={BrowseView}/>
-              <Route path="/contact-form" component={ContactFormView}/>
               <Route path="/content/:contentName" component={ContentView}/>
               <Route path="/fullsearch/:term" component={SearchView}/>
               <Route path="/fullsearch" component={SearchView}/>

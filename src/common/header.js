@@ -17,7 +17,7 @@ export default class pageHeader extends Component {
                 <li><a href='https://twitter.com/Letters1916' target='_blank' rel="noopener noreferrer"><i className="fa fa-twitter"></i></a></li>
                 <li><a href='http://letters1916.tumblr.com/' target='_blank' rel="noopener noreferrer"><i className="fa fa-tumblr"></i></a></li>
                 <li><a href='https://soundcloud.com/letters-1916' target='_blank' rel="noopener noreferrer"><i className="fa fa-soundcloud"></i></a></li>
-                <li><Link to='/contact-form' href='/contact-form'><i className="fa fa-envelope"></i></Link></li>
+                <li><Link to='/wp-post/contact-us-2' href='/wp-post/contact-us-2'><i className="fa fa-envelope"></i></Link></li>
               </ul>
               <ul className="pull-right">
                 <LoginModal

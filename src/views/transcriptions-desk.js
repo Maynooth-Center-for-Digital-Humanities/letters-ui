@@ -387,7 +387,7 @@ export class TranscriptionsDeskView extends Component {
 
   updateFilters() {
     let context = this;
-    let path = APIPath+"indexfilteredfilters";
+    let path = APIPath+"transcriptionsdeskfilteredfilters";
     axios.get(path, {
       params: {
         sort: this.state.sort,
